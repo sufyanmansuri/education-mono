@@ -155,4 +155,85 @@ const updateUser = (req, res, next) => {
   return next();
 };
 
-module.exports = { createUser, email, password, login, updateUser, register };
+/**
+ * Validate profile update details
+ */
+const updateProfile = (req, res, next) => {
+  const updateProfileSchema = Joi.object({
+    firstName: Joi.string().min(2).max(20),
+    lastName: Joi.string().min(2).max(20),
+    title: Joi.string().valid(...titles),
+    email: Joi.string().email(),
+  })
+    .min(1)
+    .messages({
+      "object.min": "At least one field is required.",
+    });
+
+  const { error } = updateProfileSchema.validate(req.body);
+
+  if (error) {
+    return next({ status: 400, message: error.message, error: error.details });
+  }
+
+  return next();
+};
+
+/**
+ * Validates institute user create details
+ */
+const createInstituteUser = (req, res, next) => {
+  const createInstituteUserSchema = Joi.object({
+    firstName: Joi.string().required().min(2).max(20),
+    lastName: Joi.string().required().min(2).max(20),
+    title: Joi.string()
+      .valid(...titles)
+      .required(),
+    email: Joi.string().email().required(),
+    role: Joi.string().valid("institute-admin", "teacher").required(),
+  });
+
+  const { error } = createInstituteUserSchema.validate(req.body);
+
+  if (error)
+    return next({ status: 400, message: error.message, error: error.details });
+
+  return next();
+};
+
+/**
+ * Validates institute user update details
+ */
+const updateInstituteUser = (req, res, next) => {
+  const updateInstituteUserSchema = Joi.object({
+    firstName: Joi.string().min(2).max(20),
+    lastName: Joi.string().min(2).max(20),
+    title: Joi.string().valid(...titles),
+    email: Joi.string().email(),
+    role: Joi.string().valid("institute-admin", "teacher"),
+  })
+    .min(1)
+    .messages({
+      "object.min": "At least one field is required.",
+    });
+
+  const { error } = updateInstituteUserSchema.validate(req.body);
+
+  if (error) {
+    return next({ status: 400, message: error.message, error: error.details });
+  }
+
+  return next();
+};
+
+module.exports = {
+  createUser,
+  email,
+  password,
+  login,
+  updateUser,
+  register,
+  updateProfile,
+  createInstituteUser,
+  updateInstituteUser,
+};

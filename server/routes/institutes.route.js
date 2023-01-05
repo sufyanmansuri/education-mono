@@ -1,65 +1,56 @@
 const { Router } = require("express");
-const authenticate = require("../middleware/authenticate");
-const authorize = require("../middleware/authorize");
+const instituteClassesRouter = require("./instituteClasses.route");
+const authentication = require("../middleware/authentication");
+const { authorization } = require("../middleware/authorization");
 const instituteController = require("../controllers/institute.controller");
 const instituteValidations = require("../validations/institute.validation");
-const classesRouter = require("./classes.route");
+const instituteUsersRouter = require("./instituteUsers.route");
 
 // Path: /institutes
 const institutesRouter = Router();
+institutesRouter.use((req, res, next) => {
+  res.locals.resource = "institute";
+  return next();
+});
+
+// Users routes
+institutesRouter.use("/:id/users", instituteUsersRouter);
 
 // Get a list of institutes
 institutesRouter.get("/list", instituteController.getInstituteList);
 
-// Classes routes
-institutesRouter.use("/:id/classes", classesRouter);
-
 // Get institute by id
 institutesRouter.get("/:id", instituteController.getInstituteById);
 
-/*  ---------------
-Inst. Admin Routes
----------------  */
+institutesRouter.use(authentication);
 
-// Authentication
-institutesRouter.use(authenticate);
+// Classes routes
+institutesRouter.use("/:id/classes", instituteClassesRouter);
+
+// Creates institute
+institutesRouter.post(
+  "/",
+  authorization,
+  instituteValidations.createInstitute,
+  instituteController.createInstitute
+);
+
+// Get Institutes
+institutesRouter.get("/", authorization, instituteController.getInstitutes);
 
 // Update institute by id
 institutesRouter.put(
   "/:id",
-  (req, res, next) => {
-    authorize(["super-admin", "institute-admin"], req, res, next);
-  },
+  authorization,
   instituteValidations.updateInstitute,
   instituteController.updateInstituteById,
   (req, res) => res.send()
 );
 
-/*  ---------------
-      Admin Routes
-    ---------------  */
-
-// Authorization
-institutesRouter.use((req, res, next) => {
-  authorize(["super-admin"], req, res, next);
-});
-
-// Creates institute
-institutesRouter.post(
-  "/",
-  instituteValidations.createInstitute,
-  instituteController.createInstitute,
-  (req, res) => {
-    res.send(res.locals.institute);
-  }
-);
-
-// Get Institutes
-institutesRouter.get("/", instituteController.getInstitutes);
-
 // Delete Institute by id
 institutesRouter.delete(
   "/:id",
+  authorization,
   instituteController.deleteInstituteById,
   (req, res) => res.send()
 );

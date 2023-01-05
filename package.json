@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "client": "cd client && npm run dev -- --host",
-    "server": "cd server && npm run dev"
+    "watch-client": "cd client && npm run dev -- --host",
+    "watch-server": "cd server && npm run dev",
+    "dev": "concurrently -c auto npm:watch-*"
   },
   "author": "",
   "license": "ISC",
@@ -14,5 +15,8 @@
     "client",
     "server"
   ],
-  "private": true
+  "private": true,
+  "dependencies": {
+    "concurrently": "^7.6.0"
+  }
 }

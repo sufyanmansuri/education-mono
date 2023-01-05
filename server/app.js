@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 const usersRouter = require("./routes/users.route");
 const institutesRouter = require("./routes/institutes.route");
+const rootRouter = require("./routes/root.route");
 
 const app = express();
 const { PORT, MONGO_URI } = process.env;
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 // Routes
+app.use("/", rootRouter);
 app.use("/users", usersRouter);
 app.use("/institutes", institutesRouter);
 

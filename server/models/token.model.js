@@ -1,8 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 const tokenValidity = 2 * 24 * 60 * 60 * 1000; // Two days
-
-const getNewTokenExpiry = () => new Date(new Date().getTime() + tokenValidity);
+const getTokenExpiry = () => new Date(new Date().getTime() + tokenValidity);
 
 const tokenSchema = new Schema(
   {
@@ -11,7 +10,7 @@ const tokenSchema = new Schema(
     expiresAt: {
       type: Date,
       required: true,
-      default: getNewTokenExpiry(),
+      default: getTokenExpiry(),
     },
   },
   { timestamps: true }
@@ -19,4 +18,4 @@ const tokenSchema = new Schema(
 
 const Token = model("Token", tokenSchema);
 
-module.exports = { Token, getNewTokenExpiry };
+module.exports = { Token, getTokenExpiry };

@@ -1,5 +1,5 @@
-const { Token, getNewTokenExpiry } = require("../models/token.model");
-const generateUniqueString = require("../utils/generateUniqueString");
+const { randomUUID } = require("node:crypto");
+const { Token, getTokenExpiry } = require("../models/token.model");
 const sendMail = require("../utils/sendMail");
 
 /**
@@ -9,7 +9,7 @@ const generateToken = async (req, res, next) => {
   try {
     const { user } = res.locals;
 
-    const token = await generateUniqueString(Token, "token", 36);
+    const token = randomUUID();
     const verification = new Token({
       token,
       user: user._id,
@@ -19,7 +19,7 @@ const generateToken = async (req, res, next) => {
     // Send email
     sendMail(user.email, token);
 
-    return next();
+    return res.send();
   } catch (error) {
     return next({ error });
   }
@@ -71,8 +71,8 @@ const regenerateToken = async (req, res, next) => {
     }
 
     // Generate new token
-    record.token = await generateUniqueString(Token, "token", 36);
-    record.expiresAt = getNewTokenExpiry();
+    record.token = randomUUID();
+    record.expiresAt = getTokenExpiry();
 
     await record.save();
     record = await record.populate("user", "email");

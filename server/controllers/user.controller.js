@@ -1,10 +1,10 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongoose").Types;
-const { User } = require("../models/user.model");
+const { randomUUID } = require("node:crypto");
+const { User, roles, titles } = require("../models/user.model");
 const { Token } = require("../models/token.model");
 const sendMail = require("../utils/sendMail");
-const generateUniqueString = require("../utils/generateUniqueString");
 const { JTI } = require("../models/jti.model");
 
 /**
@@ -21,7 +21,7 @@ const generatePasswordResetToken = async (req, res, next) => {
       return next({ status: 401, error: { message: "User does not exist." } });
     }
 
-    const token = await generateUniqueString(Token, "token", 36);
+    const token = randomUUID();
 
     await Token.findOneAndUpdate(
       { user: user._id },
@@ -85,7 +85,7 @@ const createPassword = async (req, res, next) => {
 
     // Check new password is not same as old if user is not new
     const oldPassword = (await User.findById(user, "password")).password;
-    if (bcrypt.compareSync(password, oldPassword)) {
+    if (oldPassword && bcrypt.compareSync(password, oldPassword)) {
       return next({
         status: 400,
         error: { message: "New password can't be same as old password." },
@@ -162,27 +162,37 @@ const login = async (req, res, next) => {
 /**
  * Generates access token and stores it in res.locals
  */
-const generateAccessToken = async (req, res, next) => {
+const getAccessToken = async (req, res, next) => {
   const { user } = res.locals;
   const { JWT_SECRET_KEY } = process.env;
   const tokenValidity = "3d"; // 3days
 
   try {
     // Create jti claim
-    const jti = new JTI({ user: user._id });
+    const jti = new JTI({ user: user._id, token: randomUUID() });
     await jti.save();
 
     const token = jwt.sign(
-      { sub: user.email, role: user.role },
+      { role: user.role, scope: user.institute },
       JWT_SECRET_KEY,
       {
         expiresIn: tokenValidity,
-        jwtid: jti._id.toString(),
+        jwtid: jti.token,
+        subject: user._id.toString(),
       }
     );
 
-    res.locals.token = token;
-    return next();
+    return res.send({
+      token,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        title: user.title,
+        institute: user.institute,
+      },
+    });
   } catch (error) {
     return next({ error });
   }
@@ -192,15 +202,10 @@ const generateAccessToken = async (req, res, next) => {
  * Approves user account
  */
 const approveUser = async (req, res, next) => {
-  const { email } = req.body;
-
-  // Check if email is provided
-  if (!email) {
-    return next({ status: 400, error: { message: "Email is required" } });
-  }
+  const { userId } = req.params;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findById(userId);
 
     // Check if user exists
     if (!user) {
@@ -218,7 +223,7 @@ const approveUser = async (req, res, next) => {
     user.approved = true;
     await user.save();
 
-    return next();
+    return res.send();
   } catch (error) {
     return next({ error });
   }
@@ -228,23 +233,17 @@ const approveUser = async (req, res, next) => {
  * Updates user by id
  */
 const updateUserById = async (req, res, next) => {
-  const { id } = req.params;
+  const { userId } = req.params;
 
   try {
-    const user = await User.findById(id);
+    const user = await User.findByIdAndUpdate(userId, req.body);
 
     // Check if user exists
     if (!user) {
       return next({ status: 404, error: { message: "User does not exist." } });
     }
 
-    Object.keys(req.body).forEach((field) => {
-      user[field] = req.body[field];
-    });
-
-    await user.save();
-
-    return next();
+    return res.send();
   } catch (error) {
     return next({ error });
   }
@@ -359,13 +358,13 @@ const register = async (req, res, next) => {
  * Deletes a user by id
  */
 const deleteUserById = async (req, res, next) => {
-  const { id } = req.params;
+  const { userId } = req.params;
 
   try {
-    await User.findByIdAndDelete(id);
+    await User.findByIdAndDelete(userId);
 
     // Delete jti claims
-    await JTI.deleteMany({ user: id });
+    await JTI.deleteMany({ user: userId });
 
     return res.send();
   } catch (error) {
@@ -380,9 +379,9 @@ const logout = async (req, res, next) => {
   const { user } = res.locals;
 
   try {
-    await JTI.deleteMany({ user: user._id });
+    await JTI.findOneAndDelete({ token: user.jti });
 
-    return next();
+    return res.send();
   } catch (error) {
     return next({ error });
   }
@@ -393,7 +392,7 @@ module.exports = {
   register,
   createPassword,
   generatePasswordResetToken,
-  generateAccessToken,
+  getAccessToken,
   approveUser,
   login,
   logout,

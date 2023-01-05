@@ -2,20 +2,28 @@ const { Router } = require("express");
 const userController = require("../controllers/user.controller");
 const userValidations = require("../validations/user.validations");
 const tokenController = require("../controllers/token.controller");
-const authenticate = require("../middleware/authenticate");
-const authorize = require("../middleware/authorize");
+const authentication = require("../middleware/authentication");
+const { authorization } = require("../middleware/authorization");
 
 // Path: /user
 const usersRouter = Router();
+usersRouter.use((req, res, next) => {
+  res.locals.resource = "user";
+  return next();
+});
 
-// Registration
+// Create new user
 usersRouter.post(
-  "/register",
-  userValidations.register,
-  userController.register,
-  tokenController.generateToken,
-  (req, res) => res.send()
+  "/",
+  authentication,
+  authorization,
+  userValidations.createUser,
+  userController.createUser,
+  tokenController.generateToken
 );
+
+// Get users
+usersRouter.get("/", authentication, authorization, userController.getUsers);
 
 // Verify token
 usersRouter.get("/token/check", tokenController.verifyToken, (req, res) =>
@@ -38,25 +46,38 @@ usersRouter.put(
   (req, res) => res.send()
 );
 
+// Registration
+usersRouter.post(
+  "/register",
+  userValidations.register,
+  userController.register,
+  tokenController.generateToken,
+  (req, res) => res.send()
+);
+
+// Approve account
+usersRouter.put(
+  "/approve/:userId",
+  authentication,
+  authorization,
+  userController.approveUser
+);
+
 // Login
 usersRouter.post(
   "/login",
   userValidations.login,
   userController.login,
-  userController.generateAccessToken,
-  (req, res) => {
-    const { user, token } = res.locals;
-    return res.send({
-      token,
-      user: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-        title: user.title,
-      },
-    });
-  }
+  userController.getAccessToken
+);
+
+// Update existing user
+usersRouter.put(
+  "/update/:userId",
+  authentication,
+  authorization,
+  userValidations.updateUser,
+  userController.updateUserById
 );
 
 // Reset password
@@ -67,61 +88,27 @@ usersRouter.post(
   (req, res) => res.send()
 );
 
-// === Protected Routes ===
-usersRouter.use(authenticate);
-
 // Update profile
 usersRouter.put(
   "/profile",
+  authentication,
+  userValidations.updateProfile,
   (req, res, next) => {
-    const { user } = res.locals;
-    req.params.id = user._id;
-    return next();
+    req.params.userId = res.locals.user.sub;
+    next();
   },
-  userValidations.updateUser,
-  userController.updateUserById,
-  (req, res) => res.send()
+  userController.updateUserById
 );
 
-usersRouter.delete("/logout", userController.logout, (req, res) => res.send());
-
-/*  ---------------
-      Admin Routes
-    ---------------  */
-usersRouter.use((req, res, next) => {
-  authorize(["super-admin"], req, res, next);
-});
-
-// Create new user
-usersRouter.post(
-  "/",
-  userValidations.createUser,
-  userController.createUser,
-  tokenController.generateToken,
-  (req, res) => {
-    res.send();
-  }
-);
-
-// Update existing user
-usersRouter.put(
-  "/update/:id",
-  userValidations.updateUser,
-  userController.updateUserById,
-  (req, res) => {
-    res.send();
-  }
-);
-
-// Approve account
-usersRouter.put("/approve", userController.approveUser, (req, res) => {
-  res.send();
-});
-
-// Get users
-usersRouter.get("/", userController.getUsers);
+// Logout (delete jti)
+usersRouter.delete("/logout", authentication, userController.logout);
 
 // Delete User by id
-usersRouter.delete("/:id", userController.deleteUserById);
+usersRouter.delete(
+  "/:userId",
+  authentication,
+  authorization,
+  userController.deleteUserById
+);
 
 module.exports = usersRouter;

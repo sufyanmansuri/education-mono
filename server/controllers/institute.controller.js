@@ -1,4 +1,9 @@
-const { Institute } = require("../models/institute.model");
+const {
+  Institute,
+  instituteLevels,
+  instituteTypes,
+  territories,
+} = require("../models/institute.model");
 
 /**
  * Creates a new institute
@@ -16,8 +21,7 @@ const createInstitute = async (req, res, next) => {
     const institute = new Institute(req.body);
     await institute.save();
 
-    res.locals.institute = institute;
-    return next();
+    return res.send(institute);
   } catch (error) {
     return next({ error });
   }
