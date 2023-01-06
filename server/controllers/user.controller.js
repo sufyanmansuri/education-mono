@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongoose").Types;
 const { randomUUID } = require("node:crypto");
-const { User, roles, titles } = require("../models/user.model");
+const { User } = require("../models/user.model");
 const { Token } = require("../models/token.model");
 const sendMail = require("../utils/sendMail");
 const { JTI } = require("../models/jti.model");
@@ -31,7 +31,7 @@ const generatePasswordResetToken = async (req, res, next) => {
 
     sendMail(email, token);
 
-    return next();
+    return res.send();
   } catch (error) {
     return next({ error });
   }
@@ -105,7 +105,7 @@ const createPassword = async (req, res, next) => {
     // Delete jti claims
     await JTI.deleteMany({ user });
 
-    return next();
+    return res.send();
   } catch (error) {
     return next({ error });
   }
@@ -128,7 +128,7 @@ const login = async (req, res, next) => {
       });
     }
 
-    // Check wether account is verified & approved
+    // Check whether account is verified & approved
     if (!user.verified) {
       return next({
         status: 403,
@@ -142,7 +142,7 @@ const login = async (req, res, next) => {
       });
     }
 
-    // Check wether password is valid
+    // Check whether password is valid
     const isPasswordValid = bcrypt.compareSync(password, user.password);
 
     if (!isPasswordValid) {
@@ -165,7 +165,7 @@ const login = async (req, res, next) => {
 const getAccessToken = async (req, res, next) => {
   const { user } = res.locals;
   const { JWT_SECRET_KEY } = process.env;
-  const tokenValidity = "3d"; // 3days
+  const tokenValidity = "1d"; // 3days
 
   try {
     // Create jti claim
@@ -173,7 +173,7 @@ const getAccessToken = async (req, res, next) => {
     await jti.save();
 
     const token = jwt.sign(
-      { role: user.role, scope: user.institute },
+      { role: user.role, institute: user.institute },
       JWT_SECRET_KEY,
       {
         expiresIn: tokenValidity,
@@ -182,17 +182,18 @@ const getAccessToken = async (req, res, next) => {
       }
     );
 
-    return res.send({
-      token,
-      user: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-        title: user.title,
-        institute: user.institute,
-      },
-    });
+    return res
+      .cookie("token", token, { maxAge: 24 * 60 * 60 * 1000, httpsOnly: true })
+      .send({
+        user: {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role,
+          title: user.title,
+          institute: user.institute,
+        },
+      });
   } catch (error) {
     return next({ error });
   }

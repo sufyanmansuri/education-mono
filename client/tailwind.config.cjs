@@ -18,6 +18,7 @@ module.exports = {
       black: "rgba(0,0,0,1)",
       transparent: "rgba(0,0,0,0)",
       opaque: "rgba(255,255,255, 0.5)",
+      green: "green",
     },
   },
   plugins: [],

@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 const usersRouter = require("./routes/users.route");
 const institutesRouter = require("./routes/institutes.route");
 const rootRouter = require("./routes/root.route");
@@ -15,6 +16,7 @@ app.disable("x-powered-by");
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan("dev"));
 
 // Routes

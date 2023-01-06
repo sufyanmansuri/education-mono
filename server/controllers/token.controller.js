@@ -64,7 +64,7 @@ const regenerateToken = async (req, res, next) => {
   if (!token) return next({ status: 400, error: { message: "Invalid token" } });
 
   try {
-    // Check wether token exists in db
+    // Check whether token exists in db
     let record = await Token.findOne({ token });
     if (!record) {
       return next({ status: 401, error: { message: "Invalid token" } });

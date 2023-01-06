@@ -1,36 +1,31 @@
 const { Router } = require("express");
-const authentication = require("../middleware/authentication");
-const {
-  authorization,
-  authInstituteUser,
-} = require("../middleware/authorization");
+const { authUsers } = require("../middleware/authorization");
 const userValidations = require("../validations/user.validations");
 const userController = require("../controllers/user.controller");
 const tokenController = require("../controllers/token.controller");
 
 // Path: /institutes/:id/users/
-const instituteUsersRouter = Router({ mergeParams: true });
-instituteUsersRouter.use((req, res, next) => {
-  res.locals.resource = "user";
-  return next();
-});
+const usersRouter = Router({ mergeParams: true });
 
-instituteUsersRouter.get(
+// Get users
+usersRouter.get(
   "/",
-  authentication,
-  authorization,
   (req, res, next) => {
-    req.query.query = { ...req.query.query, institute: res.locals.user.scope };
+    const { user } = res.locals;
+    if (user.role !== "super-admin") {
+      req.query.query = {
+        ...req.query.query,
+        institute: req.params.instituteId,
+      };
+    }
     next();
   },
   userController.getUsers
 );
 
 // Create new user
-instituteUsersRouter.post(
+usersRouter.post(
   "/",
-  authentication,
-  authorization,
   userValidations.createInstituteUser,
   (req, res, next) => {
     req.body.institute = req.params.id;
@@ -40,32 +35,18 @@ instituteUsersRouter.post(
   tokenController.generateToken
 );
 
+// Approve account
+usersRouter.put("/approve/:userId", authUsers, userController.approveUser);
+
 // Update a user
-instituteUsersRouter.put(
+usersRouter.put(
   "/:userId",
-  authentication,
-  authorization,
-  authInstituteUser,
+  authUsers,
   userValidations.updateInstituteUser,
   userController.updateUserById
 );
 
-// Approve account
-instituteUsersRouter.put(
-  "/approve/:userId",
-  authentication,
-  authorization,
-  authInstituteUser,
-  userController.approveUser
-);
-
 // Delete account
-instituteUsersRouter.delete(
-  "/:userId",
-  authentication,
-  authorization,
-  authInstituteUser,
-  userController.deleteUserById
-);
+usersRouter.delete("/:userId", authUsers, userController.deleteUserById);
 
-module.exports = instituteUsersRouter;
+module.exports = usersRouter;

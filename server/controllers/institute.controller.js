@@ -1,9 +1,4 @@
-const {
-  Institute,
-  instituteLevels,
-  instituteTypes,
-  territories,
-} = require("../models/institute.model");
+const { Institute } = require("../models/institute.model");
 
 /**
  * Creates a new institute
@@ -84,10 +79,10 @@ const getInstitutes = async (req, res, next) => {
  * Get institute by id
  */
 const getInstituteById = async (req, res, next) => {
-  const { id } = req.params;
+  const { instituteId } = req.params;
 
   try {
-    const institute = await Institute.findById(id);
+    const institute = await Institute.findById(instituteId);
 
     if (!institute) {
       return next({
@@ -119,10 +114,10 @@ const getInstituteList = async (req, res, next) => {
  * Update institute by id
  */
 const updateInstituteById = async (req, res, next) => {
-  const { id } = req.params;
+  const { instituteId } = req.params;
 
   try {
-    await Institute.findByIdAndUpdate(id, { ...req.body });
+    await Institute.findByIdAndUpdate(instituteId, { ...req.body });
     return next();
   } catch (error) {
     return next({ error });
@@ -133,10 +128,10 @@ const updateInstituteById = async (req, res, next) => {
  * Deletes institute by id
  */
 const deleteInstituteById = async (req, res, next) => {
-  const { id } = req.params;
+  const { instituteId } = req.params;
 
   try {
-    const institute = await Institute.findById(id);
+    const institute = await Institute.findById(instituteId);
 
     if (!institute)
       return next({ status: 400, error: { message: "Invalid institute id." } });

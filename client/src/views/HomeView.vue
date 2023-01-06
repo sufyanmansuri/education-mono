@@ -3,12 +3,12 @@ import BaseButton from "@/components/base/BaseButton.vue";
 import { onMounted } from "vue";
 
 onMounted(() => {
-  document.title = "Home";
+  document.title = "Education Platform";
 });
 </script>
 
 <template>
-  <div class="flex flex-1">
+  <div class="flex">
     <div class="container relative py-5 lg:py-10">
       <img
         src="/landing.png"
@@ -16,15 +16,15 @@ onMounted(() => {
         class="object-cover opacity-40 lg:absolute lg:right-0 lg:-z-10 lg:block lg:w-[calc(100vw/2)]"
       />
       <div
-        class="relative -top-10 space-y-4 md:-top-20 lg:static lg:w-2/3 lg:space-y-8 lg:bg-transparent"
+        class="relative -top-20 space-y-4 md:-top-20 lg:static lg:w-2/3 lg:space-y-8 lg:bg-transparent"
       >
         <h1
-          class="whitespace-nowrap bg-[url('/landing.png')] bg-clip-text bg-center text-5xl font-black md:text-7xl lg:text-9xl"
+          class="bg-[url('/landing.png')] bg-clip-text bg-center text-5xl font-black md:text-7xl lg:text-8xl"
         >
-          Lorem
+          Education
           <span
-            class="font-outline lg:font-outline-2 bg-gradient-to-br from-yellow/75 to-blue/75 bg-clip-text text-opaque underline decoration-wavy decoration-2 underline-offset-8"
-            >Ipsum</span
+            class="font-outline lg:font-outline-2 block bg-gradient-to-br from-yellow/75 to-blue/75 bg-clip-text text-opaque underline decoration-wavy decoration-2 underline-offset-8"
+            >Platform</span
           >
         </h1>
         <div class="space-y-4 lg:space-y-8">
@@ -37,7 +37,11 @@ onMounted(() => {
             accusantium deserunt id facere, vel, esse molestiae ea? Quidem
             nesciunt voluptatibus alias ex earum, doloribus rem.
           </p>
-          <BaseButton>Get Started</BaseButton>
+          <RouterLink :to="{ name: 'login' }">
+            <BaseButton
+              ><div class="px-8 py-3 text-xl">Get Started</div></BaseButton
+            >
+          </RouterLink>
         </div>
       </div>
     </div>

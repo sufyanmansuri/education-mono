@@ -20,8 +20,8 @@ const createClass = (req, res, next) => {
   const { error } = classSchema.validate(req.body, { abortEarly: false });
   if (error) return next({ status: 400, error: error.details });
 
-  // Add query param to body
-  req.body.institute = req.params.id;
+  // Add instituteId  to body
+  req.body.institute = req.params.instituteId;
 
   return next();
 };

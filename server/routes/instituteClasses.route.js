@@ -1,19 +1,11 @@
 const { Router } = require("express");
 const classValidation = require("../validations/class.validation");
-const {
-  authorization,
-  authInstituteClass,
-} = require("../middleware/authorization");
+// const {} = require("../middleware/authorization");
 const classController = require("../controllers/class.controller");
+const { authClass } = require("../middleware/authorization");
 
 // Path: /institutes/:id/classes/
 const instituteClassesRouter = Router({ mergeParams: true });
-instituteClassesRouter.use((req, res, next) => {
-  res.locals.resource = "class";
-  return next();
-});
-
-instituteClassesRouter.use(authorization);
 
 // Get all classes
 instituteClassesRouter.get("/", classController.getClasses);
@@ -25,26 +17,19 @@ instituteClassesRouter.post(
   classController.createClass
 );
 
-// Get a single class by name
-instituteClassesRouter.get(
-  "/:classId",
-  authInstituteClass,
-  classController.getClassById
-);
+instituteClassesRouter.use(authClass);
+
+// Get a single class by id
+instituteClassesRouter.get("/:classId", classController.getClassById);
 
 // Update a class
 instituteClassesRouter.put(
   "/:classId",
-  authInstituteClass,
   classValidation.updateClass,
   classController.updateClass
 );
 
 // Delete class by id
-instituteClassesRouter.delete(
-  "/:classId",
-  authInstituteClass,
-  classController.deleteClassById
-);
+instituteClassesRouter.delete("/:classId", classController.deleteClassById);
 
 module.exports = instituteClassesRouter;

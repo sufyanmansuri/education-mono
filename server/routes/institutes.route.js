@@ -1,47 +1,52 @@
 const { Router } = require("express");
-const instituteClassesRouter = require("./instituteClasses.route");
+const classesRouter = require("./instituteClasses.route");
 const authentication = require("../middleware/authentication");
-const { authorization } = require("../middleware/authorization");
+const { authorization, authInstitute } = require("../middleware/authorization");
 const instituteController = require("../controllers/institute.controller");
 const instituteValidations = require("../validations/institute.validation");
-const instituteUsersRouter = require("./instituteUsers.route");
+const usersRouter = require("./instituteUsers.route");
 
 // Path: /institutes
 const institutesRouter = Router();
-institutesRouter.use((req, res, next) => {
-  res.locals.resource = "institute";
-  return next();
-});
-
-// Users routes
-institutesRouter.use("/:id/users", instituteUsersRouter);
 
 // Get a list of institutes
 institutesRouter.get("/list", instituteController.getInstituteList);
 
-// Get institute by id
-institutesRouter.get("/:id", instituteController.getInstituteById);
+// Get Institutes
+institutesRouter.get("/", instituteController.getInstitutes);
 
+// Get institute by id
+institutesRouter.get("/:instituteId", instituteController.getInstituteById);
+
+// Authentication middleware
 institutesRouter.use(authentication);
 
-// Classes routes
-institutesRouter.use("/:id/classes", instituteClassesRouter);
+// Users routes
+institutesRouter.use(
+  "/:instituteId/users",
+  authorization("super-admin", "institute-admin"),
+  authInstitute,
+  usersRouter
+);
+
+institutesRouter.use(
+  authorization("super-admin", "institute-admin", "teacher")
+);
 
 // Creates institute
 institutesRouter.post(
   "/",
-  authorization,
   instituteValidations.createInstitute,
   instituteController.createInstitute
 );
 
-// Get Institutes
-institutesRouter.get("/", authorization, instituteController.getInstitutes);
+// Classes routes
+institutesRouter.use("/:instituteId/classes", authInstitute, classesRouter);
 
 // Update institute by id
 institutesRouter.put(
-  "/:id",
-  authorization,
+  "/:instituteId",
+  authInstitute,
   instituteValidations.updateInstitute,
   instituteController.updateInstituteById,
   (req, res) => res.send()
@@ -49,8 +54,8 @@ institutesRouter.put(
 
 // Delete Institute by id
 institutesRouter.delete(
-  "/:id",
-  authorization,
+  "/:instituteId",
+  authInstitute,
   instituteController.deleteInstituteById,
   (req, res) => res.send()
 );

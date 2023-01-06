@@ -7,23 +7,6 @@ const { authorization } = require("../middleware/authorization");
 
 // Path: /user
 const usersRouter = Router();
-usersRouter.use((req, res, next) => {
-  res.locals.resource = "user";
-  return next();
-});
-
-// Create new user
-usersRouter.post(
-  "/",
-  authentication,
-  authorization,
-  userValidations.createUser,
-  userController.createUser,
-  tokenController.generateToken
-);
-
-// Get users
-usersRouter.get("/", authentication, authorization, userController.getUsers);
 
 // Verify token
 usersRouter.get("/token/check", tokenController.verifyToken, (req, res) =>
@@ -42,8 +25,7 @@ usersRouter.put(
   "/set-password",
   tokenController.verifyToken,
   userValidations.password,
-  userController.createPassword,
-  (req, res) => res.send()
+  userController.createPassword
 );
 
 // Registration
@@ -51,16 +33,7 @@ usersRouter.post(
   "/register",
   userValidations.register,
   userController.register,
-  tokenController.generateToken,
-  (req, res) => res.send()
-);
-
-// Approve account
-usersRouter.put(
-  "/approve/:userId",
-  authentication,
-  authorization,
-  userController.approveUser
+  tokenController.generateToken
 );
 
 // Login
@@ -71,27 +44,19 @@ usersRouter.post(
   userController.getAccessToken
 );
 
-// Update existing user
-usersRouter.put(
-  "/update/:userId",
-  authentication,
-  authorization,
-  userValidations.updateUser,
-  userController.updateUserById
-);
-
 // Reset password
 usersRouter.post(
   "/reset-password",
   userValidations.email,
-  userController.generatePasswordResetToken,
-  (req, res) => res.send()
+  userController.generatePasswordResetToken
 );
+
+// Authentication middleware
+usersRouter.use(authentication);
 
 // Update profile
 usersRouter.put(
   "/profile",
-  authentication,
   userValidations.updateProfile,
   (req, res, next) => {
     req.params.userId = res.locals.user.sub;
@@ -101,14 +66,33 @@ usersRouter.put(
 );
 
 // Logout (delete jti)
-usersRouter.delete("/logout", authentication, userController.logout);
+usersRouter.delete("/logout", userController.logout);
+
+// Authorization middleware
+usersRouter.use(authorization("super-admin"));
+
+// Create new user
+usersRouter.post(
+  "/",
+  userValidations.createUser,
+  userController.createUser,
+  tokenController.generateToken
+);
+
+// Get users
+usersRouter.get("/", userController.getUsers);
+
+// Approve account
+usersRouter.put("/approve/:userId", userController.approveUser);
+
+// Update existing user
+usersRouter.put(
+  "/update/:userId",
+  userValidations.updateUser,
+  userController.updateUserById
+);
 
 // Delete User by id
-usersRouter.delete(
-  "/:userId",
-  authentication,
-  authorization,
-  userController.deleteUserById
-);
+usersRouter.delete("/:userId", userController.deleteUserById);
 
 module.exports = usersRouter;
