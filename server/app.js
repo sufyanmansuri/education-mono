@@ -33,7 +33,7 @@ app.use((req, res, _next) => {
 app.use((err, req, res, _next) => {
   console.log(err);
   const { status, message } = err;
-  res.status(status || 500).send({ message, error: err });
+  res.status(status || 500).send({ message, ...err });
 });
 
 // Suppress deprecation warning

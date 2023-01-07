@@ -1,68 +1,100 @@
 <script setup lang="ts">
 import { useVuelidate } from "@vuelidate/core";
 import { required, email, helpers } from "@vuelidate/validators";
-import { reactive, ref } from "vue";
 import BaseButton from "./base/BaseButton.vue";
 import FormField from "./base/FormField.vue";
-import axios, { isAxiosError } from "axios";
 import { useUserStore } from "@/stores/useUserStore";
+import axios, { isAxiosError } from "axios";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
-const loginForm = reactive({
-    email: "",
-    password: "",
+const loginForm = ref({
+  email: "",
+  password: "",
 });
-const $externalResults = ref({});
-
-const v = useVuelidate(
-    {
-        email: {
-            required: helpers.withMessage("Email is required.", required),
-            email: helpers.withMessage("Email is invalid.", email),
-        },
-        password: {
-            required: helpers.withMessage("Password is required.", required),
-        },
-    },
-    loginForm,
-    { $externalResults }
-);
+const serverError = ref("");
+const isSubmitting = ref(false);
 
 const { login } = useUserStore();
+const router = useRouter();
+const v = useVuelidate(
+  {
+    email: {
+      required: helpers.withMessage("Email is required.", required),
+      email: helpers.withMessage("Email is invalid.", email),
+    },
+    password: {
+      required: helpers.withMessage("Password is required.", required),
+    },
+  },
+  loginForm
+);
 
 async function submit(e: Event) {
-    e.preventDefault();
-    v.value.$clearExternalResults();
-    const isFormValid = await v.value.$validate();
-    if (!isFormValid) return;
+  e.preventDefault();
+  const isFormValid = await v.value.$validate();
+  if (!isFormValid) return;
 
-    try {
-        const res = await axios.post("/api/users/login", loginForm);
-        if (res.status === 200) {
-            alert("login successful");
-            const { user } = res.data;
-            login(user);
-        }
-    } catch (error) {
-        if (isAxiosError(error)) {
-            if (error.response?.status === 401)
-                $externalResults.value = {
-                    email: [error.response.data.error.error.message],
-                };
-        } else {
-            alert("Unexpected error occurred.");
-        }
+  // Clear server errors
+  serverError.value = "";
+
+  try {
+    // Set form state to submitting
+    isSubmitting.value = true;
+
+    const res = await axios.post("/api/users/login", loginForm.value);
+    if (res.status === 200) {
+      const { user } = res.data;
+      login(user);
+      router.push({ name: "dashboard" });
     }
+  } catch (error) {
+    console.log(error);
+    if (isAxiosError(error)) {
+      serverError.value = error.response?.data.error.message;
+      loginForm.value.password = "";
+    } else {
+      alert("Unexpected error occurred.");
+    }
+  } finally {
+    // Reset form state
+    isSubmitting.value = false;
+  }
 }
 </script>
-<template>
-    <form @submit="submit">
-        <div>
-            <div class="grid grid-cols-1 gap-2">
-                <FormField :field="v.email" label="Email" placeholder="Email" type="text" />
-                <FormField :field="v.password" label="Password" placeholder="Password" type="password" />
 
-                <BaseButton type="submit" class="mt-3">Submit</BaseButton>
-            </div>
-        </div>
-    </form>
+<template>
+  <form @submit="submit">
+    <div>
+      <ul class="mb-3 mt-5 border-2 bg-red p-2" v-if="serverError">
+        <li class="flex items-center">
+          <span class="fa-solid fa-triangle-exclamation fa-xs mx-1"></span
+          >{{ serverError }}
+        </li>
+      </ul>
+      <div class="grid grid-cols-1 gap-2">
+        <FormField
+          :field="v.email"
+          label="Email"
+          placeholder="example@abc.com"
+          type="text"
+          :autofocus="true" />
+        <FormField
+          :field="v.password"
+          label="Password"
+          placeholder="!@#$%^&*"
+          type="password" />
+        <BaseButton
+          type="submit"
+          class="z-20 mt-3"
+          :animated="!isSubmitting"
+          :disabled="isSubmitting">
+          <span
+            v-if="isSubmitting"
+            class="fa-solid fa-spinner fa-spin-pulse"></span>
+          <span v-else>Submit</span>
+        </BaseButton>
+      </div>
+    </div>
+  </form>
 </template>
