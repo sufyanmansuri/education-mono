@@ -4,8 +4,8 @@ import { email, helpers, minLength, required } from "@vuelidate/validators";
 import { ref, watch } from "vue";
 import BaseButton from "./base/BaseButton.vue";
 import FormField from "./base/FormField.vue";
-import { getInstituteList } from "@/services/institutes";
-import { getUserTitles, register } from "@/services/users";
+import { register } from "@/services/users";
+import { useQuery } from "@/hooks/useQuery";
 
 const registerForm = ref({
   firstName: "",
@@ -42,8 +42,8 @@ const v = useVuelidate(
   { $rewardEarly: true }
 );
 
-const { data: institutes } = getInstituteList();
-const { data: titles } = getUserTitles();
+const { titles } = useQuery("titles", { url: "/api/titles" });
+const { institutes } = useQuery("institutes", { url: "/api/institutes/list" });
 
 // Handle register
 async function handleRegister(e: Event) {
@@ -91,14 +91,16 @@ async function handleRegister(e: Event) {
           'bg-green/50': serverMessage.type === 'success',
           'bg-red': serverMessage.type === 'error',
         }"
-        v-if="serverMessage.message">
+        v-if="serverMessage.message"
+      >
         <li class="flex items-center">
           <span
             class="fa-solid fa-xs mx-1"
             :class="{
               'fa-triangle-exclamation': serverMessage.type === 'error',
               'fa-circle-check': serverMessage.type === 'success',
-            }"></span
+            }"
+          ></span
           >{{ serverMessage.message }}
         </li>
       </ul>
@@ -112,9 +114,10 @@ async function handleRegister(e: Event) {
               :class="{
                 'border-red': v.title.$dirty && v.title.$invalid,
                 'border-green': v.title.$dirty && !v.title.$invalid,
-              }">
+              }"
+            >
               <option value="" disabled selected>Select title</option>
-              <option v-for="title of titles" :value="title" :key="title">
+              <option v-for="title of titles.data" :value="title" :key="title">
                 {{ title }}
               </option>
             </select>
@@ -123,7 +126,8 @@ async function handleRegister(e: Event) {
             <p
               v-for="error of v.title.$errors"
               :key="error.$uid"
-              class="text-red">
+              class="text-red"
+            >
               {{ error.$message }}
             </p>
           </template>
@@ -133,7 +137,8 @@ async function handleRegister(e: Event) {
             :field="v.firstName"
             label="First name"
             placeholder="John"
-            :autofocus="true" />
+            :autofocus="true"
+          />
           <FormField :field="v.lastName" label="Last name" placeholder="Doe" />
         </div>
         <FormField :field="v.email" label="Email" placeholder="Doe" />
@@ -146,12 +151,14 @@ async function handleRegister(e: Event) {
               :class="{
                 'border-red': v.institute.$dirty && v.institute.$invalid,
                 'border-green': v.institute.$dirty && !v.institute.$invalid,
-              }">
+              }"
+            >
               <option disabled selected value="">Select Institute</option>
               <option
-                v-for="institute of institutes"
+                v-for="institute of institutes.data"
                 :value="institute._id"
-                :key="institute._id">
+                :key="institute._id"
+              >
                 {{ institute.name }}
               </option>
             </select>
@@ -160,7 +167,8 @@ async function handleRegister(e: Event) {
             <p
               v-for="error of v.institute.$errors"
               :key="error.$uid"
-              class="text-red">
+              class="text-red"
+            >
               {{ error.$message }}
             </p>
           </template>
@@ -169,10 +177,12 @@ async function handleRegister(e: Event) {
           type="submit"
           class="z-20 mt-3"
           :animated="!isSubmitting"
-          :disabled="isSubmitting">
+          :disabled="isSubmitting"
+        >
           <span
             v-if="isSubmitting"
-            class="fa-solid fa-spinner fa-spin-pulse"></span>
+            class="fa-solid fa-spinner fa-spin-pulse"
+          ></span>
           <span v-else>Submit</span>
         </BaseButton>
       </div>
