@@ -6,6 +6,7 @@ import BaseButton from "./base/BaseButton.vue";
 import FormField from "./base/FormField.vue";
 import { register } from "@/services/users";
 import { useQuery } from "@/hooks/useQuery";
+import FormSelect from "./base/FormSelect.vue";
 
 const registerForm = ref({
   firstName: "",
@@ -105,74 +106,51 @@ async function handleRegister(e: Event) {
         </li>
       </ul>
       <div class="grid grid-cols-1 gap-2">
-        <div>
-          <label>
-            <div>Title</div>
-            <select
-              class="h-9 w-full border-2 bg-white px-2 py-1 outline-none"
-              v-model="registerForm.title"
-              :class="{
-                'border-red': v.title.$dirty && v.title.$invalid,
-                'border-green': v.title.$dirty && !v.title.$invalid,
-              }"
-            >
-              <option value="" disabled selected>Select title</option>
-              <option v-for="title of titles.data" :value="title" :key="title">
-                {{ title }}
-              </option>
-            </select>
-          </label>
-          <template v-if="v.title.$dirty && v.title.$invalid">
-            <p
-              v-for="error of v.title.$errors"
-              :key="error.$uid"
-              class="text-red"
-            >
-              {{ error.$message }}
-            </p>
-          </template>
-        </div>
+        <FormSelect
+          v-model="v.title.$model"
+          :field="v.title"
+          placeholder="Select title"
+          label="Title"
+        >
+          <option v-for="title of titles.data" :value="title" :key="title">
+            {{ title }}
+          </option>
+        </FormSelect>
         <div class="flex flex-col gap-3 lg:flex-row">
           <FormField
-            :field="v.firstName"
+            v-model="v.firstName.$model"
             label="First name"
             placeholder="John"
             :autofocus="true"
+            :field="v.firstName"
           />
-          <FormField :field="v.lastName" label="Last name" placeholder="Doe" />
+          <FormField
+            v-model="v.lastName.$model"
+            label="Last name"
+            placeholder="Doe"
+            :field="v.lastName"
+          />
         </div>
-        <FormField :field="v.email" label="Email" placeholder="Doe" />
-        <div>
-          <label>
-            <div>Institute</div>
-            <select
-              class="h-9 w-full border-2 bg-white px-2 py-1 outline-none"
-              v-model="registerForm.institute"
-              :class="{
-                'border-red': v.institute.$dirty && v.institute.$invalid,
-                'border-green': v.institute.$dirty && !v.institute.$invalid,
-              }"
-            >
-              <option disabled selected value="">Select Institute</option>
-              <option
-                v-for="institute of institutes.data"
-                :value="institute._id"
-                :key="institute._id"
-              >
-                {{ institute.name }}
-              </option>
-            </select>
-          </label>
-          <template v-if="v.institute.$dirty && v.institute.$invalid">
-            <p
-              v-for="error of v.institute.$errors"
-              :key="error.$uid"
-              class="text-red"
-            >
-              {{ error.$message }}
-            </p>
-          </template>
-        </div>
+        <FormField
+          v-model="v.email.$model"
+          :field="v.email"
+          label="Email"
+          placeholder="Doe"
+        />
+        <FormSelect
+          :field="v.institute"
+          v-model="v.institute.$model"
+          label="Institute"
+          placeholder="Select Institute"
+        >
+          <option
+            v-for="institute of institutes.data"
+            :value="institute._id"
+            :key="institute._id"
+          >
+            {{ institute.name }}
+          </option>
+        </FormSelect>
         <BaseButton
           type="submit"
           class="z-20 mt-3"

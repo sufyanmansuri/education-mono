@@ -78,20 +78,26 @@ async function submit(e: Event) {
           label="Email"
           placeholder="example@abc.com"
           type="text"
-          :autofocus="true" />
+          v-model="v.email.$model"
+          :autofocus="true"
+        />
         <FormField
           :field="v.password"
+          v-model="v.password.$model"
           label="Password"
           placeholder="!@#$%^&*"
-          type="password" />
+          type="password"
+        />
         <BaseButton
           type="submit"
           class="z-20 mt-3"
           :animated="!isSubmitting"
-          :disabled="isSubmitting">
+          :disabled="isSubmitting"
+        >
           <span
             v-if="isSubmitting"
-            class="fa-solid fa-spinner fa-spin-pulse"></span>
+            class="fa-solid fa-spinner fa-spin-pulse"
+          ></span>
           <span v-else>Submit</span>
         </BaseButton>
       </div>
