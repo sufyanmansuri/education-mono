@@ -1,19 +1,13 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/useUserStore";
-import { computed } from "vue";
-import axios from "axios";
 import { navLinkItems } from "@/utils/data";
 import { useRouter } from "vue-router";
 
 const { logout, state } = useUserStore();
-const fullName = computed(
-  () => `${state.value.user?.firstName} ${state.value.user?.lastName}`
-);
 const router = useRouter();
 
 // Handle logout
 function handleLogout() {
-  axios.delete("/api/users/logout");
   logout();
   router.push({ name: "login" });
 }
@@ -39,7 +33,7 @@ function handleLogout() {
           <a
             class="flex items-center hover:underline hover:decoration-blue hover:decoration-2"
             href="#"
-            >{{ fullName }}</a
+            >{{ state.user?.firstName }}</a
           >
           <button @click="handleLogout">
             <span class="fa-solid fa-right-from-bracket"></span>

@@ -14,6 +14,17 @@ const { PORT, MONGO_URI } = process.env;
 // Server configs
 app.disable("x-powered-by");
 
+// Simulate slow connection
+app.use((req, res, next) => {
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 500);
+  }).then(() => {
+    next();
+  });
+});
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());

@@ -1,4 +1,3 @@
-import { useQuery } from "@/hooks/useQuery";
 import type { Status } from "@/types/Status";
 import type { RegisterForm } from "@/types/User";
 import axios, { isAxiosError } from "axios";

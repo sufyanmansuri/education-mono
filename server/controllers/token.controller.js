@@ -37,7 +37,7 @@ const verifyToken = async (req, res, next) => {
   try {
     // Check if token is in db
     const record = await Token.findOne({ token });
-    if (!record) return next({ status: 401, message: "Invalid token" });
+    if (!record) return next({ status: 400, message: "Invalid token" });
 
     // Check if token is expired
     if (record.expiresAt.getTime() <= new Date().getTime()) {

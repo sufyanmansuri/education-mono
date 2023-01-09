@@ -5,17 +5,18 @@
         class="mb-10 pr-28 text-right text-4xl font-black underline decoration-yellow decoration-wavy decoration-2">
         Administration
       </h1>
-      <div class="grid grid-cols-4 justify-around gap-16">
-        <div v-for="n of 10" :key="n">
-          <a
-            href="#"
+      <div
+        class="grid grid-cols-3 justify-around gap-16 lg:grid-cols-5 lg:px-10">
+        <div>
+          <RouterLink
+            :to="{ path: '/dashboard/users' }"
             class="group flex flex-col justify-center gap-2 text-center transition-all hover:font-bold">
             <img
-              src="/users.svg"
+              src="/user.svg"
               alt="Users"
-              class="h-20 w-auto opacity-80 transition group-hover:opacity-100" />
+              class="h-20 w-auto transition group-hover:saturate-150" />
             <span class="text-2xl">Users</span>
-          </a>
+          </RouterLink>
         </div>
       </div>
     </div>

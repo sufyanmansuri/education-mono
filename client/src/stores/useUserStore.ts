@@ -1,4 +1,5 @@
 import { ref, watch } from "vue";
+import axios from "axios";
 
 type User = {
   email: string;
@@ -35,6 +36,7 @@ export const useUserStore = () => {
   }
 
   function logout() {
+    axios.delete("/api/users/logout");
     state.value = { isLoggedIn: false };
     document.cookie =
       "token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";

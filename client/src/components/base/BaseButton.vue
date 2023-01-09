@@ -9,7 +9,7 @@ withDefaults(defineProps<Props>(), {
 });
 </script>
 <template>
-  <button class="group w-full outline-none lg:w-auto">
+  <button class="group z-20 w-full outline-none lg:w-auto">
     <div
       class="relative bottom-0 right-0 border-2 bg-white p-1 transition-all duration-300"
       :class="{

@@ -12,6 +12,15 @@
   .font-outline-white {
     -webkit-text-stroke-color: white !important;
   }
+  .theme {
+    @apply relative right-2 bottom-2 border-2 bg-white px-10 py-5 pb-10 transition-all after:absolute after:left-2 after:top-2 after:-z-20 after:h-full after:w-full after:border-2;
+  }
+  .theme-yellow {
+    @apply after:bg-yellow;
+  }
+  .theme-blue {
+    @apply after:bg-blue;
+  }
 }
 
 @layer components {

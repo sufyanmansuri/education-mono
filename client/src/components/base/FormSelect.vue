@@ -4,6 +4,7 @@ defineProps<{
   label: string;
   modelValue: string;
   field: any;
+  accent: "yellow" | "blue";
 }>();
 const emit = defineEmits(["update:modelValue"]);
 
@@ -23,8 +24,9 @@ function handleInput(e: Event) {
         :class="{
           'border-red': field.$dirty && field.$invalid,
           'border-green': field.$dirty && !field.$invalid,
-        }"
-      >
+          'focus:border-blue': !field.$dirty && accent === 'blue',
+          'focus:border-yellow': !field.$dirty && accent === 'yellow',
+        }">
         <option disabled selected value="">{{ placeholder }}</option>
         <slot></slot>
       </select>

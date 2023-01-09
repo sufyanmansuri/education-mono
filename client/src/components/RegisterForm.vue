@@ -7,6 +7,8 @@ import FormField from "./base/FormField.vue";
 import { register } from "@/services/users";
 import { useQuery } from "@/hooks/useQuery";
 import FormSelect from "./base/FormSelect.vue";
+import AlertBox from "./base/AlertBox.vue";
+import type { AlertConfig } from "@/types/AlertConfig";
 
 const registerForm = ref({
   firstName: "",
@@ -16,17 +18,23 @@ const registerForm = ref({
   institute: "",
 });
 const isSubmitting = ref(false);
-const serverMessage = ref<{ type?: "success" | "error"; message?: string }>({});
+const alertConfig = ref<AlertConfig>({});
 
 const v = useVuelidate(
   {
     firstName: {
       required: helpers.withMessage("First name is required", required),
-      minLength: minLength(2),
+      minLength: helpers.withMessage(
+        "Should contain two characters",
+        minLength(2)
+      ),
     },
     lastName: {
       required: helpers.withMessage("Last name is required.", required),
-      minLength: minLength(2),
+      minLength: helpers.withMessage(
+        "Should contain two characters",
+        minLength(2)
+      ),
     },
     email: {
       required: helpers.withMessage("Email is required", required),
@@ -39,8 +47,7 @@ const v = useVuelidate(
       required: helpers.withMessage("Institute is required.", required),
     },
   },
-  registerForm,
-  { $rewardEarly: true }
+  registerForm
 );
 
 const { titles } = useQuery("titles", { url: "/api/titles" });
@@ -50,7 +57,7 @@ const { institutes } = useQuery("institutes", { url: "/api/institutes/list" });
 async function handleRegister(e: Event) {
   e.preventDefault();
 
-  serverMessage.value = {};
+  alertConfig.value = {};
   const isFormValid = await v.value.$validate();
   if (!isFormValid) return;
 
@@ -59,13 +66,13 @@ async function handleRegister(e: Event) {
 
   watch(status, () => {
     if (status.value === "error") {
-      serverMessage.value = {
+      alertConfig.value = {
         type: "error",
         message: error.value?.error.message,
       };
     }
     if (status.value === "success") {
-      serverMessage.value = {
+      alertConfig.value = {
         type: "success",
         message: "Account registered. Check your email to verify.",
       };
@@ -86,68 +93,49 @@ async function handleRegister(e: Event) {
 <template>
   <form @submit="handleRegister">
     <div>
-      <ul
-        class="mb-3 mt-5 border-2 p-2"
-        :class="{
-          'bg-green/50': serverMessage.type === 'success',
-          'bg-red': serverMessage.type === 'error',
-        }"
-        v-if="serverMessage.message"
-      >
-        <li class="flex items-center">
-          <span
-            class="fa-solid fa-xs mx-1"
-            :class="{
-              'fa-triangle-exclamation': serverMessage.type === 'error',
-              'fa-circle-check': serverMessage.type === 'success',
-            }"
-          ></span
-          >{{ serverMessage.message }}
-        </li>
-      </ul>
-      <div class="grid grid-cols-1 gap-2">
+      <AlertBox :message="alertConfig" />
+      <div class="grid grid-cols-1 gap-4">
         <FormSelect
           v-model="v.title.$model"
           :field="v.title"
           placeholder="Select title"
-          label="Title"
-        >
+          accent="blue"
+          label="Title">
           <option v-for="title of titles.data" :value="title" :key="title">
             {{ title }}
           </option>
         </FormSelect>
-        <div class="flex flex-col gap-3 lg:flex-row">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <FormField
             v-model="v.firstName.$model"
             label="First name"
+            accent="blue"
             placeholder="John"
             :autofocus="true"
-            :field="v.firstName"
-          />
+            :field="v.firstName" />
           <FormField
             v-model="v.lastName.$model"
             label="Last name"
+            accent="blue"
             placeholder="Doe"
-            :field="v.lastName"
-          />
+            :field="v.lastName" />
         </div>
         <FormField
           v-model="v.email.$model"
           :field="v.email"
+          accent="blue"
           label="Email"
-          placeholder="Doe"
-        />
+          placeholder="Doe" />
         <FormSelect
           :field="v.institute"
           v-model="v.institute.$model"
           label="Institute"
-          placeholder="Select Institute"
-        >
+          accent="blue"
+          placeholder="Select Institute">
           <option
             v-for="institute of institutes.data"
             :value="institute._id"
-            :key="institute._id"
-          >
+            :key="institute._id">
             {{ institute.name }}
           </option>
         </FormSelect>
@@ -156,11 +144,10 @@ async function handleRegister(e: Event) {
           class="z-20 mt-3"
           :animated="!isSubmitting"
           :disabled="isSubmitting"
-        >
+          color="blue">
           <span
             v-if="isSubmitting"
-            class="fa-solid fa-spinner fa-spin-pulse"
-          ></span>
+            class="fa-solid fa-spinner fa-spin-pulse"></span>
           <span v-else>Submit</span>
         </BaseButton>
       </div>

@@ -319,7 +319,7 @@ const getUsers = async (req, res, next) => {
       totalPages: Math.ceil(totalCount / perPage),
       totalCount,
       data: users,
-      currPage: page + 1,
+      page: page + 1,
       perPage,
       sortBy,
       fields,

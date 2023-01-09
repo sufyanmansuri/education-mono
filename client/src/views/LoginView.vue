@@ -9,7 +9,7 @@ import LoginForm from "@/components/LoginForm.vue";
       class="relative right-2 bottom-2 border-2 bg-white px-10 py-5 pb-10 transition-all after:absolute after:left-2 after:top-2 after:-z-20 after:h-full after:w-full after:border-2 after:bg-yellow">
       <h1 class="mb-5 text-center text-5xl font-black">
         Log<span
-          class="font-outline-2 text-transparent underline decoration-blue decoration-wavy decoration-2 underline-offset-2"
+          class="font-outline-2 text-transparent underline decoration-yellow decoration-wavy decoration-2 underline-offset-2"
           >in</span
         >
       </h1>

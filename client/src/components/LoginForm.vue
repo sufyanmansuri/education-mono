@@ -7,12 +7,14 @@ import { useUserStore } from "@/stores/useUserStore";
 import axios, { isAxiosError } from "axios";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import AlertBox from "./base/AlertBox.vue";
+import type { AlertConfig } from "@/types/AlertConfig";
 
 const loginForm = ref({
   email: "",
   password: "",
 });
-const serverError = ref("");
+const alertConfig = ref<AlertConfig>();
 const isSubmitting = ref(false);
 
 const { login } = useUserStore();
@@ -36,7 +38,7 @@ async function submit(e: Event) {
   if (!isFormValid) return;
 
   // Clear server errors
-  serverError.value = "";
+  alertConfig.value = {};
 
   try {
     // Set form state to submitting
@@ -51,8 +53,12 @@ async function submit(e: Event) {
   } catch (error) {
     console.log(error);
     if (isAxiosError(error)) {
-      serverError.value = error.response?.data.error.message;
+      alertConfig.value = {
+        type: "error",
+        message: error.response?.data.error.message,
+      };
       loginForm.value.password = "";
+      v.value.$reset();
     } else {
       alert("Unexpected error occurred.");
     }
@@ -66,38 +72,30 @@ async function submit(e: Event) {
 <template>
   <form @submit="submit">
     <div>
-      <ul class="mb-3 mt-5 border-2 bg-red p-2" v-if="serverError">
-        <li class="flex items-center">
-          <span class="fa-solid fa-triangle-exclamation fa-xs mx-1"></span
-          >{{ serverError }}
-        </li>
-      </ul>
-      <div class="grid grid-cols-1 gap-2">
+      <AlertBox :message="alertConfig" />
+      <div class="grid grid-cols-1 gap-4">
         <FormField
           :field="v.email"
           label="Email"
           placeholder="example@abc.com"
           type="text"
+          accent="yellow"
           v-model="v.email.$model"
-          :autofocus="true"
-        />
+          :autofocus="true" />
         <FormField
           :field="v.password"
           v-model="v.password.$model"
           label="Password"
+          accent="yellow"
           placeholder="!@#$%^&*"
-          type="password"
-        />
+          type="password" />
         <BaseButton
           type="submit"
           class="z-20 mt-3"
+          color="yellow"
           :animated="!isSubmitting"
-          :disabled="isSubmitting"
-        >
-          <span
-            v-if="isSubmitting"
-            class="fa-solid fa-spinner fa-spin-pulse"
-          ></span>
+          :disabled="isSubmitting">
+          <span v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></span>
           <span v-else>Submit</span>
         </BaseButton>
       </div>

@@ -26,7 +26,9 @@
 // };
 
 const test = (recipient, token) => {
-  console.log(`To: ${recipient} \nToken: ${token}`);
+  console.log(
+    `To: ${recipient} \nLink: http://192.168.102.126:5173/verification?token=${token}`
+  );
 };
 
 module.exports = test;
