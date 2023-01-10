@@ -22,7 +22,10 @@ const authentication = async (req, res, next) => {
       return next({ status: 498, error: { message: "Invalid token" } });
     }
     const jti = await JTI.findOne({ token: payload.jti, user: payload.sub }); // verify jti
-    if (!jti) return next({ status: 403, error: { message: "Token expired" } });
+    if (!jti) {
+      res.clearCookie("token");
+      return next({ status: 403, error: { message: "Token expired" } });
+    }
 
     res.locals.user = payload;
     return next();

@@ -124,7 +124,7 @@ async function handleRegister() {
           :field="v.email"
           accent="blue"
           label="Email"
-          placeholder="Doe" />
+          placeholder="john@example.com" />
         <FormSelect
           :field="v.institute"
           v-model="v.institute.$model"

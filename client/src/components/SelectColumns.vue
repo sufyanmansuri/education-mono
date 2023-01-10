@@ -12,7 +12,7 @@ const showColumnMenu = ref(false);
 const columns = ref(props.selected);
 
 const handleChange = () => {
-  emit("change", columns);
+  emit("change", columns.value);
   showColumnMenu.value = false;
 };
 </script>

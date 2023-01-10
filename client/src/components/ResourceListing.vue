@@ -69,12 +69,12 @@ watch(
           }" />
       </div>
       <div class="mt-5" v-if="state.status === 'success'">
-        <div>
+        <!-- <div>
           <select value="">
             <option value="">Select Institute</option>
           </select>
-        </div>
-        <div class="flex justify-between">
+        </div> -->
+        <div class="flex items-end justify-between">
           <p class="">
             Showing
             {{ state.data.perPage * (state.data.page - 1) + 1 }} -
@@ -128,7 +128,7 @@ watch(
                 <td
                   v-for="key in state.data.fields"
                   :key="key"
-                  class="border-2 p-2">
+                  class="border-2 p-2 pr-4">
                   <span v-if="['createdAt', 'updatedAt'].includes(key)">{{
                     new Date(item[key]).toLocaleDateString()
                   }}</span>

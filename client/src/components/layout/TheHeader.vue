@@ -25,7 +25,7 @@ watch(router.currentRoute, () => {
 <template>
   <header class="flex flex-col border-b-2 bg-white">
     <TheNav />
-    <div class="container flex flex-col items-center py-2 lg:h-24 lg:flex-row">
+    <div class="container flex flex-col items-center py-4 lg:h-24 lg:flex-row">
       <div class="flex w-full items-center justify-between">
         <RouterLink to="/" class="flex items-center gap-4">
           <img
