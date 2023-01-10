@@ -86,18 +86,32 @@ function handleSubmit(password: string) {
   watch(setPassword, () => {
     if (setPassword.value.status === "success") {
       state.value = "success";
-      alertConfig.value = {
-        type: "success",
-        message:
-          "Account verified. Ask your institute admin to approve your account.",
-      };
+      if (query.ref === "reset")
+        alertConfig.value = {
+          type: "success",
+          message: "Password reset successfully.",
+        };
+      else
+        alertConfig.value = {
+          type: "success",
+          message:
+            "Account verified. Ask your institute admin to approve your account.",
+        };
     } else if (setPassword.value.status === "error") {
       if (setPassword.value.error.status === 400) {
-        state.value = "invalid";
-        alertConfig.value = {
-          type: "error",
-          message: "Invalid token provided",
-        };
+        if (query.ref === "reset") {
+          state.value = "valid";
+          alertConfig.value = {
+            type: "error",
+            message: setPassword.value.error?.error.message,
+          };
+        } else {
+          state.value = "invalid";
+          alertConfig.value = {
+            type: "error",
+            message: "Invalid token provided",
+          };
+        }
       }
       if (setPassword.value.error.status === 401) {
         state.value = "expired";
@@ -113,13 +127,26 @@ function handleSubmit(password: string) {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center">
-    <div class="theme theme-blue">
+  <div class="container flex min-h-screen items-center justify-center">
+    <img
+      src="/verification.svg"
+      alt="Verification"
+      class="-z-50 -mr-36 hidden lg:block" />
+    <div class="theme theme-blue md:w-1/2 lg:w-1/3">
       <h1 class="mb-5 text-center text-4xl font-black">
-        Verifica<span
-          class="font-outline text-white underline decoration-blue decoration-wavy decoration-2"
-          >tion</span
-        >
+        <span v-if="query.ref === 'reset'">
+          Reset
+          <span
+            class="font-outline text-white underline decoration-blue decoration-wavy decoration-2">
+            password
+          </span>
+        </span>
+        <span v-else>
+          Verifica<span
+            class="font-outline text-white underline decoration-blue decoration-wavy decoration-2"
+            >tion
+          </span>
+        </span>
       </h1>
       <AlertBox :message="alertConfig" />
       <div class="mt-5">

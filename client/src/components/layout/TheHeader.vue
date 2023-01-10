@@ -1,14 +1,29 @@
 <script setup lang="ts">
+import { useUserStore } from "@/stores/useUserStore";
 import { navLinkItems } from "@/utils/data";
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import BaseButton from "../base/BaseButton.vue";
 import TheNav from "./TheNav.vue";
 
 const showNav = ref(false);
+const { state, logout } = useUserStore();
+const router = useRouter();
+
+// Handle logout
+function handleLogout() {
+  logout();
+  router.push({ name: "login" });
+}
+
+// Hide nav on route change
+watch(router.currentRoute, () => {
+  showNav.value = false;
+});
 </script>
 
 <template>
-  <header class="flex flex-col border-b-2">
+  <header class="flex flex-col border-b-2 bg-white">
     <TheNav />
     <div class="container flex flex-col items-center py-2 lg:h-24 lg:flex-row">
       <div class="flex w-full items-center justify-between">
@@ -48,9 +63,18 @@ const showNav = ref(false);
             <a href="#" class="">{{ item.text }}</a>
           </li>
           <li class="pt-5 lg:hidden">
-            <a href="#">
+            <div
+              v-if="state.isLoggedIn"
+              class="flex items-center justify-between gap-2">
+              <p class="text-xl font-black">{{ state.user?.firstName }}</p>
+              <button @click="handleLogout" class="border-2 px-2">
+                Logout
+                <span class="fa-solid fa-right-from-bracket"></span>
+              </button>
+            </div>
+            <RouterLink to="/login" v-else>
               <BaseButton :animated="false">Sign In</BaseButton>
-            </a>
+            </RouterLink>
           </li>
         </ul>
       </div>

@@ -19,10 +19,8 @@ app.use((req, res, next) => {
   new Promise((resolve) => {
     setTimeout(() => {
       resolve();
-    }, 500);
-  }).then(() => {
-    next();
-  });
+    }, 1000);
+  }).then(() => next());
 });
 
 // Middleware
@@ -42,8 +40,8 @@ app.use((req, res, _next) => {
 
 // Error handler
 app.use((err, req, res, _next) => {
-  console.log(err);
   const { status, message } = err;
+  console.log({ message, ...err });
   res.status(status || 500).send({ message, ...err });
 });
 

@@ -14,7 +14,7 @@
             <img
               src="/user.svg"
               alt="Users"
-              class="h-20 w-auto transition group-hover:saturate-150" />
+              class="h-20 w-auto saturate-[.75] transition group-hover:saturate-100" />
             <span class="text-2xl">Users</span>
           </RouterLink>
         </div>

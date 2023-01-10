@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useVuelidate } from "@vuelidate/core";
 import { email, helpers, minLength, required } from "@vuelidate/validators";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import BaseButton from "./base/BaseButton.vue";
 import FormField from "./base/FormField.vue";
-import { register } from "@/services/users";
 import { useQuery } from "@/hooks/useQuery";
 import FormSelect from "./base/FormSelect.vue";
 import AlertBox from "./base/AlertBox.vue";
 import type { AlertConfig } from "@/types/AlertConfig";
+import axios, { isAxiosError } from "axios";
 
 const registerForm = ref({
   firstName: "",
@@ -54,24 +54,15 @@ const { titles } = useQuery("titles", { url: "/api/titles" });
 const { institutes } = useQuery("institutes", { url: "/api/institutes/list" });
 
 // Handle register
-async function handleRegister(e: Event) {
-  e.preventDefault();
-
+async function handleRegister() {
   alertConfig.value = {};
   const isFormValid = await v.value.$validate();
   if (!isFormValid) return;
 
   isSubmitting.value = true;
-  const { status, error } = register(registerForm.value);
-
-  watch(status, () => {
-    if (status.value === "error") {
-      alertConfig.value = {
-        type: "error",
-        message: error.value?.error.message,
-      };
-    }
-    if (status.value === "success") {
+  try {
+    const res = await axios.post("/api/users/register", registerForm.value);
+    if (res.status === 200) {
       alertConfig.value = {
         type: "success",
         message: "Account registered. Check your email to verify.",
@@ -85,13 +76,21 @@ async function handleRegister(e: Event) {
       };
       v.value.$reset();
     }
+  } catch (error) {
+    if (isAxiosError(error)) {
+      alertConfig.value = {
+        type: "error",
+        message: error.response?.data.message,
+      };
+    }
+  } finally {
     isSubmitting.value = false;
-  });
+  }
 }
 </script>
 
 <template>
-  <form @submit="handleRegister">
+  <form @submit.prevent="handleRegister">
     <div>
       <AlertBox :message="alertConfig" />
       <div class="grid grid-cols-1 gap-4">
@@ -100,6 +99,7 @@ async function handleRegister(e: Event) {
           :field="v.title"
           placeholder="Select title"
           accent="blue"
+          autofocus
           label="Title">
           <option v-for="title of titles.data" :value="title" :key="title">
             {{ title }}
@@ -111,7 +111,6 @@ async function handleRegister(e: Event) {
             label="First name"
             accent="blue"
             placeholder="John"
-            :autofocus="true"
             :field="v.firstName" />
           <FormField
             v-model="v.lastName.$model"

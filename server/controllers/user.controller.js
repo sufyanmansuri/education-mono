@@ -18,7 +18,7 @@ const generatePasswordResetToken = async (req, res, next) => {
 
     // Check if user exists with given email
     if (!user) {
-      return next({ status: 401, error: { message: "User does not exist." } });
+      return next({ status: 401, message: "User does not exist." });
     }
 
     const token = randomUUID();
@@ -29,7 +29,7 @@ const generatePasswordResetToken = async (req, res, next) => {
       { upsert: true }
     );
 
-    sendMail(email, token);
+    sendMail(email, token, "reset");
 
     return res.send();
   } catch (error) {
@@ -256,7 +256,7 @@ const updateUserById = async (req, res, next) => {
 const getUsers = async (req, res, next) => {
   const { sortBy = "updatedAt", query = {} } = req.query;
   let {
-    fields = ["firstName", "lastName", "createdAt", "updatedAt"],
+    fields = ["_id", "firstName", "lastName", "createdAt", "updatedAt"],
     page = 1,
     perPage = 5,
     order = -1,
@@ -270,9 +270,9 @@ const getUsers = async (req, res, next) => {
   try {
     const totalCount = await User.count(query);
     fields = {
-      ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
       _id: 1,
       institute: 1,
+      ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
     };
 
     if (query.institute) {
@@ -322,9 +322,20 @@ const getUsers = async (req, res, next) => {
       page: page + 1,
       perPage,
       sortBy,
-      fields,
+      fields: Object.keys(fields),
       order,
       query,
+      allFields: [
+        "firstName",
+        "lastName",
+        "title",
+        "email",
+        "role",
+        "verified",
+        "approved",
+        "createdAt",
+        "updatedAt",
+      ],
     });
   } catch (error) {
     return next({ error });
@@ -340,7 +351,7 @@ const register = async (req, res, next) => {
     if (exists) {
       return next({
         status: 400,
-        error: { message: "An account with this email already exists." },
+        message: "An account with this email already exists.",
       });
     }
 

@@ -89,15 +89,24 @@ async function submit(e: Event) {
           accent="yellow"
           placeholder="!@#$%^&*"
           type="password" />
-        <BaseButton
-          type="submit"
-          class="z-20 mt-3"
-          color="yellow"
-          :animated="!isSubmitting"
-          :disabled="isSubmitting">
-          <span v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></span>
-          <span v-else>Submit</span>
-        </BaseButton>
+        <div class="grid gap-1">
+          <RouterLink
+            to="/forgot-password"
+            class="text-right decoration-yellow transition hover:underline hover:decoration-2"
+            >Forgot password?</RouterLink
+          >
+          <BaseButton
+            type="submit"
+            class="z-20"
+            color="yellow"
+            :animated="!isSubmitting"
+            :disabled="isSubmitting">
+            <span
+              v-if="isSubmitting"
+              class="fa-solid fa-spinner fa-spin-pulse"></span>
+            <span v-else>Submit</span>
+          </BaseButton>
+        </div>
       </div>
     </div>
   </form>

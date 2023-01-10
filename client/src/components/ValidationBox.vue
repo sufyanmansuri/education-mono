@@ -12,15 +12,11 @@ defineProps<{
     v-if="errors.length > 0"
     class="border-2 border-black px-4 py-2"
     :class="{
-      'bg-yellow ': !dirty,
+      'bg-blue text-white ': !dirty,
       'bg-red': dirty,
     }">
-    <p
-      class="flex items-center gap-2"
-      v-for="error in errors"
-      :key="error.$uid">
-      <span class="fa-info-circle fa-solid"></span>
-      <span></span>
+    <p class="flex items-start gap-2" v-for="error in errors" :key="error.$uid">
+      <span class="fa-info-circle fa-solid mt-1"></span>
       <span>{{ error.$message }}</span>
     </p>
   </div>

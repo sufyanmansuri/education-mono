@@ -25,9 +25,9 @@
 //   console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
 // };
 
-const test = (recipient, token) => {
+const test = (recipient, token, ref) => {
   console.log(
-    `To: ${recipient} \nLink: http://192.168.102.126:5173/verification?token=${token}`
+    `To: ${recipient} \nLink: http://192.168.102.126:5173/verification?token=${token}&ref=${ref}`
   );
 };
 

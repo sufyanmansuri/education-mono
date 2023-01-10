@@ -4,9 +4,13 @@ import LoginForm from "@/components/LoginForm.vue";
 </script>
 
 <template>
-  <div class="flex items-center justify-center">
-    <div
-      class="relative right-2 bottom-2 border-2 bg-white px-10 py-5 pb-10 transition-all after:absolute after:left-2 after:top-2 after:-z-20 after:h-full after:w-full after:border-2 after:bg-yellow">
+  <div
+    class="container relative flex items-center justify-center xl:justify-start xl:px-72">
+    <img
+      src="/login.svg"
+      alt="Login"
+      class="absolute right-56 -z-50 hidden object-contain xl:block" />
+    <div class="theme theme-yellow relative">
       <h1 class="mb-5 text-center text-5xl font-black">
         Log<span
           class="font-outline-2 text-transparent underline decoration-yellow decoration-wavy decoration-2 underline-offset-2"

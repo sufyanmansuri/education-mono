@@ -1,4 +1,4 @@
 export type AlertConfig = {
-  type?: "error" | "success" | "info";
+  type?: "error" | "success" | "info" | "warning";
   message?: string;
 };
