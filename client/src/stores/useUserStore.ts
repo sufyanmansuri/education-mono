@@ -1,13 +1,7 @@
-import { onMounted, ref, watch } from "vue";
-import axios from "axios";
+import type { User } from "@/types/User";
 
-type User = {
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  title: string;
-};
+import { ref, watch } from "vue";
+
 type userStore = {
   user?: User;
   isLoggedIn: boolean;
@@ -36,7 +30,6 @@ export const useUserStore = () => {
   }
 
   function logout() {
-    axios.delete("/api/users/logout");
     state.value = { isLoggedIn: false };
     document.cookie =
       "token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";

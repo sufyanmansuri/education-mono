@@ -1,14 +1,18 @@
 <script setup lang="ts">
+import type { AlertConfig } from "@/types/AlertConfig";
+
+import { ref } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { email, helpers, minLength, required } from "@vuelidate/validators";
-import { ref } from "vue";
+import { isAxiosError } from "axios";
+import { useQuery } from "@/hooks/useQuery";
+
 import BaseButton from "./base/BaseButton.vue";
 import FormField from "./base/FormField.vue";
-import { useQuery } from "@/hooks/useQuery";
 import FormSelect from "./base/FormSelect.vue";
-import AlertBox from "./base/AlertBox.vue";
-import type { AlertConfig } from "@/types/AlertConfig";
-import axios, { isAxiosError } from "axios";
+import AlertBox from "./AlertBox.vue";
+import SpinnerIcon from "./icons/SpinnerIcon.vue";
+import { register } from "@/services/UserService";
 
 const registerForm = ref({
   firstName: "",
@@ -60,32 +64,32 @@ async function handleRegister() {
   if (!isFormValid) return;
 
   isSubmitting.value = true;
-  try {
-    const res = await axios.post("/api/users/register", registerForm.value);
-    if (res.status === 200) {
-      alertConfig.value = {
-        type: "success",
-        message: "Account registered. Check your email to verify.",
-      };
-      registerForm.value = {
-        email: "",
-        firstName: "",
-        institute: "",
-        lastName: "",
-        title: "",
-      };
-      v.value.$reset();
-    }
-  } catch (error) {
+
+  const { error } = await register(registerForm.value);
+
+  if (error) {
     if (isAxiosError(error)) {
       alertConfig.value = {
         type: "error",
         message: error.response?.data.message,
       };
     }
-  } finally {
-    isSubmitting.value = false;
+  } else {
+    alertConfig.value = {
+      type: "success",
+      message: "Account registered. Check your email to verify.",
+    };
+    registerForm.value = {
+      email: "",
+      firstName: "",
+      institute: "",
+      lastName: "",
+      title: "",
+    };
+    v.value.$reset();
   }
+
+  isSubmitting.value = false;
 }
 </script>
 
@@ -144,9 +148,7 @@ async function handleRegister() {
           :animated="!isSubmitting"
           :disabled="isSubmitting"
           color="blue">
-          <span
-            v-if="isSubmitting"
-            class="fa-solid fa-spinner fa-spin-pulse"></span>
+          <SpinnerIcon v-if="isSubmitting" />
           <span v-else>Submit</span>
         </BaseButton>
       </div>

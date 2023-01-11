@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import AlertBox from "@/components/base/AlertBox.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import PasswordForm from "@/components/PasswordForm.vue";
-import { useQuery } from "@/hooks/useQuery";
 import type { AlertConfig } from "@/types/AlertConfig";
+import type { Status } from "@/types/Status";
+
 import { ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useQuery } from "@/hooks/useQuery";
+
+import AlertBox from "@/components/AlertBox.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import SpinnerIcon from "@/components/icons/SpinnerIcon.vue";
+import BaseTitle from "@/components/base/BaseTitle.vue";
+import PasswordForm from "@/components/PasswordForm.vue";
+import { setPassword } from "@/services/UserService";
+import { isAxiosError } from "axios";
 
 const route = useRoute();
 const router = useRouter();
@@ -19,9 +26,7 @@ const alertConfig = ref<AlertConfig>({
   type: "info",
   message: "Verifying token...",
 });
-const state = ref<
-  "invalid" | "expired" | "valid" | "regenerated" | "fetching" | "success"
->("fetching");
+const state = ref<Status>("fetching");
 
 watch(tokenValidation, () => {
   if (tokenValidation.value.status === "success") {
@@ -74,36 +79,19 @@ function regenerate() {
   });
 }
 
-function handleSubmit(password: string) {
+async function handleSubmit(password: string) {
   state.value = "fetching";
-  const { setPassword } = useQuery("setPassword", {
-    url: "/api/users/set-password",
-    params: { token: query.token },
-    method: "PUT",
-    data: { password },
-  });
 
-  watch(setPassword, () => {
-    if (setPassword.value.status === "success") {
-      state.value = "success";
-      if (query.ref === "reset")
-        alertConfig.value = {
-          type: "success",
-          message: "Password reset successfully.",
-        };
-      else
-        alertConfig.value = {
-          type: "success",
-          message:
-            "Account verified. Ask your institute admin to approve your account.",
-        };
-    } else if (setPassword.value.status === "error") {
-      if (setPassword.value.error.status === 400) {
+  const { error } = await setPassword(password, query.token as string);
+
+  if (error) {
+    if (isAxiosError(error)) {
+      if (error.response?.status === 400) {
         if (query.ref === "reset") {
           state.value = "valid";
           alertConfig.value = {
             type: "error",
-            message: setPassword.value.error?.error.message,
+            message: error.response.data.error.message,
           };
         } else {
           state.value = "invalid";
@@ -113,7 +101,7 @@ function handleSubmit(password: string) {
           };
         }
       }
-      if (setPassword.value.error.status === 401) {
+      if (error.response?.status === 401) {
         state.value = "expired";
         alertConfig.value = {
           type: "error",
@@ -122,7 +110,21 @@ function handleSubmit(password: string) {
         };
       }
     }
-  });
+  } else {
+    state.value = "success";
+
+    if (query.ref === "reset")
+      alertConfig.value = {
+        type: "success",
+        message: "Password reset successfully.",
+      };
+    else
+      alertConfig.value = {
+        type: "success",
+        message:
+          "Account verified. Ask your institute admin to approve your account.",
+      };
+  }
 }
 </script>
 
@@ -133,29 +135,19 @@ function handleSubmit(password: string) {
       alt="Verification"
       class="-z-50 -mr-36 hidden lg:block" />
     <div class="theme theme-blue md:w-1/2 lg:w-1/3">
-      <h1 class="mb-5 text-center text-4xl font-black">
-        <span v-if="query.ref === 'reset'">
-          Reset
-          <span
-            class="font-outline text-white underline decoration-blue decoration-wavy decoration-2">
-            password
-          </span>
-        </span>
-        <span v-else>
-          Verifica<span
-            class="font-outline text-white underline decoration-blue decoration-wavy decoration-2"
-            >tion
-          </span>
-        </span>
-      </h1>
+      <BaseTitle v-if="query.ref === 'reset'" text1="Reset " text2="Password" />
+      <BaseTitle v-else text1="Verifica" text2="tion" />
       <AlertBox :message="alertConfig" />
       <div class="mt-5">
-        <div v-if="state === 'valid'">
+        <!-- Show spinner while fetching -->
+        <div v-if="state === 'fetching'" class="text-center">
+          <SpinnerIcon />
+        </div>
+        <!-- Set password if token is valid -->
+        <div v-else-if="state === 'valid'">
           <PasswordForm @submit="handleSubmit" />
         </div>
-        <div v-else-if="state === 'fetching'" class="text-center">
-          <span class="fa-spinner fa-spin-pulse fa-solid"></span>
-        </div>
+        <!-- Token expired -->
         <div v-else-if="state === 'expired'" class="flex justify-center">
           <div class="flex">
             <BaseButton type="button" color="blue" @click.prevent="regenerate">
@@ -163,6 +155,7 @@ function handleSubmit(password: string) {
             </BaseButton>
           </div>
         </div>
+        <!-- Show button if token is regenerated or invalid -->
         <div v-else-if="state === 'regenerated' || state === 'invalid'">
           <div class="flex justify-center">
             <BaseButton type="button" color="blue" @click="router.push('/')">
@@ -170,6 +163,7 @@ function handleSubmit(password: string) {
             </BaseButton>
           </div>
         </div>
+        <!-- Show login button on success -->
         <div v-else-if="state === 'success'">
           <RouterLink class="flex justify-center" :to="{ name: 'login' }">
             <BaseButton type="button" color="blue">

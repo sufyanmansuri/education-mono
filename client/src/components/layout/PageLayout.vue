@@ -6,7 +6,7 @@ import TheHeader from "./TheHeader.vue";
 <template>
   <div class="relative flex min-h-screen flex-col">
     <TheHeader />
-    <RouterView class="flex-1 py-5" />
+    <RouterView class="flex-1" />
     <TheFooter />
   </div>
 </template>

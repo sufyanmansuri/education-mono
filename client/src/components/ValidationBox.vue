@@ -12,7 +12,7 @@ defineProps<{
     v-if="errors.length > 0"
     class="border-2 border-black px-4 py-2"
     :class="{
-      'bg-blue text-white ': !dirty,
+      'bg-yellow ': !dirty,
       'bg-red': dirty,
     }">
     <p class="flex items-start gap-2" v-for="error in errors" :key="error.$uid">

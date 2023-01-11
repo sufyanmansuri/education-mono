@@ -61,16 +61,23 @@ const router = createRouter({
         {
           path: "/dashboard",
           beforeEnter: shouldBeAuthenticated("login"),
+          component: DashboardView,
           children: [
             {
-              path: "",
-              component: DashboardView,
-              name: "dashboard",
               meta: { title: "Dashboard" },
+              name: "dashboard",
+              path: "",
+              component: () => import("@/components/DashboardHome.vue"),
+            },
+            {
+              path: "test",
+              component: () => import("@/components/ResourceListing.vue"),
+              props: true,
             },
             {
               path: ":resource",
-              component: () => import("@/components/ResourceListing.vue"),
+              component: () => import("@/views/ResourceView.vue"),
+              props: true,
             },
           ],
         },

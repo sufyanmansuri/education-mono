@@ -28,6 +28,7 @@ const handleInput = (e: Event) => {
         :placeholder="placeholder"
         :value="modelValue"
         class="w-full border-2 px-2 py-1 outline-none transition"
+        @blur="field.$touch"
         :class="{
           'border-red':
             field.$dirty && field.$model.length > 0 && field.$invalid,

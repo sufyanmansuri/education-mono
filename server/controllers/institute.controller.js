@@ -42,9 +42,8 @@ const getInstitutes = async (req, res, next) => {
   try {
     const totalCount = await Institute.count(query);
     fields = {
-      ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
       _id: 1,
-      institute: 1,
+      ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
     };
 
     const institutes = await Institute.aggregate([
@@ -66,9 +65,19 @@ const getInstitutes = async (req, res, next) => {
       page: page + 1,
       perPage,
       sortBy,
-      fields,
+      fields: Object.keys(fields),
       order,
       query,
+      allFields: [
+        "name",
+        "address",
+        "level",
+        "type",
+        "homePage",
+        "noOfStudents",
+        "createdAt",
+        "updatedAt",
+      ],
     });
   } catch (error) {
     return next({ error, message: error.message });

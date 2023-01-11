@@ -3,17 +3,29 @@ import { useUserStore } from "@/stores/useUserStore";
 import { navLinkItems } from "@/utils/data";
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
+import { logoutUser } from "@/services/UserService";
+
 import BaseButton from "../base/BaseButton.vue";
+import ToggleIcon from "../icons/ToggleIcon.vue";
 import TheNav from "./TheNav.vue";
+import BrandLogo from "@/assets/logo.svg";
 
 const showNav = ref(false);
 const { state, logout } = useUserStore();
 const router = useRouter();
 
 // Handle logout
-function handleLogout() {
-  logout();
-  router.push({ name: "login" });
+// Handle logout
+async function handleLogout() {
+  const { error } = await logoutUser();
+
+  if (error) {
+    alert("An error occurred.");
+    console.log(error);
+  } else {
+    logout();
+    router.push({ name: "login" });
+  }
 }
 
 // Hide nav on route change
@@ -24,21 +36,19 @@ watch(router.currentRoute, () => {
 
 <template>
   <header class="flex flex-col border-b-2 bg-white">
-    <TheNav />
+    <TheNav @logout="handleLogout" />
     <div class="container flex flex-col items-center py-4 lg:h-24 lg:flex-row">
       <div class="flex w-full items-center justify-between">
         <RouterLink to="/" class="flex items-center gap-4">
           <img
-            src="../../assets/logo.svg"
+            :src="BrandLogo"
             alt="Education Platform"
-            class="h-12 w-auto object-contain" />
+            class="h-14 w-auto object-contain" />
           <h1 class="text-2xl lg:text-3xl">Education Platform</h1>
         </RouterLink>
         <div class="lg:hidden">
-          <button class="space-y-1 border-2 p-2" @click="showNav = !showNav">
-            <div class="h-[2px] w-4 bg-black"></div>
-            <div class="h-[2px] w-4 bg-black"></div>
-            <div class="h-[2px] w-4 bg-black"></div>
+          <button class="border-2 p-2" @click="showNav = !showNav">
+            <ToggleIcon />
           </button>
         </div>
       </div>

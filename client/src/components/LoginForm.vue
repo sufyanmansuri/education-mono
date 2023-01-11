@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { useVuelidate } from "@vuelidate/core";
-import { required, email, helpers } from "@vuelidate/validators";
-import BaseButton from "./base/BaseButton.vue";
-import FormField from "./base/FormField.vue";
-import { useUserStore } from "@/stores/useUserStore";
-import axios, { isAxiosError } from "axios";
+import type { AlertConfig } from "@/types/AlertConfig";
+
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import AlertBox from "./base/AlertBox.vue";
-import type { AlertConfig } from "@/types/AlertConfig";
+import { useUserStore } from "@/stores/useUserStore";
+import { useVuelidate } from "@vuelidate/core";
+import { required, email, helpers } from "@vuelidate/validators";
+import { loginUser } from "@/services/UserService";
+import { isAxiosError } from "axios";
+
+import BaseButton from "./base/BaseButton.vue";
+import FormField from "./base/FormField.vue";
+import AlertBox from "./AlertBox.vue";
+import SpinnerIcon from "./icons/SpinnerIcon.vue";
 
 const loginForm = ref({
   email: "",
@@ -40,32 +44,28 @@ async function submit(e: Event) {
   // Clear server errors
   alertConfig.value = {};
 
-  try {
-    // Set form state to submitting
-    isSubmitting.value = true;
+  isSubmitting.value = true;
+  const { data, error } = await loginUser(loginForm.value);
 
-    const res = await axios.post("/api/users/login", loginForm.value);
-    if (res.status === 200) {
-      const { user } = res.data;
-      login(user);
-      router.push({ name: "dashboard" });
-    }
-  } catch (error) {
-    console.log(error);
+  if (error) {
     if (isAxiosError(error)) {
       alertConfig.value = {
         type: "error",
         message: error.response?.data.error.message,
       };
+
+      // Reset form
       loginForm.value.password = "";
       v.value.$reset();
     } else {
       alert("Unexpected error occurred.");
+      console.log(error);
     }
-  } finally {
-    // Reset form state
-    isSubmitting.value = false;
+  } else {
+    login(data.user);
+    router.push({ name: "dashboard" });
   }
+  isSubmitting.value = false;
 }
 </script>
 
@@ -101,9 +101,7 @@ async function submit(e: Event) {
             color="yellow"
             :animated="!isSubmitting"
             :disabled="isSubmitting">
-            <span
-              v-if="isSubmitting"
-              class="fa-solid fa-spinner fa-spin-pulse"></span>
+            <SpinnerIcon v-if="isSubmitting" />
             <span v-else>Submit</span>
           </BaseButton>
         </div>

@@ -8,7 +8,8 @@ import BaseButton from "@/components/base/BaseButton.vue";
       <img
         src="/landing.png"
         alt="Education platform"
-        class="object-cover opacity-40 lg:absolute lg:right-0 lg:-z-10 lg:block lg:w-[calc(100vw/2)]" />
+        class="object-cover opacity-40 lg:absolute lg:right-0 lg:-z-10 lg:block lg:w-[calc(100vw/2)]"
+        loading="eager" />
       <div
         class="relative -top-20 space-y-4 md:-top-20 lg:static lg:w-2/3 lg:space-y-8 lg:bg-transparent">
         <h1

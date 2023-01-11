@@ -1,3 +1,11 @@
+<script setup lang="ts">
+import type { AlertConfig } from "@/types/AlertConfig";
+
+defineProps<{
+  message?: AlertConfig;
+}>();
+</script>
+
 <template>
   <div
     class="mb-3 mt-5 border-2 p-2"
@@ -10,7 +18,7 @@
     }">
     <p class="flex items-center gap-3">
       <span
-        class="fa-solid fa-xs mx-1"
+        class="fa-solid mx-1"
         :class="{
           'fa-triangle-exclamation': message.type === 'error',
           'fa-circle-check': message.type === 'success',
@@ -21,11 +29,3 @@
     </p>
   </div>
 </template>
-
-<script setup lang="ts">
-import type { AlertConfig } from "@/types/AlertConfig";
-
-defineProps<{
-  message?: AlertConfig;
-}>();
-</script>

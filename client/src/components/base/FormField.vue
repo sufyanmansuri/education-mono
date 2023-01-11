@@ -30,6 +30,7 @@ const handleInput = (e: Event) => {
         :value="modelValue"
         class="w-full border-2 px-2 py-1 outline-none transition"
         @input="handleInput"
+        @blur="field.$touch"
         :autofocus="autofocus"
         :class="{
           'border-red': field.$dirty && field.$invalid,

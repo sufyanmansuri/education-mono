@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import axios, { isAxiosError } from "axios";
 import { ref, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
 import { formatPascalCase } from "@/utils/formatPascalCase";
-import AlertBox from "./base/AlertBox.vue";
+import AlertBox from "./AlertBox.vue";
 import SelectColumns from "./SelectColumns.vue";
+import SpinnerIcon from "./icons/SpinnerIcon.vue";
 
-const route = useRoute();
-const resource = route.params.resource;
+const props = withDefaults(
+  defineProps<{
+    resource: string;
+  }>(),
+  { resource: "users" }
+);
+
 const query = ref({
   perPage: 5,
   page: 1,
@@ -25,7 +30,7 @@ const state = ref<{
 
 async function fetchData() {
   try {
-    const res = await axios.get(`/api/${resource}`, {
+    const res = await axios.get(`/api/${props.resource}`, {
       params: query.value,
     });
     state.value = { status: "success", data: res.data };
@@ -56,10 +61,8 @@ watch(
         class="mb-5 text-left text-2xl font-black underline decoration-yellow decoration-wavy decoration-2">
         {{ resource[0].toUpperCase() + resource.slice(1) }}
       </h1>
-      <div
-        class="absolute top-1/2 left-1/2 mt-5"
-        v-if="state.status === 'loading'">
-        <span class="fa-solid fa-spinner fa-spin-pulse fa-2xl"></span>
+      <div class="absolute top-1/2 left-1/2" v-if="state.status === 'loading'">
+        <SpinnerIcon class="fa-2xl" />
       </div>
       <div class="mt-5" v-if="state.status === 'error'">
         <AlertBox

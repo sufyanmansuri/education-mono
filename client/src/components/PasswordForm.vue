@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import type { ValidatorFn } from "@vuelidate/core";
+
+import { ref } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { minLength, required, helpers } from "@vuelidate/validators";
-import { ref } from "vue";
+
 import BaseButton from "./base/BaseButton.vue";
 import FormFieldWithoutError from "./base/FormFieldWithoutError.vue";
-import type { ValidatorFn } from "@vuelidate/core";
 import ValidationBox from "./ValidationBox.vue";
 
 const emit = defineEmits<{
@@ -57,8 +59,7 @@ const v = useVuelidate(
       mustBeSame: helpers.withMessage("Passwords should match.", mustBeSame),
     },
   },
-  form,
-  { $lazy: false }
+  form
 );
 
 // Handle submit
@@ -72,12 +73,12 @@ async function handleSubmit() {
 
 <template>
   <div>
-    <form action="" @click.prevent="handleSubmit">
+    <form action="" @submit.prevent="handleSubmit">
       <div class="grid grid-cols-1 gap-4">
         <FormFieldWithoutError
           accent="blue"
           type="password"
-          v-model="form.password"
+          v-model="v.password.$model"
           :field="v.password"
           label="Password" />
         <ValidationBox
@@ -86,12 +87,12 @@ async function handleSubmit() {
         <FormFieldWithoutError
           accent="blue"
           type="password"
-          v-model="form.confirmPassword"
+          v-model="v.confirmPassword.$model"
           :field="v.confirmPassword"
           label="Confirm password" />
         <ValidationBox
           :errors="v.confirmPassword.$silentErrors"
-          :dirty="v.$dirty && v.password.$model.length > 0" />
+          :dirty="v.confirmPassword.$dirty && v.password.$model.length > 0" />
         <BaseButton type="submit" color="blue" class="">Submit</BaseButton>
       </div>
     </form>

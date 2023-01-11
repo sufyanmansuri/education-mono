@@ -1,17 +1,11 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/useUserStore";
 import { navLinkItems } from "@/utils/data";
-import { useRouter } from "vue-router";
 
-const { logout, state } = useUserStore();
-const router = useRouter();
-
-// Handle logout
-function handleLogout() {
-  logout();
-  router.push({ name: "login" });
-}
+defineEmits(["logout"]);
+const { state } = useUserStore();
 </script>
+
 <template>
   <nav
     class="hidden h-10 border-b-2 border-yellow bg-black text-white lg:block">
@@ -35,7 +29,7 @@ function handleLogout() {
             href="#"
             >{{ state.user?.firstName }}</a
           >
-          <button @click="handleLogout">
+          <button @click="$emit('logout')">
             <span class="fa-solid fa-right-from-bracket"></span>
           </button>
         </li>
