@@ -4,6 +4,7 @@ import AlertBox from "./AlertBox.vue";
 import BaseTitle from "./base/BaseTitle.vue";
 import DataTable from "./DataTable.vue";
 import SpinnerIconVue from "./icons/SpinnerIcon.vue";
+import ResizableTable from "./ResizableTable.vue";
 import SelectColumns from "./SelectColumns.vue";
 
 const initialQuery = {
@@ -64,7 +65,7 @@ function updateSort(field: string) {
           message: 'An error occurred while loading the data.',
         }" />
     </div>
-    <div v-if="state === 'success'">
+    <div v-if="state === 'success'" class="">
       <div class="flex justify-start">
         <BaseTitle
           :text1="resource[0].toUpperCase() + resource.slice(1)"
@@ -91,12 +92,14 @@ function updateSort(field: string) {
             }
           " />
       </div>
-      <DataTable
-        :items="records.data"
-        :fields="records.fields"
-        :field-modifiers="records.fieldModifiers"
-        :sort="{ field: records.sortBy, order: records.order }"
-        @sort-change="updateSort" />
+      <div class="lg:mt-3 lg:mb-5">
+        <ResizableTable
+          :items="records.data"
+          :fields="records.fields"
+          :field-modifiers="records.fieldModifiers"
+          :sort="{ field: records.sortBy, order: records.order }"
+          @sort-change="updateSort" />
+      </div>
       <div class="flex justify-between">
         <ul class="flex">
           <li
@@ -116,7 +119,12 @@ function updateSort(field: string) {
           class="border-2 bg-white p-2 outline-none"
           :value="query.perPage"
           @change="(e: Event) => { query.page = 1;query.perPage = parseInt((e.target as HTMLSelectElement).value); }">
-          <option v-for="n of 4" :key="n" :value="n * 5">
+          <option
+            v-for="n of Math.ceil(records.totalCount / 5) > 5
+              ? 5
+              : Math.ceil(records.totalCount / 5)"
+            :key="n"
+            :value="n * 5">
             {{ n * 5 }} rows
           </option>
         </select>

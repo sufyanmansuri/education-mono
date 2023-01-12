@@ -183,7 +183,11 @@ const getAccessToken = async (req, res, next) => {
     );
 
     return res
-      .cookie("token", token, { maxAge: 24 * 60 * 60 * 1000, httpsOnly: true })
+      .cookie("token", token, {
+        maxAge: 24 * 60 * 60 * 1000,
+        secure: true,
+        signed: true,
+      })
       .send({
         user: {
           firstName: user.firstName,

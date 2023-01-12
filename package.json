@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch-server": "cd server && npm run dev",
-    "watch-client": "cd client && npm run dev -- --host",
-    "dev": "concurrently -c auto --handle-input npm:watch-*"
+    "watch-express": "cd server && npm run dev",
+    "watch-vue": "cd client && npm run dev -- --host",
+    "dev": "concurrently -c bgYellow,bgBlue --handle-input npm:watch-*"
   },
   "author": "",
   "license": "ISC",

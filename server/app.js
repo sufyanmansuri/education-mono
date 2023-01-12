@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(morgan("dev"));
 
 // Routes

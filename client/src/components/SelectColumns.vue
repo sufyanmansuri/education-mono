@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { formatPascalCase } from "@/utils/formatPascalCase";
+import { humanize } from "@/utils/humanize";
 import { ref } from "vue";
 
 const props = defineProps<{
@@ -18,36 +18,60 @@ const handleChange = () => {
 </script>
 
 <template>
-  <div :aria-checked="showColumnMenu" class="group relative">
+  <div class="group relative">
     <button
       type="button"
       @click="showColumnMenu = !showColumnMenu"
       value=""
-      class="border-2 bg-white p-2 outline-none group-aria-checked:w-72 group-aria-checked:border-b-white">
+      class="border-2 bg-white p-2 outline-none">
       Select fields <span class="fa-solid fa-angle-down"></span>
     </button>
     <div
-      class="absolute top-10 left-1/2 z-20 hidden h-0 w-0 -translate-x-1/2 border-t-0 bg-white transition-all group-checked:visible group-aria-checked:block group-aria-checked:h-auto group-aria-checked:w-full group-aria-checked:border-2 group-aria-checked:border-t-0">
-      <div class="p-3">
-        <div class="mx-2 grid grid-cols-2 whitespace-nowrap accent-yellow">
-          <label v-for="field in fields" :key="field">
-            <input type="checkbox" v-model="columns" :value="field" />
-            {{ formatPascalCase(field) }}
-          </label>
-        </div>
-        <div class="mt-3 flex gap-2">
-          <button
-            @click="
-              () => {
-                columns = selected;
-                showColumnMenu = false;
-              }
-            ">
-            <span class="px-8 py-2">Cancel</span>
-          </button>
-          <button class="border-2 bg-green/50" @click="handleChange">
-            <span class="px-8 py-2">Done</span>
-          </button>
+      class="fixed top-0 left-0 z-50 hidden bg-black/50 p-5 aria-checked:flex aria-checked:h-full aria-checked:w-full aria-checked:flex-col aria-checked:justify-center"
+      :aria-checked="showColumnMenu">
+      <div class="mx-auto max-w-2xl">
+        <div class="border-2 bg-white p-5">
+          <div class="flex items-center justify-between text-3xl">
+            <h1 class="text-2xl">Select fields to display</h1>
+            <button type="button" @click="showColumnMenu = !showColumnMenu">
+              <span class="fa-solid fa-close"></span>
+            </button>
+          </div>
+          <div
+            class="my-5 flex flex-wrap gap-2 whitespace-nowrap lg:my-10 lg:text-lg">
+            <label
+              v-for="field in fields"
+              :key="field"
+              :aria-checked="columns.includes(field)"
+              class="group cursor-pointer rounded-full border-2 p-2 px-4 aria-checked:bg-yellow">
+              <span
+                class="fa-solid fa-check -mr-0.5 w-0 transition-all group-aria-checked:mr-1 group-aria-checked:w-auto"></span>
+              <input
+                type="checkbox"
+                v-model="columns"
+                class="appearance-none"
+                :value="field" />
+              <span class="bg-white group-aria-checked:bg-yellow">
+                {{ humanize(field) }}
+              </span>
+            </label>
+          </div>
+          <div class="mt-3 flex justify-between gap-2 text-lg">
+            <button
+              class="p-2 px-4"
+              @click="
+                () => {
+                  columns = selected;
+                }
+              ">
+              Reset
+            </button>
+            <button
+              class="border-2 bg-green/50 px-4 py-2"
+              @click="handleChange">
+              <span class="fa-solid fa-check mr-1"></span>Done
+            </button>
+          </div>
         </div>
       </div>
     </div>

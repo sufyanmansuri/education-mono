@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import axios, { isAxiosError } from "axios";
 import { ref, onMounted, watch } from "vue";
-import { formatPascalCase } from "@/utils/formatPascalCase";
+import { humanize } from "@/utils/humanize";
 import AlertBox from "./AlertBox.vue";
 import SelectColumns from "./SelectColumns.vue";
 import SpinnerIcon from "./icons/SpinnerIcon.vue";
 
 const props = withDefaults(
   defineProps<{
-    resource: string;
+    resource?: string;
   }>(),
   { resource: "users" }
 );
@@ -116,7 +116,7 @@ watch(
                   "
                   :key="key"
                   class="cursor-pointer border-2 px-2 py-1">
-                  {{ formatPascalCase(key) }}
+                  {{ humanize(key) }}
                   <span
                     v-if="state.data.sortBy === key && state.data.order == -1"
                     class="fa-solid fa-angle-down"></span>

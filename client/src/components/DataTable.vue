@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { FieldModifiers } from "@/types/FieldModifiers";
-import { formatPascalCase } from "@/utils/formatPascalCase";
+import { humanize } from "@/utils/humanize";
+import ResizableTable from "./ResizableTable.vue";
 
 const props = defineProps<{
   items: any[];
@@ -12,6 +13,10 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "sort-change", f: string): void;
 }>();
+
+// ======================
+
+// ======================
 
 function formatText(value: any, field: string) {
   if (
@@ -29,7 +34,7 @@ function handleSort(field: string) {
 </script>
 
 <template>
-  <div class="mt-3 mb-5 overflow-x-auto p-3">
+  <div class="lg:mt-3 lg:mb-5">
     <table
       class="theme theme-yellow w-full table-auto border-collapse whitespace-nowrap border-b-0">
       <thead>
@@ -39,7 +44,7 @@ function handleSort(field: string) {
             :key="field"
             @click="handleSort(field)"
             class="cursor-pointer border-2 px-2 py-1">
-            {{ formatPascalCase(field) }}
+            {{ humanize(field) }}
             <span
               v-if="sort.field === field && sort.order == -1"
               class="fa-solid fa-angle-down"></span>
@@ -51,22 +56,8 @@ function handleSort(field: string) {
       </thead>
       <tbody>
         <tr v-for="item in items" :key="item._id">
-          <!-- <td
-            v-for="key in state.data.fields"
-            :key="key"
-            class="border-2 p-2 pr-4">
-            <span v-if="['createdAt', 'updatedAt'].includes(key)">{{
-              new Date(item[key]).toLocaleDateString()
-            }}</span>
-            <span v-else-if="typeof item[key] !== 'object'">
-              {{ item[key] }}
-            </span>
-            <span v-else>{{ item[key]?.name }}</span>
-          </td> -->
           <td v-for="field in fields" :key="field" class="border-2 p-2 pr-4">
             {{ formatText(item[field], field) }}
-            <!-- fieldModifiers.hasOwnProperty(field) ?
-              fieldModifiers[field](item[field]) -->
           </td>
         </tr>
       </tbody>

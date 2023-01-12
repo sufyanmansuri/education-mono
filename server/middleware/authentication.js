@@ -6,7 +6,7 @@ const { JTI } = require("../models/jti.model");
  * if valid then stores user details in res.locals.user
  */
 const authentication = async (req, res, next) => {
-  let { token } = req.cookies;
+  let { token } = req.signedCookies;
   if (!token) {
     return next({
       status: 401,
