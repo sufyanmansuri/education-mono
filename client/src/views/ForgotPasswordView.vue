@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { AlertConfig } from "@/types/AlertConfig";
 import { ref } from "vue";
-import AlertBox from "@/components/AlertBox.vue";
-import ForgotPasswordForm from "@/components/ForgotPasswordForm.vue";
+import AlertBox from "@/components/base/AlertBox.vue";
+import ForgotPasswordForm from "@/components/Forms/ForgotPasswordForm.vue";
 import BaseTitle from "@/components/base/BaseTitle.vue";
 
 const alertConfig = ref<AlertConfig>({

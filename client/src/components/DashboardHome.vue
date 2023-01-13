@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import BaseTitle from "./base/BaseTitle.vue";
+</script>
+
 <template>
-  <h1>Select a resource</h1>
+  <div class="flex justify-start">
+    <BaseTitle text1="Dash" text2="board" underline-color="yellow" />
+  </div>
 </template>

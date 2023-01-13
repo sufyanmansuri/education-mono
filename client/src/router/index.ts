@@ -6,7 +6,7 @@ const LoginView = () => import("@/views/LoginView.vue");
 const RegisterView = () => import("@/views/RegisterView.vue");
 const DashboardView = () => import("@/views/DashboardView.vue");
 const VerificationView = () => import("@/views/VerificationView.vue");
-const NotFound = () => import("@/components/NotFound.vue");
+const NotFound = () => import("@/components/PageNotFound.vue");
 const PageLayout = () => import("@/components/layout/PageLayout.vue");
 
 const { state } = useUserStore();
@@ -70,13 +70,8 @@ const router = createRouter({
               component: () => import("@/components/DashboardHome.vue"),
             },
             {
-              path: "test",
-              component: () => import("@/components/ResourceListing.vue"),
-              props: true,
-            },
-            {
               path: ":resource",
-              component: () => import("@/views/ResourceView.vue"),
+              component: () => import("@/views/DataView.vue"),
               props: true,
             },
           ],
@@ -102,6 +97,10 @@ const router = createRouter({
 router.afterEach((to) => {
   nextTick(() => {
     if (to.meta.title) document.title = `${to.meta.title} | Education Platform`;
+    else if (to.params.resource)
+      document.title = `${
+        to.params.resource[0].toUpperCase() + to.params.resource.slice(1)
+      } | Education Platform`;
     else document.title = "Education Platform";
   });
 });

@@ -7,9 +7,9 @@ import { email, helpers, required } from "@vuelidate/validators";
 import { resetPassword } from "@/services/UserService";
 import { isAxiosError } from "axios";
 
-import FormField from "./base/FormField.vue";
-import BaseButton from "./base/BaseButton.vue";
-import SpinnerIcon from "./icons/SpinnerIcon.vue";
+import FormField from "../base/FormField.vue";
+import BaseButton from "../base/BaseButton.vue";
+import SpinnerIcon from "../icons/SpinnerIcon.vue";
 
 const emit = defineEmits<{
   (e: "change", alert: AlertConfig): void;

@@ -9,10 +9,10 @@ import { required, email, helpers } from "@vuelidate/validators";
 import { loginUser } from "@/services/UserService";
 import { isAxiosError } from "axios";
 
-import BaseButton from "./base/BaseButton.vue";
-import FormField from "./base/FormField.vue";
-import AlertBox from "./AlertBox.vue";
-import SpinnerIcon from "./icons/SpinnerIcon.vue";
+import BaseButton from "../base/BaseButton.vue";
+import FormField from "../base/FormField.vue";
+import AlertBox from "../base/AlertBox.vue";
+import SpinnerIcon from "../icons/SpinnerIcon.vue";
 
 const loginForm = ref({
   email: "",

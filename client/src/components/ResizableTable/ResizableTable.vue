@@ -4,7 +4,7 @@ import TableBody from "./TableBody.vue";
 import { ref } from "vue";
 import type { FieldModifiers } from "@/types/FieldModifiers";
 
-const props = defineProps<{
+defineProps<{
   items: any[];
   fields: string[];
   fieldModifiers: FieldModifiers;

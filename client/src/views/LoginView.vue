@@ -2,7 +2,7 @@
 import BaseButton from "@/components/base/BaseButton.vue";
 import BaseTitle from "@/components/base/BaseTitle.vue";
 import LineThrough from "@/components/LineThrough.vue";
-import LoginForm from "@/components/LoginForm.vue";
+import LoginForm from "@/components/Forms/LoginForm.vue";
 </script>
 
 <template>

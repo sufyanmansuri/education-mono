@@ -6,11 +6,11 @@ import { ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useQuery } from "@/hooks/useQuery";
 
-import AlertBox from "@/components/AlertBox.vue";
+import AlertBox from "@/components/base/AlertBox.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import SpinnerIcon from "@/components/icons/SpinnerIcon.vue";
 import BaseTitle from "@/components/base/BaseTitle.vue";
-import PasswordForm from "@/components/PasswordForm.vue";
+import PasswordForm from "@/components/Forms/SetPasswordForm.vue";
 import { setPassword } from "@/services/UserService";
 import { isAxiosError } from "axios";
 

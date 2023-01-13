@@ -1,4 +1,25 @@
+import type { FieldModifiers } from "@/types/FieldModifiers";
 import axios from "axios";
+import { timestamps } from "./timestampModifiers";
+
+export async function getUsers(query: any) {
+  let data, error;
+  try {
+    const res = await axios.get("/api/users", { params: query });
+    if (res.status === 200) {
+      const fieldModifiers: FieldModifiers = {
+        ...timestamps,
+        institute: (institute) => {
+          return institute?.name;
+        },
+      };
+      data = { ...res.data, fieldModifiers };
+    }
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+}
 
 type ResetPassword = {
   email: string;

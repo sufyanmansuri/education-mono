@@ -5,8 +5,8 @@ import { ref } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { minLength, required, helpers } from "@vuelidate/validators";
 
-import BaseButton from "./base/BaseButton.vue";
-import FormFieldWithoutError from "./base/FormFieldWithoutError.vue";
+import BaseButton from "../base/BaseButton.vue";
+import FormFieldWithoutError from "../base/FormFieldWithoutError.vue";
 import ValidationBox from "./ValidationBox.vue";
 
 const emit = defineEmits<{

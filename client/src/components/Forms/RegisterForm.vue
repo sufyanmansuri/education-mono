@@ -7,11 +7,11 @@ import { email, helpers, minLength, required } from "@vuelidate/validators";
 import { isAxiosError } from "axios";
 import { useQuery } from "@/hooks/useQuery";
 
-import BaseButton from "./base/BaseButton.vue";
-import FormField from "./base/FormField.vue";
-import FormSelect from "./base/FormSelect.vue";
-import AlertBox from "./AlertBox.vue";
-import SpinnerIcon from "./icons/SpinnerIcon.vue";
+import BaseButton from "../base/BaseButton.vue";
+import FormField from "../base/FormField.vue";
+import FormSelect from "../base/FormSelect.vue";
+import AlertBox from "../base/AlertBox.vue";
+import SpinnerIcon from "../icons/SpinnerIcon.vue";
 import { register } from "@/services/UserService";
 
 const registerForm = ref({

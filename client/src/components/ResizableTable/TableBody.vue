@@ -21,7 +21,7 @@ function formatText(value: any, field: string) {
   <tbody>
     <tr v-for="item in items" :key="item._id" class="table-row">
       <td
-        class="table-cell max-w-0 overflow-hidden text-ellipsis whitespace-nowrap border-2 px-4 py-2"
+        class="overflow-hidden text-ellipsis whitespace-nowrap border-2 px-4 py-2 lg:max-w-[100px]"
         v-for="field in fields"
         :key="field">
         {{ formatText(item[field], field) }}

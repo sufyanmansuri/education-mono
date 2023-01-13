@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    underlineColor?: "yellow" | "blue";
+    underlineColor?: "yellow" | "blue" | "red";
     text1: string;
     text2?: string;
   }>(),
@@ -12,7 +12,7 @@ withDefaults(
 </script>
 
 <template>
-  <h1 class="mb-5 text-center text-4xl font-black">
+  <h1 class="mb-5 text-center text-4xl font-black text-black">
     <span v-if="text2">
       {{ text1
       }}<span
@@ -29,6 +29,7 @@ withDefaults(
       class="underline decoration-wavy decoration-2"
       :class="{
         'decoration-blue': underlineColor === 'blue',
+        'decoration-red': underlineColor === 'red',
         'decoration-yellow': underlineColor === 'yellow',
       }">
       {{ text1 }}

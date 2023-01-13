@@ -185,7 +185,6 @@ const getAccessToken = async (req, res, next) => {
     return res
       .cookie("token", token, {
         maxAge: 24 * 60 * 60 * 1000,
-        secure: true,
         signed: true,
       })
       .send({
@@ -258,8 +257,9 @@ const updateUserById = async (req, res, next) => {
  * Get users filtered by query, selected columns & pagination
  */
 const getUsers = async (req, res, next) => {
-  const { sortBy = "updatedAt", query = {} } = req.query;
+  const { sortBy = "updatedAt" } = req.query;
   let {
+    query = {},
     fields = ["_id", "firstName", "lastName", "createdAt", "updatedAt"],
     page = 1,
     perPage = 5,
@@ -282,9 +282,14 @@ const getUsers = async (req, res, next) => {
     if (query.institute) {
       query.institute = ObjectId(query.institute);
     }
+    query = Object.keys(query).reduce((prev, curr) => {
+      if (Array.isArray(query[curr]))
+        return { ...prev, [curr]: { $in: query[curr] } };
+      return { ...prev, [curr]: query[curr] };
+    }, {});
 
     const users = await User.aggregate([
-      { $match: query },
+      { $match: { ...query } },
       {
         $lookup: {
           from: "institutes",
