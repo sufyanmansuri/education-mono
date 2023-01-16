@@ -1,6 +1,5 @@
-const { randomUUID } = require("node:crypto");
-const { Token, getTokenExpiry } = require("../models/token.model");
 const sendMail = require("../utils/sendMail");
+const tokenService = require("../services/token.service");
 
 /**
  * Generates and sends token in mail
@@ -9,15 +8,10 @@ const generateToken = async (req, res, next) => {
   try {
     const { user } = res.locals;
 
-    const token = randomUUID();
-    const verification = new Token({
-      token,
-      user: user._id,
-    });
-    await verification.save();
+    const verification = await tokenService.create(user._id);
 
     // Send email
-    sendMail(user.email, token);
+    sendMail(user.email, verification.token);
 
     return res.send();
   } catch (error) {
@@ -35,8 +29,8 @@ const verifyToken = async (req, res, next) => {
   if (!token) return next({ status: 400, error: { message: "Invalid token" } });
 
   try {
-    // Check if token is in db
-    const record = await Token.findOne({ token });
+    // Check if token exists
+    const record = await tokenService.getByToken(token);
     if (!record) return next({ status: 400, message: "Invalid token" });
 
     // Check if token is expired
@@ -65,20 +59,17 @@ const regenerateToken = async (req, res, next) => {
 
   try {
     // Check whether token exists in db
-    let record = await Token.findOne({ token });
+    const record = await tokenService.getByToken(token);
     if (!record) {
       return next({ status: 401, error: { message: "Invalid token" } });
     }
 
     // Generate new token
-    record.token = randomUUID();
-    record.expiresAt = getTokenExpiry();
-
-    await record.save();
-    record = await record.populate("user", "email");
+    const newRecord = await tokenService.regenerate(token);
+    await newRecord.populate("user", "email");
 
     // Send mail
-    sendMail(record.user.email, record.token);
+    sendMail(newRecord.user.email, newRecord.token);
 
     return next();
   } catch (error) {
