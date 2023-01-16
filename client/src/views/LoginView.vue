@@ -16,7 +16,7 @@ import LoginForm from "@/components/Forms/LoginForm.vue";
       <BaseTitle text1="Log" text2="in" />
       <LoginForm />
       <LineThrough />
-      <RouterLink to="/register" class="flex">
+      <RouterLink :to="{ name: 'register' }" class="flex">
         <BaseButton class="z-20 flex-1" color="blue">
           Create an account
         </BaseButton>

@@ -19,7 +19,7 @@ const router = useRouter();
 
 const { query } = route;
 const { tokenValidation } = useQuery("tokenValidation", {
-  url: "/api/users/token/check",
+  url: "/api/auth/token/check",
   params: { token: query.token },
 });
 const alertConfig = ref<AlertConfig>({
@@ -56,7 +56,7 @@ function regenerate() {
   alertConfig.value = { type: "info", message: "Regenerating token..." };
 
   const { regen } = useQuery("regen", {
-    url: "/api/users/token/regenerate",
+    url: "/api/auth/token/regenerate",
     params: { token: query.token },
   });
 

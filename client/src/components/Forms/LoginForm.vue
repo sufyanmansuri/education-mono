@@ -91,7 +91,7 @@ async function submit(e: Event) {
           type="password" />
         <div class="grid gap-1">
           <RouterLink
-            to="/forgot-password"
+            :to="{ name: 'forgot-password' }"
             class="text-right decoration-yellow transition hover:underline hover:decoration-2"
             >Forgot password?</RouterLink
           >

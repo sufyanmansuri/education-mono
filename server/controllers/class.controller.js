@@ -1,4 +1,6 @@
 const { Class } = require("../models/class.model");
+const classService = require("../services/class.service");
+const HTTPS_STATUS = require("../utils/statusCodes");
 
 /**
  * Inserts a new class document into classes collection
@@ -10,30 +12,9 @@ const createClass = async (req, res, next) => {
   const value = req.body;
 
   try {
-    const exists = await Class.exists({
-      name: value.name,
-      institute: value.institute,
-    });
-    if (exists) {
-      return next({
-        status: 400,
-        error: [
-          {
-            message: "A class with this name already exists.",
-            type: "any.invalid",
-            context: {
-              key: "class",
-            },
-          },
-        ],
-        message: "A class with this name already exists.",
-      });
-    }
+    const doc = await classService.create(value);
 
-    const doc = new Class(value);
-    await doc.save();
-
-    return res.send();
+    return res.send(doc);
   } catch (error) {
     return next({ error });
   }
@@ -49,10 +30,13 @@ const updateClass = async (req, res, next) => {
   const { classId } = req.params;
 
   try {
-    const record = await Class.findByIdAndUpdate(classId, req.body);
-    if (!record)
-      return next({ status: 400, error: { message: "Invalid class id" } });
-    return res.send();
+    const doc = await classService.updateById(classId, req.body);
+    if (!doc)
+      return next({
+        status: HTTPS_STATUS.BAD_REQUEST,
+        error: { message: "Invalid class id" },
+      });
+    return res.send(doc);
   } catch (error) {
     return next({ error });
   }
@@ -68,13 +52,14 @@ const deleteClassById = async (req, res, next) => {
   const { classId } = req.params;
 
   try {
-    const record = await Class.findById(classId);
-    if (!record)
-      return next({ status: 400, error: { message: "Invalid class id" } });
+    const doc = await classService.deleteById(classId);
+    if (!doc)
+      return next({
+        status: HTTPS_STATUS.BAD_REQUEST,
+        error: { message: "Invalid class id" },
+      });
 
-    await record.delete();
-
-    return res.send(record);
+    return res.send(doc);
   } catch (error) {
     return next({ error });
   }
@@ -102,9 +87,9 @@ const getClasses = async (req, res, next) => {
   try {
     const totalCount = await Class.count(query);
     fields = {
-      ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
       _id: 1,
       institute: 1,
+      ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
     };
 
     const classes = await Class.aggregate([
@@ -164,16 +149,18 @@ const getClassById = async (req, res, next) => {
   const { classId } = req.params;
 
   try {
-    const record = await Class.findById(classId).populate("institute", "name");
+    const doc = await (
+      await classService.getById(classId)
+    ).populate("institute", "name");
 
     // Check if class exists
-    if (!record)
+    if (!doc)
       return next({
-        status: 400,
+        status: HTTPS_STATUS.BAD_REQUEST,
         error: { message: "Class does not exist." },
       });
 
-    return res.send(record);
+    return res.send(doc);
   } catch (error) {
     return next({ error });
   }

@@ -38,25 +38,28 @@ const router = createRouter({
           beforeEnter: shouldNotBeAuthenticated(),
         },
         {
-          path: "/login",
-          name: "login",
-          component: LoginView,
-          meta: { title: "Login" },
+          path: "/auth",
           beforeEnter: shouldNotBeAuthenticated(),
-        },
-        {
-          path: "/register",
-          name: "register",
-          component: RegisterView,
-          meta: { title: "Register" },
-          beforeEnter: shouldNotBeAuthenticated(),
-        },
-        {
-          path: "/forgot-password",
-          name: "forgot-password",
-          component: () => import("@/views/ForgotPasswordView.vue"),
-          meta: { title: "Reset Password" },
-          beforeEnter: shouldNotBeAuthenticated(),
+          children: [
+            {
+              path: "login",
+              name: "login",
+              component: LoginView,
+              meta: { title: "Login" },
+            },
+            {
+              path: "register",
+              name: "register",
+              component: RegisterView,
+              meta: { title: "Register" },
+            },
+            {
+              path: "forgot-password",
+              name: "forgot-password",
+              component: () => import("@/views/ForgotPasswordView.vue"),
+              meta: { title: "Reset Password" },
+            },
+          ],
         },
         {
           path: "/dashboard",

@@ -1,45 +1,9 @@
 const { Schema, model } = require("mongoose");
-
-// options/enums
-const territories = [
-  "England",
-  "Guernsey",
-  "Jersey",
-  "Isle of Man",
-  "Northern Ireland",
-  "Scotland",
-  "Wales",
-];
-const instituteLevels = [
-  "Nursery",
-  "First",
-  "Primary",
-  "Infant",
-  "Junior",
-  "Middle",
-  "Secondary",
-  "High",
-  "All-through",
-  "Post-16",
-  "Other",
-];
-const instituteTypes = [
-  "Academy",
-  "College",
-  "Free School",
-  "Independent",
-  "LA Maintained",
-  "Special School",
-  "Welsh School",
-  "State FE",
-  "Independent Fe",
-  "6th Form",
-  "General FE",
-  "Land College",
-  "Adult Learning / Council-run Services",
-  "Art, Design and Performing Arts College",
-  "Other",
-];
+const {
+  territories,
+  instituteLevels,
+  instituteTypes,
+} = require("../utils/enums");
 
 const instituteSchema = new Schema(
   {
@@ -63,4 +27,4 @@ const instituteSchema = new Schema(
 
 const Institute = model("Institute", instituteSchema);
 
-module.exports = { Institute, instituteLevels, instituteTypes, territories };
+module.exports = { Institute };

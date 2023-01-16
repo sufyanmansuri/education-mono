@@ -1,5 +1,6 @@
 const Joi = require("joi").extend(require("@joi/date"));
-const { keyStages, examBoards } = require("../models/class.model");
+const { keyStages, examBoards } = require("../utils/enums");
+const HTTP_STATUS = require("../utils/statusCodes");
 
 /**
  * Determines if provided data is valid to create a new class document
@@ -14,14 +15,13 @@ const createClass = (req, res, next) => {
     yearGroup: Joi.date().format("YYYY"),
     noOfStudents: Joi.number().positive().integer(),
     examBoard: Joi.string().valid(...examBoards),
+    institute: Joi.string().hex().length(24).required(),
   });
 
   // Handle errors
   const { error } = classSchema.validate(req.body, { abortEarly: false });
-  if (error) return next({ status: 400, error: error.details });
-
-  // Add instituteId  to body
-  req.body.institute = req.params.instituteId;
+  if (error)
+    return next({ status: HTTP_STATUS.BAD_REQUEST, error: error.details });
 
   return next();
 };
@@ -39,6 +39,7 @@ const updateClass = (req, res, next) => {
     yearGroup: Joi.date().format("YYYY"),
     noOfStudents: Joi.number().positive().integer(),
     examBoard: Joi.string().valid(...examBoards),
+    institute: Joi.string().hex().length(24),
   })
     .min(1)
     .messages({
@@ -46,7 +47,8 @@ const updateClass = (req, res, next) => {
     });
 
   const { error } = classUpdateSchema.validate(req.body, { abortEarly: false });
-  if (error) return next({ status: 400, error: error.details });
+  if (error)
+    return next({ status: HTTP_STATUS.BAD_REQUEST, error: error.details });
 
   return next();
 };

@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import type { AlertConfig } from "@/types/AlertConfig";
 
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { email, helpers, minLength, required } from "@vuelidate/validators";
 import { isAxiosError } from "axios";
-import { useQuery } from "@/hooks/useQuery";
+import { getTitles, register } from "@/services/UserService";
+import { getInstituteList } from "@/services/InstituteService";
 
 import BaseButton from "../base/BaseButton.vue";
 import FormField from "../base/FormField.vue";
 import FormSelect from "../base/FormSelect.vue";
 import AlertBox from "../base/AlertBox.vue";
 import SpinnerIcon from "../icons/SpinnerIcon.vue";
-import { register } from "@/services/UserService";
 
 const registerForm = ref({
   firstName: "",
@@ -23,6 +23,8 @@ const registerForm = ref({
 });
 const isSubmitting = ref(false);
 const alertConfig = ref<AlertConfig>({});
+const titles = ref<string[]>();
+const institutes = ref<{ _id: string; name: string }[]>();
 
 const v = useVuelidate(
   {
@@ -54,8 +56,14 @@ const v = useVuelidate(
   registerForm
 );
 
-const { titles } = useQuery("titles", { url: "/api/titles" });
-const { institutes } = useQuery("institutes", { url: "/api/institutes/list" });
+onMounted(async () => {
+  const { data } = await getTitles();
+  titles.value = data;
+});
+onMounted(async () => {
+  const { data } = await getInstituteList();
+  institutes.value = data;
+});
 
 // Handle register
 async function handleRegister() {
@@ -71,7 +79,8 @@ async function handleRegister() {
     if (isAxiosError(error)) {
       alertConfig.value = {
         type: "error",
-        message: error.response?.data.message,
+        message:
+          error.response?.data.message || "An unexpected error occurred.",
       };
     }
   } else {
@@ -105,7 +114,7 @@ async function handleRegister() {
           accent="blue"
           autofocus
           label="Title">
-          <option v-for="title of titles.data" :value="title" :key="title">
+          <option v-for="title of titles" :value="title" :key="title">
             {{ title }}
           </option>
         </FormSelect>
@@ -136,7 +145,7 @@ async function handleRegister() {
           accent="blue"
           placeholder="Select Institute">
           <option
-            v-for="institute of institutes.data"
+            v-for="institute of institutes"
             :value="institute._id"
             :key="institute._id">
             {{ institute.name }}

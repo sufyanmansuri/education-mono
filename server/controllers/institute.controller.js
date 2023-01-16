@@ -1,20 +1,21 @@
 const { Institute } = require("../models/institute.model");
+const instituteService = require("../services/institute.service");
+const HTTP_STATUS = require("../utils/statusCodes");
 
 /**
  * Creates a new institute
  */
 const createInstitute = async (req, res, next) => {
   try {
-    const exists = await Institute.exists(req.body);
+    const exists = await instituteService.exists(req.body);
     if (exists) {
       return next({
-        status: 409,
+        status: HTTP_STATUS.BAD_REQUEST,
         error: { message: "An institute with these details already exists." },
       });
     }
 
-    const institute = new Institute(req.body);
-    await institute.save();
+    const institute = await instituteService.create(req.body);
 
     return res.send(institute);
   } catch (error) {
@@ -40,7 +41,7 @@ const getInstitutes = async (req, res, next) => {
   order = parseInt(order, 10);
 
   try {
-    const totalCount = await Institute.count(query);
+    const totalCount = await instituteService.getCount(query);
     fields = {
       _id: 1,
       ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
@@ -91,11 +92,11 @@ const getInstituteById = async (req, res, next) => {
   const { instituteId } = req.params;
 
   try {
-    const institute = await Institute.findById(instituteId);
+    const institute = await instituteService.getById(instituteId);
 
     if (!institute) {
       return next({
-        status: 400,
+        status: HTTP_STATUS.BAD_REQUEST,
         error: { message: "Institute does not exist." },
       });
     }
@@ -111,7 +112,7 @@ const getInstituteById = async (req, res, next) => {
  */
 const getInstituteList = async (req, res, next) => {
   try {
-    const list = await Institute.find({}, "_id name", { sort: "name" });
+    const list = await instituteService.getList();
 
     return res.send(list);
   } catch (error) {
@@ -126,8 +127,9 @@ const updateInstituteById = async (req, res, next) => {
   const { instituteId } = req.params;
 
   try {
-    await Institute.findByIdAndUpdate(instituteId, { ...req.body });
-    return next();
+    const institute = await instituteService.updateById(instituteId, req.body);
+    console.log(institute);
+    return res.send(institute);
   } catch (error) {
     return next({ error });
   }
@@ -140,12 +142,13 @@ const deleteInstituteById = async (req, res, next) => {
   const { instituteId } = req.params;
 
   try {
-    const institute = await Institute.findById(instituteId);
+    const institute = await instituteService.deleteById(instituteId);
 
     if (!institute)
-      return next({ status: 400, error: { message: "Invalid institute id." } });
-
-    await institute.delete();
+      return next({
+        status: HTTP_STATUS.BAD_REQUEST,
+        error: { message: "Invalid institute id." },
+      });
 
     return res.send(institute);
   } catch (error) {

@@ -1,11 +1,11 @@
 import type { FieldModifiers } from "@/types/FieldModifiers";
 import axios from "axios";
-import { timestamps } from "./timestampModifiers";
+import { timestamps } from "../utils/timestampModifiers";
 
 export async function getUsers(query: any) {
   let data, error;
   try {
-    const res = await axios.get("/api/users", { params: query });
+    const res = await axios.get("/api/admin/users", { params: query });
     if (res.status === 200) {
       const fieldModifiers: FieldModifiers = {
         ...timestamps,
@@ -27,7 +27,7 @@ type ResetPassword = {
 export async function resetPassword(form: ResetPassword) {
   let data, error;
   try {
-    const res = await axios.post("/api/users/reset-password", form);
+    const res = await axios.post("/api/auth/reset-password", form);
     if (res.status === 200) data = res.data;
   } catch (e) {
     error = e;
@@ -42,7 +42,7 @@ type LoginForm = {
 export async function loginUser(form: LoginForm) {
   let data, error;
   try {
-    const res = await axios.post("/api/users/login", form);
+    const res = await axios.post("/api/auth/login", form);
     if (res.status === 200) data = res.data;
   } catch (e) {
     error = e;
@@ -55,7 +55,7 @@ export async function setPassword(password: string, token: string) {
   let data, error;
   try {
     const res = await axios.put(
-      "/api/users/set-password",
+      "/api/auth/set-password",
       { password },
       { params: { token } }
     );
@@ -69,7 +69,7 @@ export async function setPassword(password: string, token: string) {
 export async function logoutUser() {
   let data, error;
   try {
-    const res = await axios.delete("/api/users/logout");
+    const res = await axios.delete("/api/auth/logout");
     if (res.status === 200) data = res.data;
   } catch (e) {
     error = e;
@@ -88,7 +88,18 @@ type RegisterForm = {
 export async function register(form: RegisterForm) {
   let data, error;
   try {
-    const res = await axios.post("/api/users/register", form);
+    const res = await axios.post("/api/auth/register", form);
+    if (res.status === 200) data = res.data;
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+}
+
+export async function getTitles() {
+  let data, error;
+  try {
+    const res = await axios.get("/api/titles");
     if (res.status === 200) data = res.data;
   } catch (e) {
     error = e;

@@ -1,5 +1,6 @@
-const { Class } = require("../models/class.model");
-const { User } = require("../models/user.model");
+const classService = require("../services/class.service");
+const userService = require("../services/user.service");
+const HTTP_STATUS = require("../utils/statusCodes");
 
 /**
  * Determines whether user has access to requested resource
@@ -9,8 +10,18 @@ const authorization =
   (...roles) =>
   (req, res, next) => {
     const { user } = res.locals;
-    if (roles.includes(user.role)) return next();
-    return next({ status: 403, error: { message: "Unauthorized" } });
+
+    if (user.role === "super-admin") return next();
+
+    if (roles.includes(user.role)) {
+      req.body.institute = user.institute;
+      return next();
+    }
+
+    return next({
+      status: HTTP_STATUS.FORBIDDEN,
+      error: { message: "Unauthorized" },
+    });
   };
 
 /**
@@ -23,7 +34,10 @@ const authInstitute = (req, res, next) => {
   const { instituteId } = req.params;
   if (user.institute === instituteId) return next();
 
-  return next({ status: 403, error: { message: "Unauthorized" } });
+  return next({
+    status: HTTP_STATUS.FORBIDDEN,
+    error: { message: "Unauthorized" },
+  });
 };
 
 /**
@@ -34,15 +48,22 @@ const authClass = async (req, res, next) => {
   if (user.role === "super-admin") return next();
 
   try {
-    const { classId, instituteId } = req.params;
+    const { classId } = req.params;
 
-    const classDoc = await Class.findById(classId);
+    const classDoc = await classService.getById(classId);
+
     if (!classDoc)
-      return next({ status: 404, error: { message: "Class does not exist." } });
+      return next({
+        status: HTTP_STATUS.NOT_FOUND,
+        error: { message: "Class does not exist." },
+      });
 
-    if (classDoc.institute.toString() === instituteId) return next();
+    if (classDoc.institute.toString() === user.institute) return next();
 
-    return next({ status: 403, error: { message: "Unauthorized" } });
+    return next({
+      status: HTTP_STATUS.FORBIDDEN,
+      error: { message: "Unauthorized" },
+    });
   } catch (error) {
     return next({ error });
   }
@@ -56,15 +77,21 @@ const authUsers = async (req, res, next) => {
   if (user.role === "super-admin") return next();
 
   try {
-    const { userId, instituteId } = req.params;
+    const { userId } = req.params;
 
-    const userDoc = await User.findById(userId);
-    if (!userDoc)
-      return next({ status: 404, error: { message: "User does not exist." } });
+    const requestedUser = await userService.getById(userId);
+    if (!requestedUser)
+      return next({
+        status: HTTP_STATUS.NOT_FOUND,
+        error: { message: "User does not exist." },
+      });
 
-    if (userDoc.institute.toString() === instituteId) return next();
+    if (requestedUser.institute.toString() === user.institute) return next();
 
-    return next({ status: 403, error: { message: "Unauthorized" } });
+    return next({
+      status: HTTP_STATUS.FORBIDDEN,
+      error: { message: "Unauthorized" },
+    });
   } catch (error) {
     return next({ error });
   }

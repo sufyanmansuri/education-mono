@@ -1,11 +1,12 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongoose").Types;
-const { randomUUID } = require("node:crypto");
 const { User } = require("../models/user.model");
-const { Token } = require("../models/token.model");
 const sendMail = require("../utils/sendMail");
-const { JTI } = require("../models/jti.model");
+const userService = require("../services/user.service");
+const tokenService = require("../services/token.service");
+const jtiService = require("../services/jti.service");
+const HTTP_STATUS = require("../utils/statusCodes");
 
 /**
  * Generates password reset token
@@ -14,20 +15,17 @@ const generatePasswordResetToken = async (req, res, next) => {
   const { email } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await userService.get({ email });
 
     // Check if user exists with given email
     if (!user) {
-      return next({ status: 401, message: "User does not exist." });
+      return next({
+        status: HTTP_STATUS.UNAUTHORIZED,
+        message: "User does not exist.",
+      });
     }
 
-    const token = randomUUID();
-
-    await Token.findOneAndUpdate(
-      { user: user._id },
-      { token },
-      { upsert: true }
-    );
+    const { token } = await tokenService.create(user._id);
 
     sendMail(email, token, "reset");
 
@@ -42,10 +40,11 @@ const generatePasswordResetToken = async (req, res, next) => {
  */
 const createUser = async (req, res, next) => {
   try {
-    const existing = await User.findOne({ email: req.body.email });
-    if (existing) {
+    const exists = await userService.exists({ email: req.body.email });
+    console.log(exists);
+    if (exists) {
       return next({
-        status: 403,
+        status: HTTP_STATUS.BAD_REQUEST,
         error: [
           {
             message: "An account with this email already exists.",
@@ -59,14 +58,12 @@ const createUser = async (req, res, next) => {
       });
     }
 
-    const user = new User({
+    const user = await userService.create({
       ...req.body,
       approved: true,
     });
-    await user.save();
 
     res.locals.user = user;
-
     return next();
   } catch (error) {
     return next({ error });
@@ -80,30 +77,30 @@ const createPassword = async (req, res, next) => {
   const { token } = req.query;
 
   try {
-    const { user } = await Token.findOne({ token }, { user: 1 });
+    const { user } = await tokenService.getByToken(token);
     const { password } = req.body;
 
     // Check new password is not same as old if user is not new
-    const oldPassword = (await User.findById(user, "password")).password;
+    const oldPassword = (await userService.getById(user)).password;
     if (oldPassword && bcrypt.compareSync(password, oldPassword)) {
       return next({
-        status: 400,
+        status: HTTP_STATUS.BAD_REQUEST,
         error: { message: "New password can't be same as old password." },
       });
     }
 
     // Generate hash and update user document
     const hash = await bcrypt.hash(password, 10);
-    await User.findByIdAndUpdate(user, {
+    await userService.updateById(user, {
       password: hash,
       verified: true,
     });
 
     // Delete token
-    await Token.findOneAndDelete({ token });
+    await tokenService.deleteByToken(token);
 
     // Delete jti claims
-    await JTI.deleteMany({ user });
+    await jtiService.deleteManyByUserId(user);
 
     return res.send();
   } catch (error) {
@@ -118,12 +115,12 @@ const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await userService.get({ email });
 
     // Check if user exists
     if (!user) {
       return next({
-        status: 401,
+        status: HTTP_STATUS.UNAUTHORIZED,
         error: { message: "Invalid username or password" },
       });
     }
@@ -131,13 +128,13 @@ const login = async (req, res, next) => {
     // Check whether account is verified & approved
     if (!user.verified) {
       return next({
-        status: 403,
+        status: HTTP_STATUS.FORBIDDEN,
         error: { message: "Account is not verified" },
       });
     }
     if (!user.approved) {
       return next({
-        status: 403,
+        status: HTTP_STATUS.FORBIDDEN,
         error: { message: "Account is not approved." },
       });
     }
@@ -147,7 +144,7 @@ const login = async (req, res, next) => {
 
     if (!isPasswordValid) {
       return next({
-        status: 401,
+        status: HTTP_STATUS.UNAUTHORIZED,
         error: { message: "Invalid username or password" },
       });
     }
@@ -169,7 +166,7 @@ const getAccessToken = async (req, res, next) => {
 
   try {
     // Create jti claim
-    const jti = new JTI({ user: user._id, token: randomUUID() });
+    const jti = await jtiService.create(user._id);
     await jti.save();
 
     const token = jwt.sign(
@@ -209,17 +206,20 @@ const approveUser = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
-    const user = await User.findById(userId);
+    const user = await userService.getById(userId);
 
     // Check if user exists
     if (!user) {
-      return next({ status: 400, error: { message: "User does not exist." } });
+      return next({
+        status: HTTP_STATUS.BAD_REQUEST,
+        error: { message: "User does not exist." },
+      });
     }
 
     // Check if email is verified
     if (!user.verified) {
       return next({
-        status: 400,
+        status: HTTP_STATUS.BAD_REQUEST,
         error: { message: "User's email is not verified." },
       });
     }
@@ -240,11 +240,14 @@ const updateUserById = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
-    const user = await User.findByIdAndUpdate(userId, req.body);
+    const user = await userService.updateById(userId, req.body);
 
     // Check if user exists
     if (!user) {
-      return next({ status: 404, error: { message: "User does not exist." } });
+      return next({
+        status: HTTP_STATUS.NOT_FOUND,
+        error: { message: "User does not exist." },
+      });
     }
 
     return res.send();
@@ -260,7 +263,14 @@ const getUsers = async (req, res, next) => {
   const { sortBy = "updatedAt" } = req.query;
   let {
     query = {},
-    fields = ["_id", "firstName", "lastName", "createdAt", "updatedAt"],
+    fields = [
+      "_id",
+      "firstName",
+      "lastName",
+      "email",
+      "createdAt",
+      "updatedAt",
+    ],
     page = 1,
     perPage = 5,
     order = -1,
@@ -289,7 +299,7 @@ const getUsers = async (req, res, next) => {
     }, {});
 
     const users = await User.aggregate([
-      { $match: { ...query } },
+      { $match: query },
       {
         $lookup: {
           from: "institutes",
@@ -356,16 +366,15 @@ const getUsers = async (req, res, next) => {
  */
 const register = async (req, res, next) => {
   try {
-    const exists = await User.exists({ email: req.body.email });
+    const exists = await userService.exists({ email: req.body.email });
     if (exists) {
       return next({
-        status: 400,
+        status: HTTP_STATUS.BAD_REQUEST,
         message: "An account with this email already exists.",
       });
     }
 
-    const user = new User({ ...req.body, role: "teacher" });
-    await user.save();
+    const user = await userService.create({ ...req.body, role: "teacher" });
 
     res.locals.user = user;
 
@@ -382,10 +391,10 @@ const deleteUserById = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
-    await User.findByIdAndDelete(userId);
+    await userService.deleteById(userId);
 
     // Delete jti claims
-    await JTI.deleteMany({ user: userId });
+    await jtiService.deleteManyByUserId(userId);
 
     return res.send();
   } catch (error) {
@@ -400,7 +409,7 @@ const logout = async (req, res, next) => {
   const { user } = res.locals;
 
   try {
-    await JTI.findOneAndDelete({ token: user.jti });
+    await jtiService.deleteByToken(user.jti);
 
     return res.send();
   } catch (error) {

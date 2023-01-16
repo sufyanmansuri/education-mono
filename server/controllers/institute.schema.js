@@ -3,7 +3,8 @@ const {
   territories,
   instituteLevels,
   instituteTypes,
-} = require("../models/institute.model");
+} = require("../utils/enums");
+const HTTP_STATUS = require("../utils/statusCodes");
 
 const createInstitute = (req, res, next) => {
   const createInstituteSchema = Joi.object({
@@ -38,13 +39,18 @@ const createInstitute = (req, res, next) => {
   });
 
   if (error) {
-    return next({ status: 400, message: error.message, error: error.details });
+    return next({
+      status: HTTP_STATUS.BAD_REQUEST,
+      message: error.message,
+      error: error.details,
+    });
   }
 
   return next();
 };
 
 const updateInstitute = (req, res, next) => {
+  delete req.body.institute;
   const updateSchema = Joi.object({
     name: Joi.string().min(15),
     address: Joi.object({
@@ -75,7 +81,7 @@ const updateInstitute = (req, res, next) => {
   const { error } = updateSchema.validate(req.body);
   if (error) {
     return next({
-      status: 400,
+      status: HTTP_STATUS.BAD_REQUEST,
       error: { message: error.message, ...error.details },
     });
   }

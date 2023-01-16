@@ -1,16 +1,5 @@
 const { Schema, model } = require("mongoose");
-
-const keyStages = ["Foundation Stage", "KS1", "KS2", "KS3", "KS4", "KS5"];
-const examBoards = [
-  "EdExcel",
-  "AQA",
-  "CCEA",
-  "CIE",
-  "ICAAE",
-  "OCR",
-  "WJEC",
-  "SQA",
-];
+const { examBoards, keyStages } = require("../utils/enums");
 
 const classSchema = new Schema(
   {
@@ -30,4 +19,4 @@ const classSchema = new Schema(
 
 const Class = model("Class", classSchema);
 
-module.exports = { Class, keyStages, examBoards };
+module.exports = { Class };

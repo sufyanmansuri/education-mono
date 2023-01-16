@@ -1,8 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-// ? Put it in db?
-const titles = ["Mr", "Mrs", "Miss", "Ms", "Mx", "Dr", "Sr"];
-const roles = ["super-admin", "institute-admin", "teacher"];
+const { titles, roles } = require("../utils/enums");
 
 const userSchema = new Schema(
   {
@@ -26,4 +24,4 @@ const userSchema = new Schema(
 
 const User = model("User", userSchema);
 
-module.exports = { titles, roles, User };
+module.exports = { User };

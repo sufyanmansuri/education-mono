@@ -4,9 +4,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
-const usersRouter = require("./routes/users.route");
-const institutesRouter = require("./routes/institutes.route");
-const rootRouter = require("./routes/root.route");
+const HTTP_STATUS = require("./utils/statusCodes");
+const router = require("./routes");
 
 const app = express();
 const { PORT, MONGO_URI } = process.env;
@@ -15,11 +14,12 @@ const { PORT, MONGO_URI } = process.env;
 app.disable("x-powered-by");
 
 // Simulate slow connection
+const WAIT_TIME = 1000;
 app.use((req, res, next) => {
   new Promise((resolve) => {
     setTimeout(() => {
       resolve();
-    }, 1000);
+    }, WAIT_TIME);
   }).then(() => next());
 });
 
@@ -29,20 +29,20 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(morgan("dev"));
 
 // Routes
-app.use("/", rootRouter);
-app.use("/users", usersRouter);
-app.use("/institutes", institutesRouter);
+app.use("/", router);
 
 // 404 handler
 app.use((req, res, _next) => {
-  res.status(404).send({ message: "Route not found" });
+  res.status(HTTP_STATUS.NOT_FOUND).send({ message: "Route not found" });
 });
 
 // Error handler
 app.use((err, req, res, _next) => {
   const { status, message } = err;
   console.log({ message, ...err });
-  res.status(status || 500).send({ message, ...err });
+  res
+    .status(status || HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    .send({ message, ...err });
 });
 
 // Suppress deprecation warning

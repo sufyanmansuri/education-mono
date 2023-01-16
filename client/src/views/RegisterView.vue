@@ -11,7 +11,7 @@ import RegisterForm from "@/components/Forms/RegisterForm.vue";
       <BaseTitle text1="Regis" text2="ter" />
       <RegisterForm />
       <LineThrough />
-      <RouterLink to="/login" class="flex">
+      <RouterLink :to="{ name: 'login' }" class="flex">
         <BaseButton class="z-20 flex-1" color="yellow">Login</BaseButton>
       </RouterLink>
     </div>

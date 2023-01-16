@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const { JTI } = require("../models/jti.model");
+const jtiService = require("../services/jti.service");
+const HTTP_STATUS = require("../utils/statusCodes");
 
 /**
  * Verify if authorization token is valid
@@ -9,7 +10,7 @@ const authentication = async (req, res, next) => {
   let { token } = req.signedCookies;
   if (!token) {
     return next({
-      status: 401,
+      status: HTTP_STATUS.UNAUTHORIZED,
       error: { message: "Unauthenticated user access." },
     });
   }
@@ -19,12 +20,18 @@ const authentication = async (req, res, next) => {
   try {
     const payload = jwt.verify(token, JWT_SECRET_KEY); // verify token
     if (!payload) {
-      return next({ status: 498, error: { message: "Invalid token" } });
+      return next({
+        status: HTTP_STATUS.UNAUTHORIZED,
+        error: { message: "Invalid token" },
+      });
     }
-    const jti = await JTI.findOne({ token: payload.jti, user: payload.sub }); // verify jti
+    const jti = await jtiService.get({ token: payload.jti, user: payload.sub }); // verify jti
     if (!jti) {
       res.clearCookie("token");
-      return next({ status: 403, error: { message: "Token expired" } });
+      return next({
+        status: HTTP_STATUS.FORBIDDEN,
+        error: { message: "Token expired" },
+      });
     }
 
     res.locals.user = payload;
@@ -32,13 +39,13 @@ const authentication = async (req, res, next) => {
   } catch (error) {
     if (error.name === "JsonWebTokenError") {
       return next({
-        status: 401,
+        status: HTTP_STATUS.UNAUTHORIZED,
         error: { message: "Invalid token" },
       });
     }
     if (error.name === "TokenExpiredError") {
       return next({
-        status: 403,
+        status: HTTP_STATUS.FORBIDDEN,
         error: { message: "Token expired. Login again." },
       });
     }

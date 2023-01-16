@@ -1,5 +1,6 @@
 const Joi = require("joi");
-const { titles, roles } = require("../models/user.model");
+const { titles, roles } = require("../utils/enums");
+const HTTP_STATUS = require("../utils/statusCodes");
 
 /**
  * Validates registration details
@@ -17,7 +18,8 @@ const register = (req, res, next) => {
 
   const { error } = registerSchema.validate(req.body);
 
-  if (error) return next({ status: 400, error: error.details });
+  if (error)
+    return next({ status: HTTP_STATUS.BAD_REQUEST, error: error.details });
 
   return next();
 };
@@ -26,6 +28,13 @@ const register = (req, res, next) => {
  * Validate create user details
  */
 const createUser = (req, res, next) => {
+  const { user } = res.locals;
+
+  function getValidRoles() {
+    if (user.role === "super-admin") return roles;
+    return ["institute-admin", "teacher"];
+  }
+
   const userSchema = Joi.object({
     firstName: Joi.string().required().min(2).max(20),
     lastName: Joi.string().required().min(2).max(20),
@@ -34,7 +43,7 @@ const createUser = (req, res, next) => {
       .required(),
     email: Joi.string().email().required(),
     role: Joi.string()
-      .valid(...roles)
+      .valid(...getValidRoles())
       .required(),
     institute: Joi.when("role", {
       is: Joi.string().valid("institute-admin", "teacher"),
@@ -46,7 +55,11 @@ const createUser = (req, res, next) => {
 
   // Handle errors
   if (error) {
-    return next({ status: 400, message: error.message, error: error.details });
+    return next({
+      status: HTTP_STATUS.BAD_REQUEST,
+      message: error.message,
+      error: error.details,
+    });
   }
 
   // Go to next if no errors
@@ -66,7 +79,11 @@ const login = (req, res, next) => {
 
   // Handle errors
   if (error) {
-    return next({ status: 400, error: error.details, message: error.message });
+    return next({
+      status: HTTP_STATUS.BAD_REQUEST,
+      error: error.details,
+      message: error.message,
+    });
   }
 
   return next();
@@ -84,7 +101,11 @@ const email = async (req, res, next) => {
 
   // Handle error
   if (error) {
-    return next({ status: 400, error: error.details, message: error.message });
+    return next({
+      status: HTTP_STATUS.BAD_REQUEST,
+      error: error.details,
+      message: error.message,
+    });
   }
 
   return next();
@@ -122,7 +143,11 @@ const password = (req, res, next) => {
 
   // Handle errors
   if (error) {
-    return next({ status: 400, message: error.message, error: error.details });
+    return next({
+      status: HTTP_STATUS.BAD_REQUEST,
+      message: error.message,
+      error: error.details,
+    });
   }
 
   // Go to next if no errors
@@ -140,6 +165,7 @@ const updateUser = (req, res, next) => {
     email: Joi.string().email(),
     role: Joi.string().valid(...roles),
     approved: Joi.boolean(),
+    institute: Joi.string().hex().length(24),
   })
     .min(1)
     .messages({
@@ -149,7 +175,11 @@ const updateUser = (req, res, next) => {
   const { error } = updateUserSchema.validate(req.body);
 
   if (error) {
-    return next({ status: 400, message: error.message, error: error.details });
+    return next({
+      status: HTTP_STATUS.BAD_REQUEST,
+      message: error.message,
+      error: error.details,
+    });
   }
 
   return next();
@@ -173,7 +203,11 @@ const updateProfile = (req, res, next) => {
   const { error } = updateProfileSchema.validate(req.body);
 
   if (error) {
-    return next({ status: 400, message: error.message, error: error.details });
+    return next({
+      status: HTTP_STATUS.BAD_REQUEST,
+      message: error.message,
+      error: error.details,
+    });
   }
 
   return next();
@@ -196,7 +230,11 @@ const createInstituteUser = (req, res, next) => {
   const { error } = createInstituteUserSchema.validate(req.body);
 
   if (error)
-    return next({ status: 400, message: error.message, error: error.details });
+    return next({
+      status: HTTP_STATUS.BAD_REQUEST,
+      message: error.message,
+      error: error.details,
+    });
 
   return next();
 };
@@ -220,7 +258,11 @@ const updateInstituteUser = (req, res, next) => {
   const { error } = updateInstituteUserSchema.validate(req.body);
 
   if (error) {
-    return next({ status: 400, message: error.message, error: error.details });
+    return next({
+      status: HTTP_STATUS.BAD_REQUEST,
+      message: error.message,
+      error: error.details,
+    });
   }
 
   return next();
