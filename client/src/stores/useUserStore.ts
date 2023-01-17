@@ -8,7 +8,6 @@ type userStore = {
 };
 
 const getInitialValue = () => {
-  console.log(document.cookie);
   const isLoggedIn = document.cookie.indexOf("token=") !== -1;
   if (isLoggedIn) {
     const data = JSON.parse(localStorage.getItem("user") || "{}");

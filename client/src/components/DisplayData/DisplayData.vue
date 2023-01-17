@@ -101,8 +101,7 @@ function handleQueryChange(updatedQuery: typeof initialQuery) {
           @sort-change="updateSort" />
       </MetaData>
     </div>
-    <!-- (e.target as HTMLSelectElement).value -->
-    <select
+    <!-- <select
       @change="
         (e) => {
           if((e.target as HTMLSelectElement).value)
@@ -116,6 +115,6 @@ function handleQueryChange(updatedQuery: typeof initialQuery) {
       ">
       <option value="">Select roles</option>
       <option value="super-admin">Super Admin & Institute Admin</option>
-    </select>
+    </select> -->
   </div>
 </template>

@@ -21,13 +21,10 @@ export async function getUsers(query: any) {
   return { data, error };
 }
 
-type ResetPassword = {
-  email: string;
-};
-export async function resetPassword(form: ResetPassword) {
+export async function resetPassword(email: string) {
   let data, error;
   try {
-    const res = await axios.post("/api/auth/reset-password", form);
+    const res = await axios.post("/api/auth/reset-password", { email });
     if (res.status === 200) data = res.data;
   } catch (e) {
     error = e;
@@ -104,5 +101,17 @@ export async function getTitles() {
   } catch (e) {
     error = e;
   }
+  return { data, error };
+}
+
+export async function verifyToken(token: string) {
+  let data, error;
+  try {
+    const res = await axios.get("/api/auth/token/check", { params: { token } });
+    if (res.status === 200) data = res.data;
+  } catch (e) {
+    error = e;
+  }
+
   return { data, error };
 }

@@ -38,7 +38,7 @@ async function handleSubmit() {
   isLoading.value = true;
   emit("change", { type: "info", message: "Loading..." });
 
-  const { error } = await resetPassword(form.value);
+  const { error } = await resetPassword(form.value.email);
 
   if (error) {
     if (isAxiosError(error)) {
@@ -54,7 +54,7 @@ async function handleSubmit() {
     emit("change", {
       type: "success",
       message:
-        "Request to reset password submitted successfully. Check your email for further process.",
+        "Request submitted successfully. Check your email for further process.",
     });
 
     // Reset form

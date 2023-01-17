@@ -11,7 +11,7 @@ const generateToken = async (req, res, next) => {
     const verification = await tokenService.create(user._id);
 
     // Send email
-    sendMail(user.email, verification.token);
+    sendMail(user, verification.token);
 
     return res.send();
   } catch (error) {
@@ -61,7 +61,6 @@ const verifyToken = async (req, res, next) => {
   */
 const regenerateToken = async (req, res, next) => {
   const { token } = req.query;
-
   // Check if token is provided
   if (!token)
     return next({
@@ -81,10 +80,10 @@ const regenerateToken = async (req, res, next) => {
 
     // Generate new token
     const newRecord = await tokenService.regenerate(token);
-    await newRecord.populate("user", "email");
+    await newRecord.populate("user");
 
     // Send mail
-    sendMail(newRecord.user.email, newRecord.token);
+    sendMail(newRecord.user, newRecord.token);
 
     return next();
   } catch (error) {

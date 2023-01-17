@@ -2,6 +2,8 @@ export type Status =
   | "invalid"
   | "expired"
   | "valid"
+  | "regenerating"
   | "regenerated"
   | "fetching"
-  | "success";
+  | "success"
+  | "same-password";

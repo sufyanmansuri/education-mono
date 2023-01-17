@@ -48,7 +48,7 @@ onUnmounted(() => {
 <template>
   <Transition>
     <AlertBox
-      class="fixed top-0 right-4 z-50 mx-auto w-[90vw] shadow-xl md:w-[50vw] lg:top-32 lg:w-auto"
+      class="fixed top-20 left-4 right-4 z-50 mx-auto w-[90vw] shadow-xl md:left-auto md:w-[50vw] lg:top-32 lg:w-auto"
       v-if="showAlert"
       :message="{
         type: 'warning',

@@ -27,7 +27,7 @@ const generatePasswordResetToken = async (req, res, next) => {
 
     const { token } = await tokenService.create(user._id);
 
-    sendMail(email, token, "reset");
+    sendMail(user, token, "reset");
 
     return res.send();
   } catch (error) {

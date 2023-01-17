@@ -88,7 +88,7 @@ const router = createRouter({
       ],
     },
     {
-      path: "/verification",
+      path: "/auth/verification",
       name: "verification",
       meta: { title: "Verification" },
       component: VerificationView,
