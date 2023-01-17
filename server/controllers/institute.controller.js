@@ -128,7 +128,6 @@ const updateInstituteById = async (req, res, next) => {
 
   try {
     const institute = await instituteService.updateById(instituteId, req.body);
-    console.log(institute);
     return res.send(institute);
   } catch (error) {
     return next({ error });
@@ -156,10 +155,24 @@ const deleteInstituteById = async (req, res, next) => {
   }
 };
 
+/**
+ * Search institute by name
+ */
+const searchInstitutes = async (req, res, next) => {
+  try {
+    const list = await instituteService.searchByName(req.query.search);
+    console.log(list);
+    return res.send(list);
+  } catch (error) {
+    return next({ error });
+  }
+};
+
 module.exports = {
   createInstitute,
   getInstitutes,
   getInstituteById,
+  searchInstitutes,
   getInstituteList,
   updateInstituteById,
   deleteInstituteById,

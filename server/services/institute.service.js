@@ -8,7 +8,10 @@ const create = async (data) => {
   return institute;
 };
 const getById = async (id) => Institute.findById(id);
-const getList = async () => Institute.find({}, "_id name", { sort: "name" });
+const getList = async (query) =>
+  Institute.find(query, "_id name", { sort: "name" });
+const searchByName = async (query) =>
+  Institute.find({ name: { $regex: query, $options: "i" } }, { name: 1 });
 const getCount = async (query) => Institute.count(query);
 const updateById = async (id, data) =>
   Institute.findByIdAndUpdate(id, data, { new: true });
@@ -22,4 +25,5 @@ module.exports = {
   getCount,
   updateById,
   deleteById,
+  searchByName,
 };

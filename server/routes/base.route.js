@@ -5,6 +5,7 @@ const enums = require("../utils/enums");
 const baseRouter = Router();
 
 baseRouter.get("/institutes", instituteController.getInstituteList);
+baseRouter.get("/search-institutes", instituteController.searchInstitutes);
 baseRouter.get("/roles", (req, res) => res.send(enums.roles));
 baseRouter.get("/titles", (req, res) => res.send(enums.titles));
 baseRouter.get("/levels", (req, res) => res.send(enums.instituteLevels));
