@@ -76,7 +76,13 @@ watch(router.currentRoute, () => {
             <div
               v-if="state.isLoggedIn"
               class="flex items-center justify-between gap-2">
-              <p class="text-xl font-black">{{ state.user?.firstName }}</p>
+              <div class="flex items-center gap-2">
+                <img
+                  :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${state.user?.email}`"
+                  alt="avatar"
+                  class="h-8 object-contain" />
+                <p class="text-xl font-black">{{ state.user?.firstName }}</p>
+              </div>
               <button @click="handleLogout" class="border-2 px-2">
                 Logout
                 <span class="fa-solid fa-right-from-bracket"></span>

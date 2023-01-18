@@ -21,10 +21,12 @@ export async function getInstitutes(query: any) {
   return { data, error };
 }
 
-export async function getInstituteList() {
+export async function getInstituteList(query: string) {
   let data, error;
   try {
-    const res = await axios.get("/api/institutes");
+    const res = await axios.get("/api/search-institutes", {
+      params: { search: query },
+    });
     if (res.status === 200) data = res.data;
   } catch (e) {
     error = e;

@@ -6,13 +6,13 @@ import { useVuelidate } from "@vuelidate/core";
 import { email, helpers, minLength, required } from "@vuelidate/validators";
 import { isAxiosError } from "axios";
 import { getTitles, register } from "@/services/UserService";
-import { getInstituteList } from "@/services/InstituteService";
 
 import BaseButton from "../base/BaseButton.vue";
 import FormField from "../base/FormField.vue";
 import FormSelect from "../base/FormSelect.vue";
 import AlertBox from "../base/AlertBox.vue";
 import SpinnerIcon from "../icons/SpinnerIcon.vue";
+import SelectInstitute from "./SelectInstitute.vue";
 
 const registerForm = ref({
   firstName: "",
@@ -24,27 +24,26 @@ const registerForm = ref({
 const isSubmitting = ref(false);
 const alertConfig = ref<AlertConfig>({});
 const titles = ref<string[]>();
-const institutes = ref<{ _id: string; name: string }[]>();
 
 const v = useVuelidate(
   {
     firstName: {
-      required: helpers.withMessage("First name is required", required),
+      required: helpers.withMessage("First name is required.", required),
       minLength: helpers.withMessage(
-        "Should contain two characters",
+        "Should contain two characters.",
         minLength(2)
       ),
     },
     lastName: {
       required: helpers.withMessage("Last name is required.", required),
       minLength: helpers.withMessage(
-        "Should contain two characters",
+        "Should contain two characters.",
         minLength(2)
       ),
     },
     email: {
-      required: helpers.withMessage("Email is required", required),
-      email: helpers.withMessage("Email is invalid", email),
+      required: helpers.withMessage("Email is required.", required),
+      email: helpers.withMessage("Email is invalid.", email),
     },
     title: {
       required: helpers.withMessage("Title is required.", required),
@@ -59,10 +58,6 @@ const v = useVuelidate(
 onMounted(async () => {
   const { data } = await getTitles();
   titles.value = data;
-});
-onMounted(async () => {
-  const { data } = await getInstituteList();
-  institutes.value = data;
 });
 
 // Handle register
@@ -106,13 +101,13 @@ async function handleRegister() {
   <form @submit.prevent="handleRegister">
     <div>
       <AlertBox :message="alertConfig" />
-      <div class="grid grid-cols-1 gap-4">
+      <div class="flex flex-col gap-4">
+        <SelectInstitute v-model="v.institute.$model" :field="v.institute" />
         <FormSelect
           v-model="v.title.$model"
           :field="v.title"
           placeholder="Select title"
           accent="blue"
-          autofocus
           label="Title">
           <option v-for="title of titles" :value="title" :key="title">
             {{ title }}
@@ -120,13 +115,13 @@ async function handleRegister() {
         </FormSelect>
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <FormField
-            v-model="v.firstName.$model"
+            v-model.trim="v.firstName.$model"
             label="First name"
             accent="blue"
             placeholder="John"
             :field="v.firstName" />
           <FormField
-            v-model="v.lastName.$model"
+            v-model.trim="v.lastName.$model"
             label="Last name"
             accent="blue"
             placeholder="Doe"
@@ -138,19 +133,6 @@ async function handleRegister() {
           accent="blue"
           label="Email"
           placeholder="john@example.com" />
-        <FormSelect
-          :field="v.institute"
-          v-model="v.institute.$model"
-          label="Institute"
-          accent="blue"
-          placeholder="Select Institute">
-          <option
-            v-for="institute of institutes"
-            :value="institute._id"
-            :key="institute._id">
-            {{ institute.name }}
-          </option>
-        </FormSelect>
         <BaseButton
           type="submit"
           class="z-20 mt-3"

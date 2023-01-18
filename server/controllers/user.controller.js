@@ -289,12 +289,17 @@ const getUsers = async (req, res, next) => {
       ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
     };
 
-    if (query.institute) {
-      query.institute = ObjectId(query.institute);
+    if (query.institute?.length) {
+      query.institute = query.institute.map((item) => new ObjectId(item));
     }
     query = Object.keys(query).reduce((prev, curr) => {
       if (Array.isArray(query[curr]))
-        return { ...prev, [curr]: { $in: query[curr] } };
+        return {
+          ...prev,
+          [curr]: {
+            $in: query[curr],
+          },
+        };
       return { ...prev, [curr]: query[curr] };
     }, {});
 

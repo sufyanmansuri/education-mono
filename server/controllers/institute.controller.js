@@ -161,7 +161,7 @@ const deleteInstituteById = async (req, res, next) => {
 const searchInstitutes = async (req, res, next) => {
   try {
     const list = await instituteService.searchByName(req.query.search);
-    console.log(list);
+
     return res.send(list);
   } catch (error) {
     return next({ error });

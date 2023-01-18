@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
+
 import AlertBox from "../base/AlertBox.vue";
 import BaseTitle from "../base/BaseTitle.vue";
 import SpinnerIconVue from "../icons/SpinnerIcon.vue";
 import ResizableTable from "../ResizableTable/ResizableTable.vue";
+import DataFilters from "./DataFilters.vue";
 import MetaData from "./MetaData.vue";
 
 const initialQuery = {
@@ -11,6 +13,7 @@ const initialQuery = {
   page: 1,
   sortBy: "updatedAt",
   query: {},
+  search: "",
   order: -1,
   fields: [],
 };
@@ -70,6 +73,21 @@ function updateSort(field: string) {
 function handleQueryChange(updatedQuery: typeof initialQuery) {
   query.value = updatedQuery;
 }
+
+// Apply filters
+function applyFilters(filters: any) {
+  query.value = {
+    ...query.value,
+    query: { ...query.value.query, ...filters },
+    page: 1,
+  };
+}
+
+// Reset query
+function resetQuery() {
+  query.value.query = initialQuery.query;
+  query.value.page = 1;
+}
 </script>
 
 <template>
@@ -92,6 +110,10 @@ function handleQueryChange(updatedQuery: typeof initialQuery) {
           :text1="resource[0].toUpperCase() + resource.slice(1)"
           underlineColor="yellow" />
       </div>
+      <DataFilters
+        @filter-change="applyFilters"
+        @query-reset="resetQuery"
+        v-if="resource === 'users'" />
       <MetaData :info="meta" :query="query" @query-change="handleQueryChange">
         <ResizableTable
           :items="records.data"

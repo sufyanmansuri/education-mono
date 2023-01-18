@@ -25,10 +25,17 @@ const { state } = useUserStore();
           v-if="state.isLoggedIn"
           class="flex items-stretch gap-2 bg-white px-8 text-black">
           <a
-            class="flex items-center hover:underline hover:decoration-blue hover:decoration-2"
-            href="#"
-            >{{ state.user?.firstName }}</a
-          >
+            class="mr-1 flex items-center gap-1 hover:underline hover:decoration-blue hover:decoration-2"
+            href="#">
+            <img
+              :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${state.user?.email}`"
+              alt="avatar"
+              class="box-border h-8 object-cover" />
+            <p class="font-black">
+              {{ state.user?.firstName }}
+            </p>
+          </a>
+
           <button @click="$emit('logout')">
             <span class="fa-solid fa-right-from-bracket"></span>
           </button>
