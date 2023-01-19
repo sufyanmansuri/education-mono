@@ -7,7 +7,7 @@ const {
 
 const instituteSchema = new Schema(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: true, text: true },
     address: {
       line1: { type: String, required: true },
       line2: { type: String },
@@ -24,6 +24,7 @@ const instituteSchema = new Schema(
   },
   { timestamps: true }
 );
+instituteSchema.index({ name: 1 });
 
 const Institute = model("Institute", instituteSchema);
 

@@ -1,13 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/stores/useUserStore";
 import { nextTick } from "vue";
-const HomeView = () => import("@/views/HomeView.vue");
-const LoginView = () => import("@/views/LoginView.vue");
-const RegisterView = () => import("@/views/RegisterView.vue");
-const DashboardView = () => import("@/views/DashboardView.vue");
-const VerificationView = () => import("@/views/VerificationView.vue");
-const NotFound = () => import("@/components/PageNotFound.vue");
-const PageLayout = () => import("@/components/layout/PageLayout.vue");
 
 const { state } = useUserStore();
 
@@ -28,12 +21,12 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      component: PageLayout,
+      component: () => import("@/components/layout/PageLayout.vue"),
       children: [
         {
           path: "",
           name: "home",
-          component: HomeView,
+          component: () => import("@/views/HomeView.vue"),
           meta: { title: "Home" },
           beforeEnter: shouldNotBeAuthenticated(),
         },
@@ -44,13 +37,13 @@ const router = createRouter({
             {
               path: "login",
               name: "login",
-              component: LoginView,
+              component: () => import("@/views/LoginView.vue"),
               meta: { title: "Login" },
             },
             {
               path: "register",
               name: "register",
-              component: RegisterView,
+              component: () => import("@/views/RegisterView.vue"),
               meta: { title: "Register" },
             },
             {
@@ -64,7 +57,7 @@ const router = createRouter({
         {
           path: "/dashboard",
           beforeEnter: shouldBeAuthenticated("login"),
-          component: DashboardView,
+          component: () => import("@/views/DashboardView.vue"),
           children: [
             {
               meta: { title: "Dashboard" },
@@ -82,7 +75,7 @@ const router = createRouter({
         {
           path: "/:match(.*)*",
           name: "not-found",
-          component: NotFound,
+          component: () => import("@/components/PageNotFound.vue"),
           meta: { title: "Page not found" },
         },
       ],
@@ -91,7 +84,7 @@ const router = createRouter({
       path: "/auth/verification",
       name: "verification",
       meta: { title: "Verification" },
-      component: VerificationView,
+      component: () => import("@/views/VerificationView.vue"),
     },
   ],
 });

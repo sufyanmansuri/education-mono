@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 import { debounce } from "@/utils/debounce";
+import SpinnerIcon from "../icons/SpinnerIcon.vue";
+import type { Institute } from "@/types/Institute";
 
 const props = defineProps<{
   modelValue: string;
@@ -9,21 +11,21 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue"]);
 
-type Institute = {
-  _id: string;
-  name: string;
-};
+
 const data = ref<Institute[]>();
 const value = ref();
 const show = ref(false);
+const loading = ref(true);
 const query = ref<string>("");
 
 const label = ref<HTMLLabelElement | null>(null);
 
 // Get institutes from server
 const get = async (query: string = "") => {
+  loading.value = true;
   const res = await fetch(`/api/search-institutes?search=${query}`);
   const data = await res.json();
+  loading.value = false;
   return data;
 };
 
@@ -91,7 +93,12 @@ watch(
               placeholder="Search..."
               v-model="query" />
           </div>
-          <ul class="my-1">
+          <ul class="relative my-1">
+            <div
+              v-if="loading"
+              class="absolute inset-0 flex items-center justify-center bg-opaque p-3 text-3xl">
+              <SpinnerIcon />
+            </div>
             <template v-if="data && data.length > 0">
               <li
                 v-for="item of data"

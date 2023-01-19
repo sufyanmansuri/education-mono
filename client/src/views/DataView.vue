@@ -46,16 +46,18 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Transition>
-    <AlertBox
-      class="fixed top-20 left-4 right-4 z-50 mx-auto w-[90vw] shadow-xl md:left-auto md:w-[50vw] lg:top-32 lg:w-auto"
-      v-if="showAlert"
-      :message="{
-        type: 'warning',
-        message: 'Click on the column name to sort.',
-      }" />
-  </Transition>
-  <DisplayData :service="service" :key="resource" :resource="resource" />
+  <div class="flex flex-1 flex-col">
+    <Transition>
+      <AlertBox
+        class="fixed top-20 left-4 right-4 z-50 mx-auto w-[90vw] shadow-xl md:left-auto md:w-[50vw] lg:top-32 lg:w-auto"
+        v-if="showAlert"
+        :message="{
+          type: 'warning',
+          message: 'Click on the column name to sort.',
+        }" />
+    </Transition>
+    <DisplayData :service="service" :resource="resource" :key="resource" />
+  </div>
 </template>
 
 <style scoped>

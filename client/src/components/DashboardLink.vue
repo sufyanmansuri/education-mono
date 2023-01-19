@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     to="/dashboard/institutes"
-    class="flex items-center gap-2 rounded-full border-2 bg-white p-2 px-4 transition-all lg:px-8"
+    class="flex items-center gap-2 border-2 bg-white p-2 px-4 transition-all"
     active-class="active">
     <slot></slot>
   </RouterLink>

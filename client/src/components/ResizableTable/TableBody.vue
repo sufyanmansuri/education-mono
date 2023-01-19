@@ -26,6 +26,14 @@ function formatText(value: any, field: string) {
         :key="field">
         {{ formatText(item[field], field) }}
       </td>
+      <td class="whitespace-nowrap border-2 py-1 text-center lg:max-w-[50px]">
+        <button class="mx-1 border-2 px-2 py-1">
+          <span class="fa-solid fa-pen"></span>
+        </button>
+        <button class="mx-1 border-2 bg-red px-2 py-1">
+          <span class="fa-solid fa-trash"></span>
+        </button>
+      </td>
     </tr>
   </tbody>
 </template>

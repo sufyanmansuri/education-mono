@@ -51,7 +51,8 @@ async function submit(e: Event) {
     if (isAxiosError(error)) {
       alertConfig.value = {
         type: "error",
-        message: error.response?.data.error.message,
+        message:
+          error.response?.data.error.message || error.response?.data.message,
       };
 
       // Reset form

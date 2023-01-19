@@ -282,7 +282,6 @@ const getUsers = async (req, res, next) => {
   order = parseInt(order, 10);
 
   try {
-    const totalCount = await User.count(query);
     fields = {
       _id: 1,
       institute: 1,
@@ -300,10 +299,37 @@ const getUsers = async (req, res, next) => {
             $in: query[curr],
           },
         };
+
+      if (curr === "search") {
+        if (query[curr]) return { ...prev, $text: { $search: query[curr] } };
+        return prev;
+      }
       return { ...prev, [curr]: query[curr] };
     }, {});
 
-    const users = await User.aggregate([
+    const totalCount = await User.count(query);
+    const users = await User.aggregate()
+      .match(query)
+      .skip(perPage * page)
+      .limit(perPage)
+      .lookup({
+        from: "institutes",
+        localField: "institute",
+        foreignField: "_id",
+        as: "institute",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+            },
+          },
+        ],
+      })
+      .unwind({ path: "$institute", preserveNullAndEmptyArrays: true })
+      .project(fields)
+      .sort({ [sortBy]: order });
+
+    /* const users = await User.aggregate([
       { $match: query },
       {
         $lookup: {
@@ -337,7 +363,7 @@ const getUsers = async (req, res, next) => {
       },
       { $skip: perPage * page },
       { $limit: perPage },
-    ]);
+    ]); */
 
     return res.send({
       totalPages: Math.ceil(totalCount / perPage),

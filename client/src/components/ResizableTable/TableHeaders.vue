@@ -5,11 +5,9 @@ import { ref } from "vue";
 defineProps<{
   tableHeight?: number;
   fields: string[];
-  sort: { field: string; order: -1 | 1 };
+  sort: { field: string; order: number };
 }>();
-const emit = defineEmits<{
-  (e: "sort-change", f: string): void;
-}>();
+const emit = defineEmits(["sort-change"]);
 
 const columns = ref<InstanceType<typeof HTMLTableCellElement>[] | null>(null);
 let pageX: number;
@@ -74,11 +72,12 @@ function handleSort(field: string) {
             class="fa-solid fa-caret-up"></span>
         </div>
         <div
-          class="absolute top-0 right-0 w-1 cursor-col-resize select-none hover:border-r-2"
+          class="absolute top-0 right-0 w-1 cursor-col-resize select-none"
           v-if="tableHeight"
           :style="{ height: tableHeight - 2 + 'px' }"
           @mousedown="onMouseDown($event, i)"></div>
       </th>
+      <th class="relative whitespace-nowrap border-2 px-4 py-2">Actions</th>
     </tr>
   </thead>
 </template>

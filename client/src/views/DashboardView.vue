@@ -15,7 +15,7 @@ import DashboardLink from "@/components/DashboardLink.vue";
         </DashboardLink>
       </div>
     </div>
-    <div class="relative p-5 lg:col-span-9 xl:col-span-10">
+    <div class="relative flex flex-col p-5 lg:col-span-9 xl:col-span-10">
       <RouterView />
     </div>
   </div>

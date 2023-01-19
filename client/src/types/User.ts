@@ -5,3 +5,5 @@ export type User = {
   role: string;
   title: string;
 };
+
+export type Role = "institute-admin" | "super-admin" | "teacher";

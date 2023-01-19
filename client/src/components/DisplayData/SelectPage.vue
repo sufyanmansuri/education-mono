@@ -1,17 +1,16 @@
 <script setup lang="ts">
-defineProps<{
-  totalPages: number;
-  currentPage: number;
-}>();
+import { useQueryStore } from "@/stores/useQueryStore";
+
+const { query, setPage } = useQueryStore();
 </script>
 <template>
   <ul class="flex">
-    <li v-for="n of totalPages" :key="n" class="px-1 text-lg text-blue">
+    <li v-for="n of query.totalPages" :key="n" class="px-1 text-lg text-blue">
       <button
         type="button"
-        @click="$emit('change', n)"
+        @click="setPage(n)"
         class="hover:underline"
-        :class="{ underline: currentPage == n }">
+        :class="{ underline: query.page == n }">
         {{ n }}
       </button>
     </li>

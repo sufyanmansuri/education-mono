@@ -21,7 +21,7 @@ const userSchema = new Schema(
   },
   { timestamps: true }
 );
-
+userSchema.index({ firstName: "text", lastName: "text", email: "text" });
 const User = model("User", userSchema);
 
 module.exports = { User };

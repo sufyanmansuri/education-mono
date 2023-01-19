@@ -88,7 +88,7 @@ watch(router.currentRoute, () => {
                 <span class="fa-solid fa-right-from-bracket"></span>
               </button>
             </div>
-            <RouterLink to="/login" v-else>
+            <RouterLink :to="{ name: 'login' }" v-else>
               <BaseButton :animated="false">Sign In</BaseButton>
             </RouterLink>
           </li>
