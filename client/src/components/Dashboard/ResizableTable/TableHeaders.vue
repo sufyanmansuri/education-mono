@@ -13,7 +13,7 @@ const columns = ref<InstanceType<typeof HTMLTableCellElement>[] | null>(null);
 let pageX: number;
 let activeColWidth: number;
 let activeColumn: number = -1;
-// let nextColumnWidth: number;
+let nextColumnWidth: number;
 
 // Set initial values on mouse down
 function onMouseDown(e: MouseEvent, index: number) {
@@ -21,9 +21,9 @@ function onMouseDown(e: MouseEvent, index: number) {
   activeColumn = index;
   if (columns.value !== null) {
     activeColWidth = columns.value[activeColumn].offsetWidth;
-    // if (columns.value[activeColumn + 1]) {
-    //   nextColumnWidth = columns.value[activeColumn + 1].offsetWidth;
-    // }
+    if (columns.value[activeColumn + 1]) {
+      nextColumnWidth = columns.value[activeColumn + 1].offsetWidth;
+    }
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("mousemove", onMouseMove);
   }
@@ -39,11 +39,11 @@ function onMouseUp() {
 function onMouseMove(e: MouseEvent) {
   if (columns.value !== null && activeColumn >= 0) {
     const diff = e.pageX - pageX;
-    // if (columns.value[activeColumn + 1]) {
-    //   columns.value[activeColumn + 1].style.width = `${
-    //     nextColumnWidth - diff
-    //   }px`;
-    // }
+    if (columns.value[activeColumn + 1]) {
+      columns.value[activeColumn + 1].style.width = `${
+        nextColumnWidth - diff
+      }px`;
+    }
     columns.value[activeColumn].style.width = `${activeColWidth + diff}px`;
   }
 }
@@ -54,9 +54,9 @@ function handleSort(field: string) {
 </script>
 <template>
   <thead>
-    <tr>
+    <tr class="bg-black/90 text-white">
       <th
-        class="relative whitespace-nowrap border-2 px-4 py-2"
+        class="relative whitespace-nowrap border-2 border-x-white border-y-black px-4 py-2 first-of-type:border-l-black"
         ref="columns"
         v-for="(field, i) in fields"
         :key="field">
@@ -77,7 +77,10 @@ function handleSort(field: string) {
           :style="{ height: tableHeight - 2 + 'px' }"
           @mousedown="onMouseDown($event, i)"></div>
       </th>
-      <th class="relative whitespace-nowrap border-2 px-4 py-2">Actions</th>
+      <th
+        class="relative whitespace-nowrap border-2 border-black border-l-white px-4 py-2">
+        Actions
+      </th>
     </tr>
   </thead>
 </template>

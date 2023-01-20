@@ -9,14 +9,16 @@ import BaseButton from "../base/BaseButton.vue";
 import ToggleIcon from "../icons/ToggleIcon.vue";
 import TheNav from "./TheNav.vue";
 import BrandLogo from "@/assets/logo.svg";
+import { useGlobalStore } from "@/stores/useGlobalStore";
 
 const showNav = ref(false);
 const { state, logout } = useUserStore();
+const { global } = useGlobalStore();
 const router = useRouter();
 
 // Handle logout
-// Handle logout
 async function handleLogout() {
+  global.value.loading = true;
   const { error } = await logoutUser();
 
   if (error) {
@@ -26,6 +28,8 @@ async function handleLogout() {
     logout();
     router.push({ name: "login" });
   }
+
+  global.value.loading = false;
 }
 
 // Hide nav on route change
@@ -52,48 +56,63 @@ watch(router.currentRoute, () => {
           </button>
         </div>
       </div>
-      <div
-        class="mt-5 mb-2 w-full bg-white lg:my-0 lg:block lg:w-auto"
-        :class="{ block: showNav, hidden: !showNav }">
-        <ul class="space-y-3 text-lg">
-          <li class="mb-3">
-            <div
-              class="flex items-center gap-2 border-b-2 text-black/50 transition-all duration-300 focus-within:border-black focus-within:text-black lg:border-black/50">
-              <span class="fa-solid fa-search"></span>
-              <input
-                type="search"
-                class="w-full outline-none"
-                placeholder="Search books" />
-            </div>
-          </li>
-          <li
-            class="border-b lg:hidden"
-            v-for="item of navLinkItems"
-            :key="item.text">
-            <a href="#" class="">{{ item.text }}</a>
-          </li>
-          <li class="pt-5 lg:hidden">
-            <div
-              v-if="state.isLoggedIn"
-              class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <img
-                  :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${state.user?.email}`"
-                  alt="avatar"
-                  class="h-8 object-contain" />
-                <p class="text-xl font-black">{{ state.user?.firstName }}</p>
+      <Transition>
+        <div
+          class="mt-5 mb-2 h-96 w-full bg-white opacity-100 lg:my-0 lg:block lg:w-auto"
+          v-if="showNav">
+          <ul class="space-y-3 text-lg">
+            <li class="mb-3">
+              <div
+                class="flex items-center gap-2 border-b-2 text-black/50 transition-all duration-300 focus-within:border-black focus-within:text-black lg:border-black/50">
+                <span class="fa-solid fa-search"></span>
+                <input
+                  type="search"
+                  class="w-full outline-none"
+                  placeholder="Search books" />
               </div>
-              <button @click="handleLogout" class="border-2 px-2">
-                Logout
-                <span class="fa-solid fa-right-from-bracket"></span>
-              </button>
-            </div>
-            <RouterLink :to="{ name: 'login' }" v-else>
-              <BaseButton :animated="false">Sign In</BaseButton>
-            </RouterLink>
-          </li>
-        </ul>
-      </div>
+            </li>
+            <li
+              class="border-b lg:hidden"
+              v-for="item of navLinkItems"
+              :key="item.text">
+              <a href="#" class="">{{ item.text }}</a>
+            </li>
+            <li class="pt-5 lg:hidden">
+              <div
+                v-if="state.isLoggedIn"
+                class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <img
+                    :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${state.user?.email}`"
+                    alt="avatar"
+                    class="h-8 object-contain" />
+                  <p class="text-xl font-black">{{ state.user?.firstName }}</p>
+                </div>
+                <button @click="handleLogout" class="border-2 px-2">
+                  Logout
+                  <span class="fa-solid fa-right-from-bracket"></span>
+                </button>
+              </div>
+              <RouterLink :to="{ name: 'login' }" v-else>
+                <BaseButton :animated="false">Sign In</BaseButton>
+              </RouterLink>
+            </li>
+          </ul>
+        </div>
+      </Transition>
     </div>
   </header>
 </template>
+
+<style scoped>
+.v-enter-active,
+.v-leave-active {
+  transition: all 0.3s ease-in-out;
+}
+
+.v-enter-from,
+.v-leave-to {
+  height: 0px;
+  opacity: 0;
+}
+</style>

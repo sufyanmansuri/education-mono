@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import AlertBox from "@/components/base/AlertBox.vue";
-import { getInstitutes } from "@/services/InstituteService";
-import { getUsers } from "@/services/UserService";
+import InstituteService from "@/services/InstituteService";
+import UserService from "@/services/UserService";
 import { ref, watchEffect, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import DisplayData from "../components/DisplayData/DisplayData.vue";
+import DisplayData from "@/components/Dashboard/DisplayData/DisplayData.vue";
 
 const props = defineProps<{
   resource: string;
@@ -18,11 +18,11 @@ const router = useRouter();
 watchEffect(() => {
   switch (props.resource) {
     case "users":
-      service.value = getUsers;
+      service.value = UserService;
       break;
 
     case "institutes":
-      service.value = getInstitutes;
+      service.value = InstituteService;
       break;
 
     default:
@@ -63,7 +63,7 @@ onUnmounted(() => {
 <style scoped>
 .v-enter-active,
 .v-leave-active {
-  transition: all 0.5s ease;
+  transition: all 0.5s ease-in-out;
 }
 
 .v-enter-from,

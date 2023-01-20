@@ -6,8 +6,8 @@ import RegisterForm from "@/components/Forms/RegisterForm.vue";
 </script>
 
 <template>
-  <div class="container my-10 flex items-center justify-center gap-20 px-5">
-    <div class="theme theme-blue relative lg:w-1/3">
+  <div class="container my-10 flex items-center justify-center gap-20">
+    <div class="theme theme-blue relative w-full md:w-2/3 lg:w-1/3">
       <BaseTitle text1="Regis" text2="ter" />
       <RegisterForm />
       <LineThrough />

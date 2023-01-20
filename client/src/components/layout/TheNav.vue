@@ -31,7 +31,7 @@ const { state } = useUserStore();
               :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${state.user?.email}`"
               alt="avatar"
               class="box-border h-8 object-cover" />
-            <p class="font-black">
+            <p class="font-extrabold">
               {{ state.user?.firstName }}
             </p>
           </a>

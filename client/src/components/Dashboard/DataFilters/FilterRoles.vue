@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import DropdownMenu from "./DropdownMenu.vue";
+import DropdownMenu from "@/components/DropdownMenu.vue";
 
 const props = defineProps<{
   modelValue: Role[];
@@ -12,7 +12,6 @@ type Role = "super-admin" | "institute-admin" | "teacher";
 
 const selected = ref<Role[]>(props.modelValue);
 const roles: Role[] = ["super-admin", "institute-admin", "teacher"];
-const search = ref<string>("");
 
 watch(
   () => props.modelValue,
@@ -49,15 +48,6 @@ watch(selected, () => {
     </template>
     <template v-slot:body>
       <div class="grid grid-cols-1 gap-2 p-2 accent-yellow">
-        <div
-          class="group flex items-center border-b-2 px-2 outline-offset-2 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-yellow/50">
-          <span class="fa-solid fa-search"></span>
-          <input
-            placeholder="Search..."
-            type="search"
-            v-model="search"
-            class="w-full px-2 py-1 outline-none" />
-        </div>
         <ul class="">
           <li v-for="role of roles" :key="role">
             <label class="flex gap-2">

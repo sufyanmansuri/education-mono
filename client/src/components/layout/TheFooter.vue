@@ -2,7 +2,7 @@
   <footer class="border-t-4 border-t-yellow bg-black text-white/90">
     <div class="container py-4">
       <div class="flex flex-col justify-between gap-2 lg:flex-row">
-        <h1 class="m-0 text-2xl font-black">Education Platform</h1>
+        <h1 class="m-0 text-2xl font-bold">Education Platform</h1>
         <div class="opacity-50 lg:text-right">
           <p>
             Copyrights &copy; {{ new Date().getFullYear() }} Education Platform.

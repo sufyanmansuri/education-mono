@@ -41,7 +41,6 @@ const generatePasswordResetToken = async (req, res, next) => {
 const createUser = async (req, res, next) => {
   try {
     const exists = await userService.exists({ email: req.body.email });
-    console.log(exists);
     if (exists) {
       return next({
         status: HTTP_STATUS.BAD_REQUEST,
@@ -422,7 +421,8 @@ const deleteUserById = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
-    await userService.deleteById(userId);
+    const user = await userService.deleteById(userId);
+    if (!user) return next({ error: { message: "User does not exist." } });
 
     // Delete jti claims
     await jtiService.deleteManyByUserId(userId);

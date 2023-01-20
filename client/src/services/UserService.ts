@@ -2,7 +2,7 @@ import type { FieldModifiers } from "@/types/FieldModifiers";
 import axios from "axios";
 import { timestamps } from "../utils/timestampModifiers";
 
-export async function getUsers(query: any) {
+export async function get(query: any) {
   let data, error;
   try {
     const res = await axios.get("/api/admin/users", { params: query });
@@ -115,3 +115,27 @@ export async function verifyToken(token: string) {
 
   return { data, error };
 }
+
+export async function remove(userId: string) {
+  let data, error;
+  try {
+    const res = await axios.delete(`/api/admin/users/${userId}`);
+    if (res.status === 200) data = res.data;
+  } catch (e) {
+    error = e;
+  }
+
+  return { data, error };
+}
+
+export default {
+  get,
+  getTitles,
+  loginUser,
+  logoutUser,
+  register,
+  verifyToken,
+  setPassword,
+  remove,
+  resetPassword,
+};

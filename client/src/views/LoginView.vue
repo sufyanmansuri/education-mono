@@ -7,13 +7,10 @@ import LoginForm from "@/components/Forms/LoginForm.vue";
 
 <template>
   <div
-    class="container relative flex items-center justify-center xl:justify-start xl:px-72">
-    <img
-      src="/login.svg"
-      alt="Login"
-      class="absolute right-56 -z-50 hidden object-contain xl:block" />
-    <div class="theme theme-yellow relative">
-      <BaseTitle text1="Log" text2="in" />
+    class="container relative my-10 flex items-center justify-center lg:justify-start lg:gap-36">
+    <img src="/login.svg" alt="Login" class="hidden w-1/2 lg:block" />
+    <div class="theme theme-yellow relative w-96">
+      <BaseTitle text1="Log" text2="in" underline-color="yellow" />
       <LoginForm />
       <LineThrough />
       <RouterLink :to="{ name: 'register' }" class="flex">

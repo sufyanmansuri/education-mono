@@ -7,6 +7,10 @@ const props = defineProps<{
   fields: string[];
 }>();
 
+const emit = defineEmits<{
+  (e: "remove", item: any): void;
+}>();
+
 function formatText(value: any, field: string) {
   if (
     props.fieldModifiers &&
@@ -16,6 +20,10 @@ function formatText(value: any, field: string) {
   }
   return value;
 }
+
+const handleRemove = (item: any) => {
+  emit("remove", item);
+};
 </script>
 <template>
   <tbody>
@@ -27,11 +35,15 @@ function formatText(value: any, field: string) {
         {{ formatText(item[field], field) }}
       </td>
       <td class="whitespace-nowrap border-2 py-1 text-center lg:max-w-[50px]">
-        <button class="mx-1 border-2 px-2 py-1">
+        <button class="mx-1 border-2 px-2 py-1" type="button">
           <span class="fa-solid fa-pen"></span>
+          <span class="sr-only">Edit</span>
         </button>
-        <button class="mx-1 border-2 bg-red px-2 py-1">
+        <button
+          class="mx-1 border-2 bg-red px-2 py-1"
+          @click="handleRemove(item)">
           <span class="fa-solid fa-trash"></span>
+          <span class="sr-only">Delete</span>
         </button>
       </td>
     </tr>

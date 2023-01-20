@@ -3,8 +3,8 @@ import { getInstituteList } from "@/services/InstituteService";
 import type { Institute } from "@/types/Institute";
 import { debounce } from "@/utils/debounce";
 import { onMounted, ref, watch } from "vue";
-import DropdownMenu from "./DropdownMenu.vue";
-import SpinnerIcon from "./icons/SpinnerIcon.vue";
+import DropdownMenu from "@/components/DropdownMenu.vue";
+import SpinnerIcon from "@/components/icons/SpinnerIcon.vue";
 
 const props = defineProps<{
   modelValue: { _id: string; name: string }[];

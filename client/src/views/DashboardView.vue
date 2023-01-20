@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DashboardLink from "@/components/DashboardLink.vue";
+import DashboardLink from "@/components/Dashboard/DashboardLink.vue";
 </script>
 
 <template>

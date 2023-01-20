@@ -1,5 +1,5 @@
 import type { Query } from "@/types/Query";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 const initialValue = (): Query => ({
   perPage: 5,
@@ -8,7 +8,7 @@ const initialValue = (): Query => ({
   query: {},
   order: -1,
   fields: [],
-  fetch: true,
+  fetch: false,
   totalCount: 0,
   totalPages: 0,
   allFields: [],
@@ -66,6 +66,10 @@ export const useQueryStore = () => {
   function fetchData() {
     query.value.fetch = true;
   }
+
+  watch(query, () => {
+    localStorage.setItem("query", JSON.stringify(query.value));
+  });
 
   return {
     query,

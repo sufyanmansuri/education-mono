@@ -63,7 +63,8 @@ const router = createRouter({
               meta: { title: "Dashboard" },
               name: "dashboard",
               path: "",
-              component: () => import("@/components/DashboardHome.vue"),
+              component: () =>
+                import("@/components/Dashboard/DashboardHome.vue"),
             },
             {
               path: ":resource",

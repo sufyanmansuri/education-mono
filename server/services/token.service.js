@@ -3,13 +3,14 @@ const { Token, getTokenExpiry } = require("../models/token.model");
 
 const create = async (user) => {
   const token = randomUUID();
-  const newDoc = new Token({
-    token,
-    user,
-  });
-  await newDoc.save();
 
-  return newDoc;
+  const doc = await Token.findOneAndUpdate(
+    { user },
+    { user, token },
+    { upsert: true, new: true }
+  );
+
+  return doc;
 };
 
 const getByToken = async (token) => Token.findOne({ token });

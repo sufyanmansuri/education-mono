@@ -1,8 +1,9 @@
 import type { FieldModifiers } from "@/types/FieldModifiers";
+
 import axios from "axios";
 import { timestamps } from "../utils/timestampModifiers";
 
-export async function getInstitutes(query: any) {
+export async function get(query: any) {
   let data, error;
   try {
     const res = await axios.get("/api/admin/institutes", { params: query });
@@ -33,3 +34,16 @@ export async function getInstituteList(query: string) {
   }
   return { data, error };
 }
+
+export async function remove(instituteId: string) {
+  let data, error;
+  try {
+    const res = await axios.delete(`/api/admin/institutes/${instituteId}`);
+    if (res.status === 200) data = res.data;
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+}
+
+export default { get, remove, getInstituteList };
