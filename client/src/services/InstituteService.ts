@@ -46,4 +46,26 @@ export async function remove(instituteId: string) {
   return { data, error };
 }
 
-export default { get, remove, getInstituteList };
+export async function types() {
+  let data, error;
+  try {
+    const res = await axios.get("/api/types");
+    if (res.status === 200) data = res.data;
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+}
+
+export async function levels() {
+  let data, error;
+  try {
+    const res = await axios.get("/api/levels");
+    if (res.status === 200) data = res.data;
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+}
+
+export default { get, remove, getInstituteList, types, levels };

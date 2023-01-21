@@ -1,7 +1,9 @@
 import type { Query } from "@/types/Query";
-import { ref, watch } from "vue";
+import type { Resource } from "@/types/Resource";
 
-const initialValue = (): Query => ({
+import { ref, watchEffect } from "vue";
+
+const initial = {
   perPage: 5,
   page: 1,
   sortBy: "updatedAt",
@@ -12,62 +14,64 @@ const initialValue = (): Query => ({
   totalCount: 0,
   totalPages: 0,
   allFields: [],
-});
+};
+const initialValue = (): {
+  [resource in Resource]: Query;
+} => {
+  const storage = localStorage.getItem("query");
+  if (storage) {
+    return JSON.parse(storage);
+  }
 
-const query = ref<Query>(initialValue());
+  return {
+    institutes: { ...initial, fetch: true },
+    users: { ...initial, fetch: true },
+  };
+};
+
+const query = ref(initialValue());
 
 export const useQueryStore = () => {
-  function setPage(value: number) {
-    query.value.page = value;
-    fetchData();
+  function setPage(resource: Resource, value: number) {
+    query.value[resource].page = value;
+    fetchData(resource);
   }
 
-  function setRowCount(value: number) {
-    query.value.page = 1;
-    query.value.perPage = value;
-    fetchData();
+  function setRowCount(resource: Resource, value: number) {
+    query.value[resource].page = 1;
+    query.value[resource].perPage = value;
+    fetchData(resource);
   }
 
-  function setFields(value: string[]) {
-    query.value.fields = value;
-    fetchData();
+  function setFields(resource: Resource, value: string[]) {
+    query.value[resource].fields = value;
+    fetchData(resource);
   }
 
-  function setSort(field: string) {
-    if (query.value.sortBy !== field) {
-      query.value.sortBy = field;
-      query.value.order = 1;
-    } else if (query.value.sortBy === field)
-      query.value.order = query.value.order * -1;
-    fetchData();
+  function setSort(resource: Resource, field: string) {
+    if (query.value[resource].sortBy !== field) {
+      query.value[resource].sortBy = field;
+      query.value[resource].order = 1;
+    } else if (query.value[resource].sortBy === field)
+      query.value[resource].order = query.value[resource].order * -1;
+    fetchData(resource);
   }
 
-  function setQuery(value: Query) {
-    query.value = { ...query.value, ...value };
-    fetchData();
+  function setQuery(resource: Resource, value: Query) {
+    query.value[resource] = { ...query.value[resource], ...value };
+    fetchData(resource);
   }
 
-  function resetQuery() {
-    query.value = {
-      perPage: 5,
-      page: 1,
-      sortBy: "updatedAt",
-      query: {},
-      order: -1,
-      fields: [],
-      fetch: true,
-      totalCount: 0,
-      allFields: [],
-      totalPages: 0,
-    };
-    fetchData();
+  function resetQuery(resource: Resource) {
+    query.value[resource] = { ...initial };
+    fetchData(resource);
   }
 
-  function fetchData() {
-    query.value.fetch = true;
+  function fetchData(resource: Resource) {
+    query.value[resource].fetch = true;
   }
 
-  watch(query, () => {
+  watchEffect(() => {
     localStorage.setItem("query", JSON.stringify(query.value));
   });
 

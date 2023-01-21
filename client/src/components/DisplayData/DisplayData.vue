@@ -1,64 +1,76 @@
 <script setup lang="ts">
 import type { ServiceFunction } from "@/types/ServiceFunction";
+import type { Resource } from "@/types/Resource";
 
 import { useQueryStore } from "@/stores/useQueryStore";
 import { useUserStore } from "@/stores/useUserStore";
-import { onMounted, ref, onBeforeMount, watch } from "vue";
+import { onMounted, ref, watch, type Component } from "vue";
 
-import AlertBox from "../../base/AlertBox.vue";
-import BaseTitle from "../../base/BaseTitle.vue";
-import SpinnerIconVue from "../../icons/SpinnerIcon.vue";
+import AlertBox from "@/components/base/AlertBox.vue";
+import BaseTitle from "@/components/base/BaseTitle.vue";
+import SpinnerIconVue from "@/components/icons/SpinnerIcon.vue";
 import ResizableTable from "../ResizableTable/ResizableTable.vue";
-import DataFilters from "../DataFilters/DataFilters.vue";
+import UserFilter from "../DataFilters/UserFilter/UserFilter.vue";
 import ResultCount from "./ResultCount.vue";
 import SelectColumns from "./SelectColumns.vue";
 import SelectPage from "./SelectPage.vue";
 import SelectRows from "./SelectRows.vue";
+import InstituteFilter from "../DataFilters/InstituteFilter.vue";
 
-const { query, setQuery, resetQuery } = useQueryStore();
+const { query, setQuery } = useQueryStore();
 const { state: auth } = useUserStore();
 
 const props = defineProps<{
-  service: {
+  service?: {
     get: ServiceFunction;
     remove: ServiceFunction;
   };
-  resource: string;
+  resource: Resource;
 }>();
-const state = ref<"loading" | "first" | "error" | "success">("first");
+const state = ref<"loading" | "initial" | "error" | "success">("initial");
 const records = ref();
 
 const fetchData = async () => {
-  if (!query.value.fetch || !auth.value.isLoggedIn) return;
+  // Prevent api call on logout
+  // Always fetch data on initial load regardless of fetch state
+  if (
+    state.value !== "initial" &&
+    (!query.value[props.resource].fetch || !auth.value.isLoggedIn)
+  ) {
+    return;
+  }
 
-  if (state.value !== "first") state.value = "loading";
-  const { data, error } = await props.service.get({
-    page: query.value.page,
-    perPage: query.value.perPage,
-    sortBy: query.value.sortBy,
-    order: query.value.order,
-    fields: query.value.fields,
-    query: query.value.query,
-  });
-  if (error) {
-    console.log(error);
-    state.value = "error";
-  } else {
-    records.value = data;
+  state.value = "loading";
+  if (props.service) {
+    const { allFields, fetch, totalCount, totalPages, ...temp } =
+      query.value[props.resource];
 
-    const temp = { ...records.value };
-    delete temp.data;
-    delete temp.query;
-    setQuery(temp);
+    const { data, error } = await props.service.get(temp);
+    if (error) {
+      state.value = "error";
+    } else {
+      records.value = data;
 
-    state.value = "success";
-    query.value.fetch = false;
+      const temp = { ...records.value };
+      delete temp.data;
+      delete temp.fieldModifiers;
+      setQuery(props.resource, temp);
+
+      state.value = "success";
+      query.value[props.resource].fetch = false;
+    }
   }
 };
 
-onBeforeMount(resetQuery);
+const Filters: {
+  [f in Resource]: Component;
+} = {
+  users: UserFilter,
+  institutes: InstituteFilter,
+};
+
 onMounted(fetchData);
-watch(() => query.value.fetch, fetchData);
+watch(() => query.value[props.resource]?.fetch, fetchData);
 </script>
 
 <template>
@@ -66,7 +78,7 @@ watch(() => query.value.fetch, fetchData);
     <Transition>
       <div
         class="absolute left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-white text-5xl"
-        v-if="state === 'loading' || state === 'first'">
+        v-if="state === 'loading' || state === 'initial'">
         <SpinnerIconVue class="" />
       </div>
     </Transition>
@@ -77,28 +89,31 @@ watch(() => query.value.fetch, fetchData);
           message: 'An error occurred while loading the data.',
         }" />
     </div>
-    <div v-if="records && query.fields.length" class="flex flex-1 flex-col">
+    <div
+      v-if="records && query[resource].fields.length"
+      class="flex flex-1 flex-col">
       <div class="flex justify-start">
         <BaseTitle
           :text1="resource[0].toUpperCase() + resource.slice(1)"
           underlineColor="yellow" />
       </div>
-      <DataFilters v-if="resource === 'users'" />
+      <component :is="Filters[props.resource]" />
 
       <div v-if="records?.data?.length">
         <div class="flex items-end justify-between">
-          <ResultCount />
-          <SelectColumns />
+          <ResultCount :resource="resource" />
+          <SelectColumns :resource="resource" />
         </div>
         <div class="my-3 mb-5 overflow-hidden overflow-x-auto p-3 lg:my-5">
           <ResizableTable
+            :resource="resource"
             :items="records.data"
             :field-modifiers="records.fieldModifiers"
-            :remove="service.remove" />
+            :remove="(service?.remove as ServiceFunction)" />
         </div>
         <div class="flex justify-between">
-          <SelectPage />
-          <SelectRows />
+          <SelectPage :resource="resource" />
+          <SelectRows :resource="resource" />
         </div>
       </div>
       <div v-else class="flex flex-1 items-center justify-center">

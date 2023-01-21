@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-defineProps<{
+const props = defineProps<{
   modelValue: string;
 }>();
 
 const emit = defineEmits(["update:modelValue"]);
 
-const searchQuery = ref();
+const searchQuery = ref(props.modelValue);
 
 const onInput = () => {
   emit("update:modelValue", searchQuery.value);

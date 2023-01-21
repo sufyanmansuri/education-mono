@@ -56,9 +56,17 @@ watch(router.currentRoute, () => {
           </button>
         </div>
       </div>
+      <div
+        class="hidden w-96 items-center gap-2 border-b-2 text-black/50 transition-all duration-300 focus-within:border-black focus-within:text-black lg:flex lg:border-black/50">
+        <span class="fa-solid fa-search"></span>
+        <input
+          type="search"
+          class="w-full outline-none"
+          placeholder="Search books" />
+      </div>
       <Transition>
         <div
-          class="mt-5 mb-2 h-96 w-full bg-white opacity-100 lg:my-0 lg:block lg:w-auto"
+          class="mt-5 mb-2 h-96 w-full bg-white opacity-100 lg:my-0 lg:hidden lg:w-auto"
           v-if="showNav">
           <ul class="space-y-3 text-lg">
             <li class="mb-3">

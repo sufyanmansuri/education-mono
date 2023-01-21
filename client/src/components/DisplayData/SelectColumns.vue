@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import { useQueryStore } from "@/stores/useQueryStore";
+import type { Resource } from "@/types/Resource";
 import { humanize } from "@/utils/humanize";
 import { computed } from "vue";
 import { ref } from "vue";
 
+const props = defineProps<{
+  resource: Resource;
+}>();
+
 const { query, setFields } = useQueryStore();
-const selected = computed(() => [...query.value.fields]);
-const fields = computed(() => [...query.value.allFields]);
+const selected = computed(() => [...query.value[props.resource].fields]);
+const fields = computed(() => [...query.value[props.resource].allFields]);
 
 const showColumnMenu = ref(false);
 const columns = ref(selected.value);
 
 const handleChange = () => {
-  setFields(columns.value);
+  setFields(props.resource, columns.value);
   showColumnMenu.value = false;
 };
 </script>

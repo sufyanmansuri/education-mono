@@ -7,11 +7,13 @@ import TableBody from "./TableBody.vue";
 import { ref } from "vue";
 import { useQueryStore } from "@/stores/useQueryStore";
 import ConfirmDelete from "@/components/ConfirmDelete.vue";
+import type { Resource } from "@/types/Resource";
 
 const props = defineProps<{
   items: any[];
   fieldModifiers: FieldModifiers;
   remove: ServiceFunction;
+  resource: Resource;
 }>();
 
 const table = ref<HTMLTableElement | null>(null);
@@ -36,7 +38,7 @@ const handleConfirm = async () => {
   if (error) {
     alert("An unexpected error occurred.");
   } else {
-    query.value.fetch = true;
+    query.value[props.resource].fetch = true;
   }
 };
 </script>
@@ -47,13 +49,13 @@ const handleConfirm = async () => {
     ref="table">
     <TableHeaders
       :table-height="table?.offsetHeight"
-      :fields="query.fields"
-      :sort="{ field: query.sortBy, order: query.order }"
-      @sort-change="setSort" />
+      :fields="query[resource].fields"
+      :sort="{ field: query[resource].sortBy, order: query[resource].order }"
+      @sort-change="(field: string)=>setSort(resource, field)" />
     <TableBody
       :field-modifiers="fieldModifiers"
       :items="items"
-      :fields="query.fields"
+      :fields="query[resource].fields"
       @remove="markForRemoval" />
     <Transition>
       <ConfirmDelete

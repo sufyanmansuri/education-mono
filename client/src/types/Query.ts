@@ -1,3 +1,4 @@
+import type { Institute } from "./Institute";
 import type { Role } from "./User";
 
 export type Query = {
@@ -7,7 +8,9 @@ export type Query = {
   sortBy: string;
   query: {
     search?: string;
-    institute?: string[];
+    institute?: Institute[];
+    type?: string[];
+    level?: string[];
     role?: Role[];
   };
   totalPages: number;

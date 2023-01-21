@@ -16,18 +16,17 @@ const form = ref<{
   search: string;
   role: Role[];
 }>({
-  institute: [],
-  role: [],
-  search: "",
+  institute: query.value["users"].query.institute || [],
+  role: query.value["users"].query.role || [],
+  search: query.value["users"].query.search || "",
 });
 
 const handleSubmit = () => {
-  const arr = form.value.institute.map((institute) => institute._id);
-  setQuery({
-    ...query.value,
+  setQuery("users", {
+    ...query.value["users"],
     query: {
-      ...query.value.query,
-      institute: arr,
+      ...query.value["users"].query,
+      institute: form.value.institute,
       search: form.value.search,
       role: form.value.role,
     },
@@ -36,7 +35,7 @@ const handleSubmit = () => {
 
 const handleReset = () => {
   form.value = { institute: [], search: "", role: [] };
-  resetQuery();
+  resetQuery("users");
 };
 </script>
 

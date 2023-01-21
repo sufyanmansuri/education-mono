@@ -259,9 +259,8 @@ const updateUserById = async (req, res, next) => {
  * Get users filtered by query, selected columns & pagination
  */
 const getUsers = async (req, res, next) => {
-  const { sortBy = "updatedAt" } = req.query;
+  const { query = {}, sortBy = "updatedAt" } = req.query;
   let {
-    query = {},
     fields = [
       "_id",
       "firstName",
@@ -287,10 +286,17 @@ const getUsers = async (req, res, next) => {
       ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
     };
 
-    if (query.institute?.length) {
-      query.institute = query.institute.map((item) => new ObjectId(item));
-    }
-    query = Object.keys(query).reduce((prev, curr) => {
+    const dbQuery = Object.keys(query).reduce((prev, curr) => {
+      if (curr === "institute") {
+        const ids = query[curr].map((i) => new ObjectId(i._id));
+        return {
+          ...prev,
+          [curr]: {
+            $in: ids,
+          },
+        };
+      }
+
       if (Array.isArray(query[curr]))
         return {
           ...prev,
@@ -300,17 +306,26 @@ const getUsers = async (req, res, next) => {
         };
 
       if (curr === "search") {
-        if (query[curr]) return { ...prev, $text: { $search: query[curr] } };
+        if (query[curr]) {
+          const regex = { $regex: query[curr], $options: "i" };
+
+          return {
+            ...prev,
+            $or: [
+              { firstName: regex },
+              { lastName: regex },
+              { email: regex },
+              { "institute.name": regex },
+            ],
+          };
+        }
         return prev;
       }
+
       return { ...prev, [curr]: query[curr] };
     }, {});
 
-    const totalCount = await User.count(query);
     const users = await User.aggregate()
-      .match(query)
-      .skip(perPage * page)
-      .limit(perPage)
       .lookup({
         from: "institutes",
         localField: "institute",
@@ -324,50 +339,31 @@ const getUsers = async (req, res, next) => {
           },
         ],
       })
-      .unwind({ path: "$institute", preserveNullAndEmptyArrays: true })
-      .project(fields)
-      .sort({ [sortBy]: order });
+      .match(dbQuery)
+      .facet({
+        count: [{ $count: "total" }],
+        data: [
+          {
+            $project: fields,
+          },
+          {
+            $unwind: { path: "$institute", preserveNullAndEmptyArrays: true },
+          },
+          { $skip: perPage * page },
+          {
+            $limit: perPage,
+          },
+          {
+            $sort: { [sortBy]: order },
+          },
+        ],
+      });
 
-    /* const users = await User.aggregate([
-      { $match: query },
-      {
-        $lookup: {
-          from: "institutes",
-          localField: "institute",
-          foreignField: "_id",
-          as: "institute",
-          pipeline: [
-            {
-              $project: {
-                name: 1,
-              },
-            },
-          ],
-        },
-      },
-      {
-        $unwind: {
-          path: "$institute",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $project: fields,
-      },
-      {
-        $unset: "password",
-      },
-      {
-        $sort: { [sortBy]: order },
-      },
-      { $skip: perPage * page },
-      { $limit: perPage },
-    ]); */
-
+    const totalCount = users[0].count[0]?.total;
     return res.send({
       totalPages: Math.ceil(totalCount / perPage),
       totalCount,
-      data: users,
+      data: users[0].data,
       page: page + 1,
       perPage,
       sortBy,

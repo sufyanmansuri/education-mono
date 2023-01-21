@@ -4,7 +4,7 @@ import DashboardLink from "@/components/Dashboard/DashboardLink.vue";
 
 <template>
   <div class="lg:grid lg:grid-cols-12">
-    <div class="p-5 lg:col-span-3 lg:border-r-2 xl:col-span-2">
+    <div class="p-5 lg:col-span-2 lg:border-r-2">
       <h2 class="text-2xl font-bold">Resources</h2>
       <div class="mt-5 flex gap-2 overflow-x-auto lg:block lg:space-y-2">
         <DashboardLink to="/dashboard/users">
@@ -15,7 +15,7 @@ import DashboardLink from "@/components/Dashboard/DashboardLink.vue";
         </DashboardLink>
       </div>
     </div>
-    <div class="relative flex flex-col p-5 lg:col-span-9 xl:col-span-10">
+    <div class="relative flex flex-col p-5 lg:col-span-10">
       <RouterView />
     </div>
   </div>

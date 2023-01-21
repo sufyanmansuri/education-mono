@@ -41,23 +41,45 @@ const getInstitutes = async (req, res, next) => {
   order = parseInt(order, 10);
 
   try {
-    const totalCount = await instituteService.getCount(query);
     fields = {
       _id: 1,
       ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
     };
 
-    const institutes = await Institute.aggregate([
-      { $match: query },
-      {
-        $project: fields,
-      },
-      {
-        $sort: { [sortBy]: order },
-      },
-      { $skip: perPage * page },
-      { $limit: perPage },
-    ]);
+    const dbQuery = Object.keys(query).reduce((prev, curr) => {
+      if (curr === "search") {
+        if (query[curr]) {
+          const regex = { $regex: query[curr], $options: "i" };
+          return {
+            ...prev,
+            $or: [
+              { name: regex },
+              { level: regex },
+              { type: regex },
+              { "address.territory": regex },
+            ],
+          };
+        }
+        return prev;
+      }
+
+      if (Array.isArray(query[curr]))
+        return {
+          ...prev,
+          [curr]: {
+            $in: query[curr],
+          },
+        };
+      return { ...prev, [curr]: query[curr] };
+    }, {});
+
+    const totalCount = await instituteService.getCount(dbQuery);
+    const institutes = await Institute.aggregate()
+      .match(dbQuery)
+      .skip(perPage * page)
+      .limit(perPage)
+      .project(fields)
+      .sort({ [sortBy]: order });
 
     return res.send({
       totalPages: Math.ceil(totalCount / perPage),

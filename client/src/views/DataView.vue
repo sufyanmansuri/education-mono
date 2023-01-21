@@ -4,7 +4,8 @@ import InstituteService from "@/services/InstituteService";
 import UserService from "@/services/UserService";
 import { ref, watchEffect, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import DisplayData from "@/components/Dashboard/DisplayData/DisplayData.vue";
+import DisplayData from "@/components/DisplayData/DisplayData.vue";
+import type { Resource } from "@/types/Resource";
 
 const props = defineProps<{
   resource: string;
@@ -56,7 +57,10 @@ onUnmounted(() => {
           message: 'Click on the column name to sort.',
         }" />
     </Transition>
-    <DisplayData :service="service" :resource="resource" :key="resource" />
+    <DisplayData
+      :service="service"
+      :resource="(resource as Resource)"
+      :key="resource" />
   </div>
 </template>
 
