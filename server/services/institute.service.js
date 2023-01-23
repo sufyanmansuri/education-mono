@@ -16,11 +16,7 @@ const getList = async (query) =>
 
 const searchByName = async (string) => {
   if (string) {
-    return Institute.find()
-      .or([
-        { $text: { $search: string } },
-        { name: { $regex: string, $options: "i" } },
-      ])
+    return Institute.find({ name: { $regex: string, $options: "i" } })
       .limit(5)
       .select("name");
   }

@@ -20,7 +20,7 @@ const onInput = () => {
       <input
         type="search"
         @input="onInput"
-        v-model="searchQuery"
+        v-model.trim="searchQuery"
         class="mr-1 w-full border-2 px-2 py-1 focus:border-yellow focus:outline-2 focus:outline-offset-2 focus:outline-yellow/50"
         placeholder="Type something..." />
     </label>

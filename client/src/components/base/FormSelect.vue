@@ -1,11 +1,14 @@
 <script setup lang="ts">
-defineProps<{
-  placeholder?: string;
-  label: string;
-  modelValue: string;
-  field: any;
-  accent: "yellow" | "blue";
-}>();
+withDefaults(
+  defineProps<{
+    placeholder?: string;
+    label: string;
+    modelValue: string;
+    field: any;
+    accent?: "yellow" | "blue";
+  }>(),
+  { accent: "yellow" }
+);
 const emit = defineEmits(["update:modelValue"]);
 
 function handleInput(e: Event) {

@@ -286,6 +286,24 @@ const getUsers = async (req, res, next) => {
       ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
     };
 
+    // Create search query
+    const searchQuery = () => {
+      if (query?.search) {
+        const regex = { $regex: query.search, $options: "i" };
+
+        return {
+          $or: [
+            { firstName: regex },
+            { lastName: regex },
+            { email: regex },
+            { "institute.name": regex },
+          ],
+        };
+      }
+      return {};
+    };
+
+    // Create mongodb query from params
     const dbQuery = Object.keys(query).reduce((prev, curr) => {
       if (curr === "institute") {
         const ids = query[curr].map((i) => new ObjectId(i._id));
@@ -306,19 +324,6 @@ const getUsers = async (req, res, next) => {
         };
 
       if (curr === "search") {
-        if (query[curr]) {
-          const regex = { $regex: query[curr], $options: "i" };
-
-          return {
-            ...prev,
-            $or: [
-              { firstName: regex },
-              { lastName: regex },
-              { email: regex },
-              { "institute.name": regex },
-            ],
-          };
-        }
         return prev;
       }
 
@@ -326,6 +331,7 @@ const getUsers = async (req, res, next) => {
     }, {});
 
     const users = await User.aggregate()
+      .match(dbQuery)
       .lookup({
         from: "institutes",
         localField: "institute",
@@ -339,22 +345,18 @@ const getUsers = async (req, res, next) => {
           },
         ],
       })
-      .match(dbQuery)
+      .project(fields)
+      .unwind({ path: "$institute", preserveNullAndEmptyArrays: true })
+      .match(searchQuery())
       .facet({
         count: [{ $count: "total" }],
         data: [
           {
-            $project: fields,
-          },
-          {
-            $unwind: { path: "$institute", preserveNullAndEmptyArrays: true },
+            $sort: { [sortBy]: order },
           },
           { $skip: perPage * page },
           {
             $limit: perPage,
-          },
-          {
-            $sort: { [sortBy]: order },
           },
         ],
       });

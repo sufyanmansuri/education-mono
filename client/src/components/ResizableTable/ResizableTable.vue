@@ -1,20 +1,26 @@
 <script setup lang="ts">
 import type { FieldModifiers } from "@/types/FieldModifiers";
 import type { ServiceFunction } from "@/types/ServiceFunction";
+import type { Resource } from "@/types/Resource";
+
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { useQueryStore } from "@/stores/useQueryStore";
 
 import TableHeaders from "./TableHeaders.vue";
 import TableBody from "./TableBody.vue";
-import { ref } from "vue";
-import { useQueryStore } from "@/stores/useQueryStore";
 import ConfirmDelete from "@/components/ConfirmDelete.vue";
-import type { Resource } from "@/types/Resource";
 
 const props = defineProps<{
   items: any[];
   fieldModifiers: FieldModifiers;
   remove: ServiceFunction;
-  resource: Resource;
 }>();
+
+const router = useRouter();
+const resource = computed<Resource>(
+  () => router.currentRoute.value.params?.resource as Resource
+);
 
 const table = ref<HTMLTableElement | null>(null);
 const showAlert = ref(false);
@@ -38,7 +44,7 @@ const handleConfirm = async () => {
   if (error) {
     alert("An unexpected error occurred.");
   } else {
-    query.value[props.resource].fetch = true;
+    query.value[resource.value].fetch = true;
   }
 };
 </script>

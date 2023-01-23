@@ -10,15 +10,25 @@ import ToggleIcon from "../icons/ToggleIcon.vue";
 import TheNav from "./TheNav.vue";
 import BrandLogo from "@/assets/logo.svg";
 import { useGlobalStore } from "@/stores/useGlobalStore";
+import { computed } from "vue";
 
 const showNav = ref(false);
 const { state, logout } = useUserStore();
 const { global } = useGlobalStore();
 const router = useRouter();
 
+const homeLink = computed(() => {
+  if (state.value.isLoggedIn) {
+    return { name: "dashboard" };
+  }
+  return { name: "home" };
+});
+
 // Handle logout
 async function handleLogout() {
   global.value.loading = true;
+
+  router.push("/");
   const { error } = await logoutUser();
 
   if (error) {
@@ -43,7 +53,7 @@ watch(router.currentRoute, () => {
     <TheNav @logout="handleLogout" />
     <div class="container flex flex-col items-center py-4 lg:h-24 lg:flex-row">
       <div class="flex w-full items-center justify-between">
-        <RouterLink to="/" class="flex items-center gap-4">
+        <RouterLink :to="{ name: 'home' }" class="flex items-center gap-4">
           <img
             :src="BrandLogo"
             alt="Education Platform"

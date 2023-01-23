@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongoose").Types;
 const { Class } = require("../models/class.model");
 const classService = require("../services/class.service");
 const HTTPS_STATUS = require("../utils/statusCodes");
@@ -74,7 +75,7 @@ const deleteClassById = async (req, res, next) => {
 const getClasses = async (req, res, next) => {
   const { sortBy = "updatedAt", query = {} } = req.query;
   let {
-    fields = ["name", "createdAt", "updatedAt", "address"],
+    fields = ["name", "keyStage", "examBoard", "createdAt", "updatedAt"],
     page = 1,
     perPage = 5,
     order = -1,
@@ -85,52 +86,108 @@ const getClasses = async (req, res, next) => {
   perPage = parseInt(perPage, 10);
   order = parseInt(order, 10);
   try {
-    const totalCount = await Class.count(query);
     fields = {
       _id: 1,
       institute: 1,
       ...fields.reduce((prev, curr) => ({ ...prev, [curr]: 1 }), {}),
     };
 
-    const classes = await Class.aggregate([
-      { $match: query },
-      {
-        $lookup: {
-          from: "institutes",
-          localField: "institute",
-          foreignField: "_id",
-          as: "institute",
-          pipeline: [
-            {
-              $project: { name: 1 },
-            },
+    // Create search query
+    const searchQuery = () => {
+      if (query?.search) {
+        const regex = { $regex: query.search, $options: "i" };
+
+        return {
+          $or: [
+            { name: regex },
+            { keyStage: regex },
+            { examBoard: regex },
+            { "institute.name": regex },
           ],
-        },
-      },
-      {
-        $unwind: {
-          path: "$institute",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $project: fields,
-      },
-      {
-        $sort: { [sortBy]: order },
-      },
-      { $skip: perPage * page },
-      { $limit: perPage },
-    ]);
+        };
+      }
+      return {};
+    };
+
+    // Create mongodb query from params
+    const dbQuery = Object.keys(query).reduce((prev, curr) => {
+      if (curr === "institute") {
+        const ids = query[curr].map((i) => new ObjectId(i._id));
+        return {
+          ...prev,
+          [curr]: {
+            $in: ids,
+          },
+        };
+      }
+
+      if (Array.isArray(query[curr]))
+        return {
+          ...prev,
+          [curr]: {
+            $in: query[curr],
+          },
+        };
+
+      if (curr === "search") {
+        return prev;
+      }
+
+      return { ...prev, [curr]: query[curr] };
+    }, {});
+
+    console.log(query);
+    const classes = await Class.aggregate()
+      .match(dbQuery)
+      .lookup({
+        from: "institutes",
+        localField: "institute",
+        foreignField: "_id",
+        as: "institute",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+            },
+          },
+        ],
+      })
+      .project(fields)
+      .unwind({ path: "$institute", preserveNullAndEmptyArrays: true })
+      .match(searchQuery())
+      .facet({
+        count: [{ $count: "total" }],
+        data: [
+          { $skip: perPage * page },
+          {
+            $limit: perPage,
+          },
+          {
+            $sort: { [sortBy]: order },
+          },
+        ],
+      });
+
+    const totalCount = classes[0].count[0]?.total;
 
     return res.send({
       totalPages: Math.ceil(totalCount / perPage),
       totalCount,
-      data: classes,
+      data: classes[0].data,
       page: page + 1,
       perPage,
       sortBy,
-      fields,
+      fields: Object.keys(fields),
+      allFields: [
+        "institute",
+        "name",
+        "keyStage",
+        "yearGroup",
+        "noOfStudents",
+        "examBoard",
+        "createdAt",
+        "updatedAt",
+      ],
       order,
       query,
     });

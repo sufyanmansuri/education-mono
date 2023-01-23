@@ -7,9 +7,9 @@ withDefaults(
     autofocus?: boolean;
     modelValue: string;
     field: any;
-    accent: "yellow" | "blue";
+    accent?: "yellow" | "blue";
   }>(),
-  { type: "text", autofocus: false }
+  { type: "text", autofocus: false, accent: "yellow" }
 );
 
 const emit = defineEmits(["update:modelValue"]);

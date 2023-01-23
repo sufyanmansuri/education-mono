@@ -1,17 +1,21 @@
 <script setup lang="ts">
-import { useQueryStore } from "@/stores/useQueryStore";
 import type { Resource } from "@/types/Resource";
-import { ref, watch } from "vue";
 
-const props = defineProps<{
-  resource: Resource;
-}>();
+import { useQueryStore } from "@/stores/useQueryStore";
+import { computed } from "vue";
+import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const resource = computed<Resource>(
+  () => router.currentRoute.value.params?.resource as Resource
+);
 
 const { query, setRowCount } = useQueryStore();
-const perPage = ref(query.value[props.resource].perPage);
+const perPage = ref(query.value[resource.value].perPage);
 
 watch(perPage, () => {
-  setRowCount(props.resource, perPage.value);
+  setRowCount(resource.value, perPage.value);
 });
 </script>
 

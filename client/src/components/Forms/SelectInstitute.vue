@@ -11,7 +11,6 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue"]);
 
-
 const data = ref<Institute[]>();
 const value = ref();
 const show = ref(false);
@@ -96,7 +95,7 @@ watch(
           <ul class="relative my-1">
             <div
               v-if="loading"
-              class="absolute inset-0 flex items-center justify-center bg-opaque p-3 text-3xl">
+              class="absolute inset-0 flex items-center justify-center bg-white p-3 text-3xl">
               <SpinnerIcon />
             </div>
             <template v-if="data && data.length > 0">

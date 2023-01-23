@@ -5,7 +5,7 @@ import type { Role } from "@/types/User";
 import { useQueryStore } from "@/stores/useQueryStore";
 import { ref } from "vue";
 
-import FilterInstitutes from "./FilterInstitutes.vue";
+import SelectInstitutes from "../SelectInstitutes.vue";
 import FilterRoles from "./FilterRoles.vue";
 import SearchFilter from "./SearchFilter.vue";
 
@@ -41,11 +41,11 @@ const handleReset = () => {
 
 <template>
   <form @submit.prevent="handleSubmit" @reset="handleReset">
-    <div class="h-72 md:h-auto">
+    <div class="min-h-72 md:h-auto">
       <div
-        class="mb-5 grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        class="mb-5 grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         <SearchFilter v-model="form.search" />
-        <FilterInstitutes v-model="form.institute" />
+        <SelectInstitutes v-model="form.institute" />
         <FilterRoles v-model="form.role" />
       </div>
       <div class="mt-2 flex gap-2 self-center">

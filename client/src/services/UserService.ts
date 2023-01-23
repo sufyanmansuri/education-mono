@@ -128,9 +128,30 @@ export async function remove(userId: string) {
   return { data, error };
 }
 
+type User = {
+  title: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+  institute?: string;
+};
+export async function create(user: User) {
+  let data, error;
+  try {
+    const res = await axios.post("/api/admin/users", user);
+    data = res.data;
+  } catch (e) {
+    error = e;
+  }
+
+  return { data, error };
+}
+
 export default {
   get,
   getTitles,
+  create,
   loginUser,
   logoutUser,
   register,

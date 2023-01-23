@@ -12,7 +12,7 @@ const { global } = useGlobalStore();
     <TheHeader />
     <Transition>
       <div
-        class="fixed inset-0 flex items-center justify-center bg-white text-3xl"
+        class="fixed inset-0 flex items-center justify-center bg-white text-5xl"
         v-if="global?.loading">
         <SpinnerIcon />
       </div>

@@ -1,23 +1,25 @@
 <script setup lang="ts">
+import type { Resource } from "@/types/Resource";
+
 import AlertBox from "@/components/base/AlertBox.vue";
 import InstituteService from "@/services/InstituteService";
 import UserService from "@/services/UserService";
 import { ref, watchEffect, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import DisplayData from "@/components/DisplayData/DisplayData.vue";
-import type { Resource } from "@/types/Resource";
+import { computed } from "vue";
+import ClassService from "@/services/ClassService";
 
-const props = defineProps<{
-  resource: string;
-}>();
+const router = useRouter();
+const resource = computed<Resource>(
+  () => router.currentRoute.value.params?.resource as Resource
+);
 
 const service = ref();
 const showAlert = ref(false);
 
-const router = useRouter();
-
 watchEffect(() => {
-  switch (props.resource) {
+  switch (resource.value) {
     case "users":
       service.value = UserService;
       break;
@@ -26,8 +28,8 @@ watchEffect(() => {
       service.value = InstituteService;
       break;
 
-    default:
-      router.push({ name: "not-found" });
+    case "classes":
+      service.value = ClassService;
       break;
   }
 });
@@ -50,17 +52,14 @@ onUnmounted(() => {
   <div class="flex flex-1 flex-col">
     <Transition>
       <AlertBox
-        class="fixed top-20 left-4 right-4 z-50 mx-auto w-[90vw] shadow-xl md:left-auto md:w-[50vw] lg:top-32 lg:w-auto"
+        class="fixed top-0 right-1/2 z-50 mx-auto w-[90vw] translate-x-1/2 shadow-xl md:w-[50vw] lg:top-10 lg:w-auto"
         v-if="showAlert"
         :message="{
           type: 'warning',
           message: 'Click on the column name to sort.',
         }" />
     </Transition>
-    <DisplayData
-      :service="service"
-      :resource="(resource as Resource)"
-      :key="resource" />
+    <DisplayData :service="service" :key="resource" />
   </div>
 </template>
 
@@ -72,6 +71,6 @@ onUnmounted(() => {
 
 .v-enter-from,
 .v-leave-to {
-  right: -999px;
+  top: -300px;
 }
 </style>

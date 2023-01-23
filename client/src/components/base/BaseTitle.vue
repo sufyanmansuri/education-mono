@@ -12,7 +12,7 @@ withDefaults(
 </script>
 
 <template>
-  <h1 class="mb-5 text-center text-4xl font-black text-black">
+  <h1 class="text-center text-4xl font-black text-black">
     <span v-if="text2">
       {{ text1
       }}<span

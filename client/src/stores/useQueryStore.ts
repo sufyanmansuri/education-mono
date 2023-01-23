@@ -26,6 +26,7 @@ const initialValue = (): {
   return {
     institutes: { ...initial, fetch: true },
     users: { ...initial, fetch: true },
+    classes: { ...initial, fetch: true },
   };
 };
 

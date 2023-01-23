@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { useQueryStore } from "@/stores/useQueryStore";
 import type { Resource } from "@/types/Resource";
+import { computed } from "vue";
+import { useRouter } from "vue-router";
 
-defineProps<{
-  resource: Resource;
-}>();
+const router = useRouter();
+const resource = computed<Resource>(
+  () => router.currentRoute.value.params?.resource as Resource
+);
 
 const { query, setPage } = useQueryStore();
 </script>

@@ -12,6 +12,8 @@ export type Query = {
     type?: string[];
     level?: string[];
     role?: Role[];
+    examBoard?: string[];
+    keyStage?: string[];
   };
   totalPages: number;
   order: number;

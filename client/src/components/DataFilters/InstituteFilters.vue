@@ -56,9 +56,9 @@ onMounted(async () => {
 
 <template>
   <form @submit.prevent="handleSubmit" @reset="handleReset">
-    <div class="h-72 md:h-auto">
+    <div class="min-h-72 md:h-auto">
       <div
-        class="mb-5 grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        class="mb-5 grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         <SearchFilter v-model="form.search" />
         <GenericFilter
           v-model="form.type"
