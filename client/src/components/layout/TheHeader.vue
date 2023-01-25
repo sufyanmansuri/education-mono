@@ -10,19 +10,13 @@ import ToggleIcon from "../icons/ToggleIcon.vue";
 import TheNav from "./TheNav.vue";
 import BrandLogo from "@/assets/logo.svg";
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { computed } from "vue";
+import { useQueryStore } from "@/stores/useQueryStore";
 
 const showNav = ref(false);
 const { state, logout } = useUserStore();
+const { hardResetQuery } = useQueryStore();
 const { global } = useGlobalStore();
 const router = useRouter();
-
-const homeLink = computed(() => {
-  if (state.value.isLoggedIn) {
-    return { name: "dashboard" };
-  }
-  return { name: "home" };
-});
 
 // Handle logout
 async function handleLogout() {
@@ -37,6 +31,7 @@ async function handleLogout() {
   } else {
     logout();
     router.push({ name: "login" });
+    hardResetQuery();
   }
 
   global.value.loading = false;

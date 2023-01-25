@@ -18,7 +18,7 @@ import FormSelect from "../base/FormSelect.vue";
 import SpinnerIcon from "../icons/SpinnerIcon.vue";
 import SelectInstitute from "./SelectInstitute.vue";
 
-const emit = defineEmits<{
+defineEmits<{
   (e: "close"): void;
 }>();
 

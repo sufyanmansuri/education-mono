@@ -111,23 +111,24 @@ const getClasses = async (req, res, next) => {
 
     // Create mongodb query from params
     const dbQuery = Object.keys(query).reduce((prev, curr) => {
-      if (curr === "institute") {
-        const ids = query[curr].map((i) => new ObjectId(i._id));
-        return {
-          ...prev,
-          [curr]: {
-            $in: ids,
-          },
-        };
-      }
+      if (Array.isArray(query[curr])) {
+        if (curr === "institute") {
+          const ids = query[curr].map((i) => new ObjectId(i._id));
+          return {
+            ...prev,
+            [curr]: {
+              $in: ids,
+            },
+          };
+        }
 
-      if (Array.isArray(query[curr]))
         return {
           ...prev,
           [curr]: {
             $in: query[curr],
           },
         };
+      }
 
       if (curr === "search") {
         return prev;

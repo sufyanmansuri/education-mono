@@ -68,6 +68,11 @@ export const useQueryStore = () => {
     fetchData(resource);
   }
 
+  function hardResetQuery() {
+    localStorage.removeItem("query");
+    query.value = initialValue();
+  }
+
   function fetchData(resource: Resource) {
     query.value[resource].fetch = true;
   }
@@ -84,5 +89,6 @@ export const useQueryStore = () => {
     setSort,
     setQuery,
     resetQuery,
+    hardResetQuery,
   };
 };

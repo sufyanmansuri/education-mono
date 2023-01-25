@@ -305,23 +305,23 @@ const getUsers = async (req, res, next) => {
 
     // Create mongodb query from params
     const dbQuery = Object.keys(query).reduce((prev, curr) => {
-      if (curr === "institute") {
-        const ids = query[curr].map((i) => new ObjectId(i._id));
-        return {
-          ...prev,
-          [curr]: {
-            $in: ids,
-          },
-        };
-      }
-
-      if (Array.isArray(query[curr]))
+      if (Array.isArray(query[curr])) {
+        if (curr === "institute") {
+          const ids = query[curr]?.map((i) => new ObjectId(i._id));
+          return {
+            ...prev,
+            [curr]: {
+              $in: ids,
+            },
+          };
+        }
         return {
           ...prev,
           [curr]: {
             $in: query[curr],
           },
         };
+      }
 
       if (curr === "search") {
         return prev;
@@ -331,7 +331,10 @@ const getUsers = async (req, res, next) => {
     }, {});
 
     const users = await User.aggregate()
-      .match(dbQuery)
+      .match({
+        ...dbQuery,
+        _id: { $not: { $eq: new ObjectId(res.locals.user.sub) } }, // Remove requesting user from result
+      })
       .lookup({
         from: "institutes",
         localField: "institute",
@@ -415,6 +418,22 @@ const register = async (req, res, next) => {
 /**
  * Deletes a user by id
  */
+const getUserById = async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await userService.getById(userId);
+    if (!user) return next({ error: { message: "User does not exist." } });
+
+    return res.send(user);
+  } catch (error) {
+    return next({ error });
+  }
+};
+
+/**
+ * Deletes a user by id
+ */
 const deleteUserById = async (req, res, next) => {
   const { userId } = req.params;
 
@@ -457,5 +476,6 @@ module.exports = {
   logout,
   getUsers,
   updateUserById,
+  getUserById,
   deleteUserById,
 };

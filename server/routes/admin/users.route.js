@@ -37,6 +37,9 @@ usersRouter.get(
 // Approve account
 usersRouter.put("/approve/:userId", authUsers, userController.approveUser);
 
+// Get user by id
+usersRouter.get("/:userId", authUsers, userController.getUserById);
+
 // Update existing user
 usersRouter.put(
   "/:userId",

@@ -8,7 +8,9 @@ import { ref } from "vue";
 import SelectInstitutes from "../SelectInstitutes.vue";
 import FilterRoles from "./FilterRoles.vue";
 import SearchFilter from "./SearchFilter.vue";
+import { useUserStore } from "@/stores/useUserStore";
 
+const { state: auth } = useUserStore();
 const { resetQuery, setQuery, query } = useQueryStore();
 
 const form = ref<{
@@ -45,7 +47,9 @@ const handleReset = () => {
       <div
         class="mb-5 grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         <SearchFilter v-model="form.search" />
-        <SelectInstitutes v-model="form.institute" />
+        <SelectInstitutes
+          v-model="form.institute"
+          v-if="auth.user?.role === 'super-admin'" />
         <FilterRoles v-model="form.role" />
       </div>
       <div class="mt-2 flex gap-2 self-center">

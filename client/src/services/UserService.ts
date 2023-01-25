@@ -1,4 +1,5 @@
 import type { FieldModifiers } from "@/types/FieldModifiers";
+
 import axios from "axios";
 import { timestamps } from "../utils/timestampModifiers";
 
@@ -15,6 +16,39 @@ export async function get(query: any) {
       };
       data = { ...res.data, fieldModifiers };
     }
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+}
+
+export async function getById(userId: string) {
+  let data, error;
+  try {
+    const res = await axios.get(`/api/admin/users/${userId}`);
+    data = res.data;
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+}
+
+type UserUpdate = {
+  _id: string;
+  title?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  approved?: boolean;
+  verified?: boolean;
+  institute?: string;
+  role?: string;
+};
+export async function update(userId: string, user: UserUpdate) {
+  let data, error;
+  try {
+    const res = await axios.put(`/api/admin/users/${userId}`, user);
+    data = res.data;
   } catch (e) {
     error = e;
   }
@@ -150,12 +184,14 @@ export async function create(user: User) {
 
 export default {
   get,
+  getById,
   getTitles,
   create,
   loginUser,
   logoutUser,
   register,
   verifyToken,
+  update,
   setPassword,
   remove,
   resetPassword,

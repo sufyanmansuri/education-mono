@@ -36,7 +36,7 @@ const getInstitutes = async (req, res, next) => {
   } = req.query;
 
   // Convert string to number
-  page = parseInt(page, 10) - 1;
+  page = parseInt(page, 10);
   perPage = parseInt(perPage, 10);
   order = parseInt(order, 10);
 
@@ -76,7 +76,7 @@ const getInstitutes = async (req, res, next) => {
     const totalCount = await instituteService.getCount(dbQuery);
     const institutes = await Institute.aggregate()
       .match(dbQuery)
-      .skip(perPage * page)
+      .skip(perPage * (page - 1))
       .limit(perPage)
       .project(fields)
       .sort({ [sortBy]: order });
@@ -85,7 +85,7 @@ const getInstitutes = async (req, res, next) => {
       totalPages: Math.ceil(totalCount / perPage),
       totalCount,
       data: institutes,
-      page: page + 1,
+      page,
       perPage,
       sortBy,
       fields: Object.keys(fields),
@@ -123,7 +123,7 @@ const getInstituteById = async (req, res, next) => {
       });
     }
 
-    return res.send({ institute });
+    return res.send(institute);
   } catch (error) {
     return next({ error });
   }

@@ -9,6 +9,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "remove", item: any): void;
+  (e: "edit", id: string): void;
 }>();
 
 function formatText(value: any, field: string) {
@@ -24,6 +25,9 @@ function formatText(value: any, field: string) {
 const handleRemove = (item: any) => {
   emit("remove", item);
 };
+const handleEdit = (id: string) => {
+  emit("edit", id);
+};
 </script>
 <template>
   <tbody>
@@ -35,7 +39,10 @@ const handleRemove = (item: any) => {
         {{ formatText(item[field], field) }}
       </td>
       <td class="whitespace-nowrap border-2 py-1 text-center lg:max-w-[50px]">
-        <button class="mx-1 border-2 px-2 py-1" type="button">
+        <button
+          class="mx-1 border-2 px-2 py-1"
+          type="button"
+          @click="handleEdit(item._id)">
           <span class="fa-solid fa-pen"></span>
           <span class="sr-only">Edit</span>
         </button>

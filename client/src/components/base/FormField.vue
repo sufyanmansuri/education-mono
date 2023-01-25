@@ -1,15 +1,16 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    placeholder?: string;
-    label: string;
-    type?: string;
-    autofocus?: boolean;
     modelValue: string;
     field: any;
+    type?: string;
+    label: string;
+    placeholder?: string;
     accent?: "yellow" | "blue";
+    autofocus?: boolean;
+    disabled?: boolean;
   }>(),
-  { type: "text", autofocus: false, accent: "yellow" }
+  { type: "text", autofocus: false, accent: "yellow", disabled: false }
 );
 
 const emit = defineEmits(["update:modelValue"]);
@@ -28,7 +29,8 @@ const handleInput = (e: Event) => {
         :type="type"
         :placeholder="placeholder"
         :value="modelValue"
-        class="w-full border-2 px-2 py-1 outline-none transition"
+        class="w-full border-2 px-2 py-1 outline-none transition disabled:opacity-50"
+        :disabled="disabled"
         @input="handleInput"
         @blur="field.$touch"
         :autofocus="autofocus"

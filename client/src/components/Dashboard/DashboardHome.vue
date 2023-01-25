@@ -12,6 +12,6 @@ import BaseTitle from "../base/BaseTitle.vue";
     <img
       src="/dashboard.svg"
       alt="Welcome"
-      class="fixed top-1/2 left-1/2 h-48 -translate-y-1/2 -translate-x-1/2 opacity-70 md:h-64 lg:absolute lg:h-96" />
+      class="fixed top-1/2 left-1/2 -z-50 h-48 -translate-y-1/2 -translate-x-1/2 opacity-70 md:h-64 lg:absolute lg:h-96" />
   </div>
 </template>

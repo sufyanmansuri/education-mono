@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
-import { debounce } from "@/utils/debounce";
-import SpinnerIcon from "../icons/SpinnerIcon.vue";
 import type { Institute } from "@/types/Institute";
 
+import { onMounted, ref, watch } from "vue";
+import { debounce } from "@/utils/debounce";
+import instituteService from "@/services/InstituteService";
+
+import SpinnerIcon from "../icons/SpinnerIcon.vue";
+
 const props = defineProps<{
-  modelValue: string;
+  modelValue?: string;
   field: any;
 }>();
 
@@ -63,6 +66,17 @@ watch(
     if (!props.modelValue) value.value = "";
   }
 );
+
+onMounted(async () => {
+  if (props.modelValue) {
+    const { data, error } = await instituteService.getById(props.modelValue);
+    if (!error) {
+      value.value = { id: data._id, title: data.name };
+    } else {
+      alert("An error occurred while fetching institute details.");
+    }
+  }
+});
 </script>
 
 <template>

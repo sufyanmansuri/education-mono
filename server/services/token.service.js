@@ -6,7 +6,7 @@ const create = async (user) => {
 
   const doc = await Token.findOneAndUpdate(
     { user },
-    { user, token },
+    { user, token, expiresAt: getTokenExpiry() },
     { upsert: true, new: true }
   );
 

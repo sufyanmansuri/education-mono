@@ -158,14 +158,22 @@ const password = (req, res, next) => {
  * Validate update user details
  */
 const updateUser = (req, res, next) => {
+  const { user } = res.locals;
+
+  function getValidRoles() {
+    if (user.role === "super-admin") return roles;
+    return ["institute-admin", "teacher"];
+  }
+
   const updateUserSchema = Joi.object({
     firstName: Joi.string().min(2).max(20),
     lastName: Joi.string().min(2).max(20),
     title: Joi.string().valid(...titles),
     email: Joi.string().email(),
-    role: Joi.string().valid(...roles),
-    approved: Joi.boolean(),
-    institute: Joi.string().hex().length(24),
+    role: Joi.string()
+      .valid(...getValidRoles())
+      .required(),
+    institute: Joi.string().hex().length(24).allow(""),
   })
     .min(1)
     .messages({
