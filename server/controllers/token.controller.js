@@ -79,7 +79,7 @@ const regenerateToken = async (req, res, next) => {
     }
 
     // Generate new token
-    const newRecord = await tokenService.regenerate(token);
+    const newRecord = await tokenService.create(record.user);
     await newRecord.populate("user");
 
     // Send mail

@@ -6,7 +6,7 @@ import SearchFilter from "./UserFilter/SearchFilter.vue";
 import GenericFilter from "./GenericFilter.vue";
 import InstituteService from "@/services/InstituteService";
 
-const { resetQuery, setQuery, query } = useQueryStore();
+const { resetQuery, fetch, setQuery, query } = useQueryStore();
 
 const form = ref<{
   type: string[];
@@ -21,7 +21,7 @@ const instituteTypes = ref<string[]>([]);
 const instituteLevels = ref<string[]>([]);
 
 const handleSubmit = () => {
-  setQuery("institutes", {
+  setQuery({
     ...query.value["institutes"],
     query: {
       ...query.value["institutes"].query,
@@ -30,11 +30,12 @@ const handleSubmit = () => {
       level: form.value.level,
     },
   });
+  fetch();
 };
 
 const handleReset = () => {
   form.value = { type: [], search: "", level: [] };
-  resetQuery("institutes");
+  resetQuery();
 };
 onMounted(async () => {
   const { data, error } = await InstituteService.types();

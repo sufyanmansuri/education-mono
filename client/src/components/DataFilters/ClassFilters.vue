@@ -11,7 +11,7 @@ import ClassService from "@/services/ClassService";
 import { useUserStore } from "@/stores/useUserStore";
 
 const { state: auth } = useUserStore();
-const { resetQuery, setQuery, query } = useQueryStore();
+const { resetQuery, setQuery, fetch, query } = useQueryStore();
 
 const form = ref<{
   search: string;
@@ -28,18 +28,19 @@ const keyStages = ref<string[]>([]);
 const examBoards = ref<string[]>([]);
 
 const handleSubmit = () => {
-  setQuery("classes", {
+  setQuery({
     ...query.value.classes,
     query: {
       ...query.value.classes.query,
       ...form.value,
     },
   });
+  fetch();
 };
 
 const handleReset = () => {
   form.value = { search: "", institute: [], examBoard: [], keyStage: [] };
-  resetQuery("classes");
+  resetQuery();
 };
 
 const fetchKeyStages = async () => {

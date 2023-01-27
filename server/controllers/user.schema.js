@@ -170,9 +170,7 @@ const updateUser = (req, res, next) => {
     lastName: Joi.string().min(2).max(20),
     title: Joi.string().valid(...titles),
     email: Joi.string().email(),
-    role: Joi.string()
-      .valid(...getValidRoles())
-      .required(),
+    role: Joi.string().valid(...getValidRoles()),
     institute: Joi.string().hex().length(24).allow(""),
   })
     .min(1)

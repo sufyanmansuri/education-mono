@@ -29,11 +29,12 @@ const handleInput = (e: Event) => {
         :type="type"
         :placeholder="placeholder"
         :value="modelValue"
-        class="w-full border-2 px-2 py-1 outline-none transition disabled:opacity-50"
+        class="w-full border-2 px-2 py-1 outline-offset-2 outline-yellow/50 transition disabled:opacity-50"
         :disabled="disabled"
         @input="handleInput"
         @blur="field.$touch"
         :autofocus="autofocus"
+        autocomplete="off"
         :class="{
           'border-red': field.$dirty && field.$invalid,
           'border-green': field.$dirty && !field.$invalid,

@@ -21,7 +21,7 @@ function handleInput(e: Event) {
     <label>
       <div>{{ label }}</div>
       <select
-        class="h-9 w-full border-2 bg-white px-2 py-1 outline-none"
+        class="h-9 w-full border-2 bg-white px-2 py-1 outline-offset-2 outline-yellow/50"
         :value="modelValue"
         @input="handleInput"
         :class="{

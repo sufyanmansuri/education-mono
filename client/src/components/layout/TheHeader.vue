@@ -30,8 +30,8 @@ async function handleLogout() {
     console.log(error);
   } else {
     logout();
-    router.push({ name: "login" });
     hardResetQuery();
+    router.push({ name: "login" });
   }
 
   global.value.loading = false;
@@ -99,7 +99,9 @@ watch(router.currentRoute, () => {
                     :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${state.user?.email}`"
                     alt="avatar"
                     class="h-8 object-contain" />
-                  <p class="text-xl font-black">{{ state.user?.firstName }}</p>
+                  <p class="text-xl font-black">
+                    {{ state.user?.firstName }}
+                  </p>
                 </div>
                 <button @click="handleLogout" class="border-2 px-2">
                   Logout
@@ -120,7 +122,7 @@ watch(router.currentRoute, () => {
 <style scoped>
 .v-enter-active,
 .v-leave-active {
-  transition: all 0.3s ease-in-out;
+  transition: all 0.1s ease-in-out;
 }
 
 .v-enter-from,

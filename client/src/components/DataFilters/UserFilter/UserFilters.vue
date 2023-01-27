@@ -11,7 +11,7 @@ import SearchFilter from "./SearchFilter.vue";
 import { useUserStore } from "@/stores/useUserStore";
 
 const { state: auth } = useUserStore();
-const { resetQuery, setQuery, query } = useQueryStore();
+const { resetQuery, setQuery, query, fetch } = useQueryStore();
 
 const form = ref<{
   institute: Institute[];
@@ -24,7 +24,7 @@ const form = ref<{
 });
 
 const handleSubmit = () => {
-  setQuery("users", {
+  setQuery({
     ...query.value["users"],
     query: {
       ...query.value["users"].query,
@@ -33,11 +33,12 @@ const handleSubmit = () => {
       role: form.value.role,
     },
   });
+  fetch();
 };
 
 const handleReset = () => {
   form.value = { institute: [], search: "", role: [] };
-  resetQuery("users");
+  resetQuery();
 };
 </script>
 

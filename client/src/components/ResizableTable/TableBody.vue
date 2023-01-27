@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useUserStore } from "@/stores/useUserStore";
 import type { FieldModifiers } from "@/types/FieldModifiers";
 
 const props = defineProps<{
   fieldModifiers: FieldModifiers;
   items: any[];
+  isOverflowing: boolean;
   fields: string[];
 }>();
 
@@ -11,6 +13,8 @@ const emit = defineEmits<{
   (e: "remove", item: any): void;
   (e: "edit", id: string): void;
 }>();
+
+const { state: auth } = useUserStore();
 
 function formatText(value: any, field: string) {
   if (
@@ -33,7 +37,8 @@ const handleEdit = (id: string) => {
   <tbody>
     <tr v-for="item in items" :key="item._id" class="table-row">
       <td
-        class="overflow-hidden text-ellipsis whitespace-nowrap border-2 px-4 py-2 lg:max-w-[100px]"
+        class="whitespace-nowrap border-2 px-4 py-2"
+        :class="{ 'overflow-hidden text-ellipsis lg:max-w-0': !isOverflowing }"
         v-for="field in fields"
         :key="field">
         {{ formatText(item[field], field) }}
@@ -52,6 +57,17 @@ const handleEdit = (id: string) => {
           <span class="fa-solid fa-trash"></span>
           <span class="sr-only">Delete</span>
         </button>
+
+        <!-- <button
+          v-if="
+            ['super-admin', 'institute-admin'].includes(
+              auth.user?.role || ''
+            ) && !item?.approved
+          "
+          type="button"
+          :disabled="Object.prototype.hasOwnProperty.call(item, 'approved')">
+          Approve
+        </button> -->
       </td>
     </tr>
   </tbody>

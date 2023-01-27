@@ -20,7 +20,7 @@ const showColumnMenu = ref(false);
 const columns = ref(selected);
 
 const handleChange = () => {
-  setFields(resource.value, columns.value);
+  setFields(columns.value);
   showColumnMenu.value = false;
 };
 </script>
@@ -92,7 +92,7 @@ const handleChange = () => {
 <style scoped>
 .v-enter-active,
 .v-leave-active {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.1s ease-in-out;
 }
 
 .v-enter-from,

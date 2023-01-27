@@ -2,9 +2,10 @@
 import { humanize } from "@/utils/humanize";
 import { ref } from "vue";
 
-defineProps<{
+const props = defineProps<{
   tableHeight?: number;
   fields: string[];
+  isOverflowing: boolean;
   sort: { field: string; order: number };
 }>();
 const emit = defineEmits(["sort-change"]);
@@ -17,6 +18,7 @@ let nextColumnWidth: number;
 
 // Set initial values on mouse down
 function onMouseDown(e: MouseEvent, index: number) {
+  if (props.isOverflowing) return;
   pageX = e.pageX;
   activeColumn = index;
   if (columns.value !== null) {
@@ -40,11 +42,15 @@ function onMouseMove(e: MouseEvent) {
   if (columns.value !== null && activeColumn >= 0) {
     const diff = e.pageX - pageX;
     if (columns.value[activeColumn + 1]) {
-      columns.value[activeColumn + 1].style.width = `${
-        nextColumnWidth - diff
-      }px`;
+      columns.value[activeColumn + 1].setAttribute(
+        "style",
+        `width: ${nextColumnWidth - diff}px !important;`
+      );
     }
-    columns.value[activeColumn].style.width = `${activeColWidth + diff}px`;
+    columns.value[activeColumn].setAttribute(
+      "style",
+      `width: ${activeColWidth + diff}px !important;`
+    );
   }
 }
 
@@ -56,14 +62,14 @@ function handleSort(field: string) {
   <thead>
     <tr class="bg-black/90 text-white">
       <th
-        class="relative whitespace-nowrap border-2 border-x-white border-y-black px-4 py-2 first-of-type:border-l-black"
+        class="relative overflow-hidden text-ellipsis whitespace-nowrap border-2 border-x-white border-y-black px-4 py-2 first-of-type:border-l-black"
         ref="columns"
         v-for="(field, i) in fields"
         :key="field">
         <div class="flex items-center justify-center gap-1">
           <span @click="handleSort(field)" class="cursor-pointer">
-            {{ humanize(field) }}</span
-          >
+            {{ humanize(field) }}
+          </span>
           <span
             v-if="sort.field === field && sort.order == -1"
             class="fa-solid fa-caret-down"></span>
@@ -72,7 +78,8 @@ function handleSort(field: string) {
             class="fa-solid fa-caret-up"></span>
         </div>
         <div
-          class="absolute top-0 right-0 w-1 cursor-col-resize select-none"
+          class="absolute top-0 right-0 w-1 select-none"
+          :class="{ 'cursor-col-resize': !isOverflowing }"
           v-if="tableHeight"
           :style="{ height: tableHeight - 2 + 'px' }"
           @mousedown="onMouseDown($event, i)"></div>

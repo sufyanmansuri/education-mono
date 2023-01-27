@@ -19,7 +19,7 @@ const { query, setPage } = useQueryStore();
       class="px-1 text-lg text-blue">
       <button
         type="button"
-        @click="setPage(resource, n)"
+        @click="setPage(n)"
         class="underline-offset-4 hover:underline"
         :class="{ underline: query[resource].page == n }">
         {{ n }}

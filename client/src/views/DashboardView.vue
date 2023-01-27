@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import DashboardLink from "@/components/Dashboard/DashboardLink.vue";
+import { useUserStore } from "@/stores/useUserStore";
+
+const { state: auth } = useUserStore();
 </script>
 
 <template>
@@ -7,10 +10,16 @@ import DashboardLink from "@/components/Dashboard/DashboardLink.vue";
     <div class="p-5 lg:col-span-3 lg:border-r-2 xl:col-span-2">
       <!-- <h2 class="text-2xl font-bold">Resources</h2> -->
       <div class="flex gap-2 overflow-x-auto lg:block lg:space-y-2">
-        <DashboardLink to="/dashboard/users">
+        <DashboardLink
+          to="/dashboard/users"
+          v-if="
+            ['super-admin', 'institute-admin'].includes(auth.user?.role || '')
+          ">
           <span class="fa-solid fa-user"></span>Users
         </DashboardLink>
-        <DashboardLink to="/dashboard/institutes">
+        <DashboardLink
+          to="/dashboard/institutes"
+          v-if="auth.user?.role === 'super-admin'">
           <span class="fa-solid fa-school"></span>Institutes
         </DashboardLink>
         <DashboardLink to="/dashboard/classes">

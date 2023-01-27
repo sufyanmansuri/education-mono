@@ -15,7 +15,7 @@ const { query, setRowCount } = useQueryStore();
 const perPage = ref(query.value[resource.value].perPage);
 
 watch(perPage, () => {
-  setRowCount(resource.value, perPage.value);
+  setRowCount(perPage.value);
 });
 </script>
 

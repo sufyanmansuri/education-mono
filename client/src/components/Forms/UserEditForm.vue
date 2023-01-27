@@ -17,6 +17,7 @@ import SelectInstitute from "./SelectInstitute.vue";
 import { useQueryStore } from "@/stores/useQueryStore";
 import { computed } from "vue";
 import { omit } from "@/utils/omit";
+import { useUserStore } from "@/stores/useUserStore";
 
 const props = defineProps<{
   id: string;
@@ -24,6 +25,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "close"): void;
 }>();
+
+const { state: auth } = useUserStore();
 
 const initialForm = {
   title: "",
@@ -43,6 +46,11 @@ const alertConfig = ref<AlertConfig>();
 const showForm = computed(
   () => state.value !== "success" && state.value !== "fetching"
 );
+const roles = computed(() => {
+  if (auth.value.user?.role === "super-admin") {
+    return ["super-admin", "institute-admin", "teacher"];
+  } else return ["institute-admin", "teacher"];
+});
 
 const { query } = useQueryStore();
 
@@ -175,6 +183,7 @@ const handleRoleChange = (role?: string) => {
 };
 
 const handleResetPassword = async () => {
+  state.value = "fetching";
   const { error } = await userService.resetPassword(original.value.email);
   if (!error) {
     alertConfig.value = {
@@ -191,12 +200,13 @@ const handleResetPassword = async () => {
       };
     }
   }
+  state.value = "idle";
 };
 </script>
 
 <template>
   <div
-    class="fixed inset-0 z-40 flex items-center justify-center bg-black/50 p-5">
+    class="fixed inset-0 z-40 grid overflow-y-auto bg-black/50 p-5 md:flex md:items-center md:justify-center">
     <div class="w-full space-y-4 border-2 bg-white p-5 md:w-2/3 lg:w-1/2">
       <div class="flex items-center justify-between">
         <BaseTitle text1="Edit " text2="user" underline-color="yellow" />
@@ -243,10 +253,7 @@ const handleResetPassword = async () => {
               @update:model-value="handleRoleChange"
               label="Role"
               placeholder="Select role">
-              <option
-                v-for="role in ['super-admin', 'institute-admin', 'teacher']"
-                :key="role"
-                :value="role">
+              <option v-for="role in roles" :key="role" :value="role">
                 {{ role }}
               </option>
             </FormSelect>
@@ -255,8 +262,8 @@ const handleResetPassword = async () => {
               v-model="v.institute.$model"
               :field="v.institute" />
           </div>
-          <div class="flex justify-between">
-            <div class="space-x-4">
+          <div class="flex items-center justify-between">
+            <div class="grid gap-2 md:grid-cols-2">
               <button
                 class="border-2 px-4 py-2 transition disabled:opacity-50"
                 type="reset"
@@ -274,6 +281,7 @@ const handleResetPassword = async () => {
               class="border-2 bg-green/50 px-4 py-2 transition hover:bg-green/60 disabled:opacity-50"
               type="submit"
               :disabled="state === 'fetching'">
+              <span class="fa-solid fa-check"></span>
               Submit
             </button>
           </div>
@@ -299,7 +307,7 @@ const handleResetPassword = async () => {
 <style scoped>
 .v-enter-active,
 .v-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.1s ease;
 }
 
 .v-enter-from,

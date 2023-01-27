@@ -3,12 +3,7 @@ import type { AlertConfig } from "@/types/AlertConfig";
 
 import { create, getTitles } from "@/services/UserService";
 import useVuelidate from "@vuelidate/core";
-import {
-  email,
-  helpers,
-  required,
-  requiredUnless,
-} from "@vuelidate/validators";
+import { email, helpers, required } from "@vuelidate/validators";
 import { isAxiosError } from "axios";
 import { onMounted, ref, watch } from "vue";
 import AlertBox from "../base/AlertBox.vue";
@@ -17,14 +12,17 @@ import FormField from "../base/FormField.vue";
 import FormSelect from "../base/FormSelect.vue";
 import SpinnerIcon from "../icons/SpinnerIcon.vue";
 import SelectInstitute from "./SelectInstitute.vue";
+import { computed } from "vue";
+import { useUserStore } from "@/stores/useUserStore";
 
 defineEmits<{
-  (e: "close"): void;
+  (e: "close", state: "success" | undefined): void;
 }>();
+
+const { state: auth } = useUserStore();
 
 const state = ref<"idle" | "success" | "error" | "loading">("idle");
 const alertConfig = ref<AlertConfig>();
-
 const initialUser = {
   title: "",
   email: "",
@@ -34,10 +32,15 @@ const initialUser = {
   institute: "",
 };
 const user = ref({ ...initialUser });
+const roles = computed(() => {
+  if (auth.value.user?.role === "super-admin") {
+    return ["super-admin", "institute-admin", "teacher"];
+  } else return ["institute-admin", "teacher"];
+});
 const titles = ref<string[]>();
 
-const v = useVuelidate(
-  {
+const rules = computed(() => {
+  const initialRules: any = {
     firstName: {
       required: helpers.withMessage("First name is required.", required),
     },
@@ -51,18 +54,23 @@ const v = useVuelidate(
     title: {
       required: helpers.withMessage("Title is required.", required),
     },
-    institute: {
-      requiredUnless: helpers.withMessage(
-        "Institute is required.",
-        requiredUnless(user.value.role === "super-admin")
-      ),
-    },
     role: {
       required: helpers.withMessage("Role is required", required),
     },
-  },
-  user
-);
+    institute: {
+      required: helpers.withMessage("Institute is required", required),
+    },
+  };
+
+  // Remove institute if role is super-admin
+  if (user.value.role === "super-admin") {
+    delete initialRules.institute.required;
+  }
+
+  return initialRules;
+});
+
+const v = useVuelidate(rules, user);
 
 const onSubmit = async () => {
   const isValid = await v.value.$validate();
@@ -71,7 +79,10 @@ const onSubmit = async () => {
   state.value = "loading";
   alertConfig.value = undefined;
 
-  const { error } = await create(user.value);
+  const data: any = { ...user.value };
+  if (data.institute === "") delete data.institute;
+
+  const { error } = await create(data);
   if (error) {
     state.value = "error";
     console.log(error);
@@ -132,7 +143,10 @@ watch(
         </button>
       </div>
       <AlertBox :message="alertConfig" />
-      <form @submit.prevent="onSubmit" class="relative">
+      <form
+        @submit.prevent="onSubmit"
+        v-if="state !== 'success'"
+        class="relative">
         <div class="mb-10 grid gap-4 md:grid-cols-2">
           <FormField
             v-model="v.email.$model"
@@ -163,10 +177,7 @@ watch(
             :field="v.role"
             label="Role"
             placeholder="Select role">
-            <option
-              v-for="role in ['super-admin', 'institute-admin', 'teacher']"
-              :key="role"
-              :value="role">
+            <option v-for="role in roles" :key="role" :value="role">
               {{ role }}
             </option>
           </FormSelect>
@@ -188,6 +199,13 @@ watch(
           <SpinnerIcon />
         </div>
       </form>
+      <div class="flex justify-end" v-if="state === 'success'">
+        <button
+          class="border-2 bg-green/50 px-4 py-2 hover:bg-green/60"
+          @click="$emit('close', 'success')">
+          Close
+        </button>
+      </div>
     </div>
   </div>
 </template>

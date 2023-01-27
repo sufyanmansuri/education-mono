@@ -1,7 +1,8 @@
 import type { Query } from "@/types/Query";
 import type { Resource } from "@/types/Resource";
 
-import { ref, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
+import { useRouter } from "vue-router";
 
 const initial = {
   perPage: 5,
@@ -18,11 +19,10 @@ const initial = {
 const initialValue = (): {
   [resource in Resource]: Query;
 } => {
-  const storage = localStorage.getItem("query");
+  const storage = sessionStorage.getItem("query");
   if (storage) {
     return JSON.parse(storage);
   }
-
   return {
     institutes: { ...initial, fetch: true },
     users: { ...initial, fetch: true },
@@ -33,52 +33,61 @@ const initialValue = (): {
 const query = ref(initialValue());
 
 export const useQueryStore = () => {
-  function setPage(resource: Resource, value: number) {
-    query.value[resource].page = value;
-    fetchData(resource);
+  const router = useRouter();
+  const resource = computed(
+    () => router.currentRoute.value.params.resource as Resource
+  );
+
+  function setPage(value: number) {
+    query.value[resource.value].page = value;
+    fetch();
   }
 
-  function setRowCount(resource: Resource, value: number) {
-    query.value[resource].page = 1;
-    query.value[resource].perPage = value;
-    fetchData(resource);
+  function setRowCount(value: number) {
+    query.value[resource.value].page = 1;
+    query.value[resource.value].perPage = value;
+    fetch();
   }
 
-  function setFields(resource: Resource, value: string[]) {
-    query.value[resource].fields = value;
-    fetchData(resource);
+  function setFields(value: string[]) {
+    query.value[resource.value].fields = value;
+    fetch();
   }
 
-  function setSort(resource: Resource, field: string) {
-    if (query.value[resource].sortBy !== field) {
-      query.value[resource].sortBy = field;
-      query.value[resource].order = 1;
-    } else if (query.value[resource].sortBy === field)
-      query.value[resource].order = query.value[resource].order * -1;
-    fetchData(resource);
+  function setSort(field: string) {
+    if (query.value[resource.value].sortBy !== field) {
+      query.value[resource.value].sortBy = field;
+      query.value[resource.value].order = 1;
+    } else if (query.value[resource.value].sortBy === field)
+      query.value[resource.value].order =
+        query.value[resource.value].order * -1;
+
+    fetch();
   }
 
-  function setQuery(resource: Resource, value: Query) {
-    query.value[resource] = { ...query.value[resource], ...value };
-    fetchData(resource);
+  function setQuery(value: Query) {
+    query.value[resource.value] = {
+      ...query.value[resource.value],
+      ...value,
+    };
   }
 
-  function resetQuery(resource: Resource) {
-    query.value[resource] = { ...initial };
-    fetchData(resource);
+  function resetQuery() {
+    query.value[resource.value] = { ...initial };
+    fetch();
   }
 
   function hardResetQuery() {
-    localStorage.removeItem("query");
+    sessionStorage.removeItem("query");
     query.value = initialValue();
   }
 
-  function fetchData(resource: Resource) {
-    query.value[resource].fetch = true;
+  function fetch() {
+    query.value[resource.value].fetch = true;
   }
 
   watchEffect(() => {
-    localStorage.setItem("query", JSON.stringify(query.value));
+    sessionStorage.setItem("query", JSON.stringify(query.value));
   });
 
   return {
@@ -87,6 +96,7 @@ export const useQueryStore = () => {
     setRowCount,
     setFields,
     setSort,
+    fetch,
     setQuery,
     resetQuery,
     hardResetQuery,

@@ -1,21 +1,22 @@
 <script setup lang="ts">
 import type { FieldModifiers } from "@/types/FieldModifiers";
-import type { ServiceFunction } from "@/types/ServiceFunction";
 import type { Resource } from "@/types/Resource";
 
-import { ref, computed, type Component } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useQueryStore } from "@/stores/useQueryStore";
 
 import TableHeaders from "./TableHeaders.vue";
 import TableBody from "./TableBody.vue";
 import ConfirmDelete from "@/components/ConfirmDelete.vue";
-import UserEditForm from "@/components/Forms/UserEditForm.vue";
 
-const props = defineProps<{
+defineProps<{
   items: any[];
   fieldModifiers: FieldModifiers;
-  remove: ServiceFunction;
+}>();
+const emit = defineEmits<{
+  (e: "delete", id: string): void;
+  (e: "edit", id: string): void;
 }>();
 
 const router = useRouter();
@@ -24,7 +25,7 @@ const resource = computed<Resource>(
 );
 
 const table = ref<HTMLTableElement | null>(null);
-const editFormId = ref<string>();
+const isOverflowing = ref(false);
 const showAlert = ref(false);
 const markedForRemoval = ref();
 
@@ -34,69 +35,66 @@ const markForRemoval = (item: any) => {
   showAlert.value = true;
   markedForRemoval.value = item;
 };
-
-const handleCancel = () => {
+const handleCancelDelete = () => {
   showAlert.value = false;
   markedForRemoval.value = undefined;
 };
-
-const handleConfirm = async () => {
+const handleConfirmDelete = async () => {
   showAlert.value = false;
-  const { error } = await props.remove(markedForRemoval.value._id);
-  if (error) {
-    alert("An unexpected error occurred.");
-  } else {
-    query.value[resource.value].fetch = true;
-  }
+  emit("delete", markedForRemoval.value._id);
 };
 
 const handleEdit = (id: string) => {
-  editFormId.value = id;
+  emit("edit", id);
 };
 
-type ComponentList = {
-  [f in Resource]: Component;
+// Check if table is overflowing
+const checkOverflow = () => {
+  if (table.value !== null) {
+    isOverflowing.value = table.value.offsetWidth < table.value.scrollWidth;
+  }
 };
-
-const EditForms: ComponentList = {
-  users: UserEditForm,
-};
+onMounted(() => {
+  checkOverflow();
+  window.addEventListener("resize", checkOverflow);
+});
+onUnmounted(() => {
+  window.removeEventListener("resize", checkOverflow);
+});
 </script>
 
 <template>
-  <table
-    class="theme theme-yellow w-full border-collapse overflow-y-auto border-b-0"
-    ref="table">
-    <TableHeaders
-      :table-height="table?.offsetHeight"
-      :fields="query[resource].fields"
-      :sort="{ field: query[resource].sortBy, order: query[resource].order }"
-      @sort-change="(field: string)=>setSort(resource, field)" />
-    <TableBody
-      :field-modifiers="fieldModifiers"
-      :items="items"
-      :fields="query[resource].fields"
-      @remove="markForRemoval"
-      @edit="handleEdit" />
-    <TransitionGroup>
-      <ConfirmDelete
-        v-if="showAlert"
-        :item="markedForRemoval"
-        @confirm="handleConfirm"
-        @cancel="handleCancel" />
-      <component
-        v-if="editFormId"
-        :is="EditForms[resource]"
-        @close="editFormId = undefined"
-        :id="editFormId" />
-    </TransitionGroup>
-  </table>
+  <div class="my-3 mb-5 overflow-x-auto p-3 lg:my-5" ref="table">
+    <table
+      class="theme theme-yellow w-full border-collapse overflow-y-auto border-b-0">
+      <TableHeaders
+        :table-height="table?.offsetHeight"
+        :fields="query[resource].fields"
+        :sort="{ field: query[resource].sortBy, order: query[resource].order }"
+        :isOverflowing="isOverflowing"
+        @sort-change="(field: string)=>setSort(field)" />
+      <TableBody
+        :field-modifiers="fieldModifiers"
+        :items="items"
+        :fields="query[resource].fields"
+        :isOverflowing="isOverflowing"
+        @remove="markForRemoval"
+        @edit="handleEdit" />
+      <TransitionGroup>
+        <ConfirmDelete
+          v-if="showAlert"
+          :item="markedForRemoval"
+          @confirm="handleConfirmDelete"
+          @cancel="handleCancelDelete" />
+      </TransitionGroup>
+    </table>
+  </div>
 </template>
 
 <style scoped>
 .v-enter-active,
 .v-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.1s ease;
 }
 
 .v-enter-from,
