@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    underlineColor?: "yellow" | "blue" | "red";
+    underlineColor?: "yellow" | "blue" | "red" | "none";
     text1: string;
     text2?: string;
   }>(),
@@ -31,6 +31,7 @@ withDefaults(
         'decoration-blue': underlineColor === 'blue',
         'decoration-red': underlineColor === 'red',
         'decoration-yellow': underlineColor === 'yellow',
+        'decoration-transparent': underlineColor === 'none',
       }">
       {{ text1 }}
     </span>

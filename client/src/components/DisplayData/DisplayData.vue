@@ -178,7 +178,7 @@ watch(() => query.value[resource.value]?.fetch, fetchData);
       <div class="mb-3 flex justify-between">
         <BaseTitle
           :text1="resource[0].toUpperCase() + resource.slice(1)"
-          underlineColor="yellow" />
+          underlineColor="none" />
         <div class="my-2 text-right">
           <BaseButton @click="showCreateForm = !showCreateForm">
             <span class="px-5 py-2">

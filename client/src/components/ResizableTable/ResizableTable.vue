@@ -64,9 +64,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="my-3 mb-5 overflow-x-auto p-3 lg:my-5" ref="table">
+  <div
+    class="my-3 mb-5 overflow-x-auto overflow-y-visible p-3 lg:my-5"
+    ref="table">
     <table
-      class="theme theme-yellow w-full border-collapse overflow-y-auto border-b-0">
+      class="theme theme-yellow w-full border-collapse overflow-y-visible border-b-0">
       <TableHeaders
         :table-height="table?.offsetHeight"
         :fields="query[resource].fields"

@@ -37,13 +37,22 @@ const handleEdit = (id: string) => {
   <tbody>
     <tr v-for="item in items" :key="item._id" class="table-row">
       <td
-        class="whitespace-nowrap border-2 px-4 py-2"
+        class="relative whitespace-nowrap border-2 px-4 py-2"
         :class="{ 'overflow-hidden text-ellipsis lg:max-w-0': !isOverflowing }"
         v-for="field in fields"
         :key="field">
-        {{ formatText(item[field], field) }}
+        <span class="peer">
+          {{ formatText(item[field], field) }}
+        </span>
+        <!-- Tooltip -->
+        <div
+          class="fixed -ml-2 rounded bg-black p-2 text-white opacity-0 transition-all peer-hover:opacity-100">
+          {{ formatText(item[field], field) }}
+        </div>
       </td>
-      <td class="whitespace-nowrap border-2 py-1 text-center lg:max-w-[50px]">
+      <td
+        class="whitespace-nowrap border-2 py-1 text-center"
+        :class="{ 'lg:max-w-0': !isOverflowing }">
         <button
           class="mx-1 border-2 px-2 py-1"
           type="button"

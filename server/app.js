@@ -14,7 +14,7 @@ const { PORT, MONGO_URI } = process.env;
 app.disable("x-powered-by");
 
 // Simulate slow connection
-const WAIT_TIME = 1500;
+const WAIT_TIME = 1000;
 app.use((req, res, next) => {
   new Promise((resolve) => {
     setTimeout(() => {

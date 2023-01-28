@@ -29,7 +29,7 @@ const initialUser = {
   role: "",
   firstName: "",
   lastName: "",
-  institute: "",
+  institute: auth.value.user?.institute || "",
 };
 const user = ref({ ...initialUser });
 const roles = computed(() => {
@@ -163,12 +163,12 @@ watch(
             </option>
           </FormSelect>
           <FormField
-            v-model="v.firstName.$model"
+            v-model.trim="v.firstName.$model"
             :field="v.firstName"
             label="First name"
             placeholder="John" />
           <FormField
-            v-model="v.lastName.$model"
+            v-model.trim="v.lastName.$model"
             :field="v.lastName"
             label="Last name"
             placeholder="Doe" />
@@ -184,6 +184,7 @@ watch(
           <SelectInstitute
             v-if="user.role !== 'super-admin'"
             v-model="v.institute.$model"
+            :disabled="auth.user?.role !== 'super-admin'"
             :field="v.institute" />
         </div>
         <div class="flex justify-end">

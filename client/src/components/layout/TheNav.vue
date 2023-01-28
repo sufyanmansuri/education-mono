@@ -63,7 +63,7 @@ watch(showDropDown, () => {
               class="absolute top-full left-0 mt-1 grid w-full space-y-2 border-2 bg-white py-1"
               v-if="showDropDown">
               <RouterLink
-                to=""
+                :to="{ name: 'profile' }"
                 class="w-full px-4 py-1 transition hover:bg-blue hover:text-white">
                 <span class="fa-solid fa-user mr-2"></span>
                 Profile

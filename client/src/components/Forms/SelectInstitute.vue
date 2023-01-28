@@ -7,10 +7,16 @@ import instituteService from "@/services/InstituteService";
 
 import SpinnerIcon from "../icons/SpinnerIcon.vue";
 
-const props = defineProps<{
-  modelValue?: string;
-  field: any;
-}>();
+const props = withDefaults(
+  defineProps<{
+    modelValue?: string;
+    field: any;
+    disabled: boolean;
+  }>(),
+  {
+    disabled: false,
+  }
+);
 
 const emit = defineEmits(["update:modelValue"]);
 
@@ -81,7 +87,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <label class="relative" ref="label">
+    <label class="relative" ref="label" :class="{ 'opacity-60': disabled }">
       <div>Institute</div>
       <input type="checkbox" class="absolute appearance-none" v-model="show" />
       <div
@@ -96,7 +102,7 @@ onMounted(async () => {
       <Transition>
         <div
           class="absolute top-full z-50 mt-2 w-full border-2 border-black bg-white shadow-lg shadow-blue/30 peer-checked:opacity-100"
-          v-if="show">
+          v-if="show && !disabled">
           <div
             class="group flex items-center border-b-2 py-1 px-2 focus-within:border-blue">
             <span

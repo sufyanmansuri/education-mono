@@ -161,7 +161,7 @@ const login = async (req, res, next) => {
 const getAccessToken = async (req, res, next) => {
   const { user } = res.locals;
   const { JWT_SECRET_KEY } = process.env;
-  const tokenValidity = "1d"; // 3days
+  const tokenValidity = "1d";
 
   try {
     // Create jti claim
