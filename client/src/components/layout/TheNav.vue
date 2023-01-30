@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/useUserStore";
-import { navLinkItems } from "@/utils/data";
 import { ref, watch } from "vue";
 
 defineEmits(["logout"]);
@@ -31,16 +30,6 @@ watch(showDropDown, () => {
     class="hidden h-10 border-b-2 border-yellow bg-black text-white lg:block">
     <div class="container flex h-full items-stretch justify-end">
       <ul class="flex gap-1">
-        <li
-          class="flex items-stretch"
-          v-for="item of navLinkItems"
-          :key="item.text">
-          <a
-            href="#"
-            class="flex items-center px-4 hover:underline hover:decoration-yellow hover:decoration-2"
-            >{{ item.text }}</a
-          >
-        </li>
         <li
           v-if="state.isLoggedIn"
           class="group relative flex cursor-pointer items-stretch gap-2 bg-white px-8 text-black"

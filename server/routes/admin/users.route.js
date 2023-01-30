@@ -7,7 +7,7 @@ const userSchema = require("../../controllers/user.schema");
 const tokenController = require("../../controllers/token.controller");
 const { authUsers, authorization } = require("../../middleware/authorization");
 
-// Path: /admin/user
+// Path: /admin/users
 const usersRouter = Router();
 usersRouter.use(authorization("institute-admin"));
 

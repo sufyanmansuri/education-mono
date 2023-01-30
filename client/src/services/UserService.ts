@@ -182,7 +182,20 @@ export async function create(user: User) {
   return { data, error };
 }
 
+export async function approve(id: string) {
+  let data, error;
+  try {
+    const res = await axios.put(`/api/admin/users/approve/${id}`);
+    data = res.data;
+  } catch (e) {
+    error = e;
+  }
+
+  return { data, error };
+}
+
 export default {
+  approve,
   get,
   getById,
   getTitles,

@@ -120,7 +120,7 @@ const login = async (req, res, next) => {
     if (!user) {
       return next({
         status: HTTP_STATUS.UNAUTHORIZED,
-        error: { message: "Invalid username or password" },
+        error: { message: "Invalid username or password." },
       });
     }
 
@@ -128,7 +128,7 @@ const login = async (req, res, next) => {
     if (!user.verified) {
       return next({
         status: HTTP_STATUS.FORBIDDEN,
-        error: { message: "Account is not verified" },
+        error: { message: "Account is not verified." },
       });
     }
     if (!user.approved) {
@@ -144,7 +144,7 @@ const login = async (req, res, next) => {
     if (!isPasswordValid) {
       return next({
         status: HTTP_STATUS.UNAUTHORIZED,
-        error: { message: "Invalid username or password" },
+        error: { message: "Invalid username or password." },
       });
     }
 
@@ -211,7 +211,7 @@ const approveUser = async (req, res, next) => {
     if (!user) {
       return next({
         status: HTTP_STATUS.BAD_REQUEST,
-        error: { message: "User does not exist." },
+        message: "User does not exist.",
       });
     }
 
@@ -219,7 +219,7 @@ const approveUser = async (req, res, next) => {
     if (!user.verified) {
       return next({
         status: HTTP_STATUS.BAD_REQUEST,
-        error: { message: "User's email is not verified." },
+        message: "User's email is not verified.",
       });
     }
 
@@ -268,6 +268,8 @@ const getUsers = async (req, res, next) => {
       "email",
       "createdAt",
       "updatedAt",
+      "approved",
+      "verified",
     ],
     page = 1,
     perPage = 5,
@@ -324,6 +326,16 @@ const getUsers = async (req, res, next) => {
       }
 
       if (curr === "search") {
+        return prev;
+      }
+
+      if (curr === "approved" || curr === "verified") {
+        if (query[curr].toLowerCase() === "true") {
+          return { ...prev, [curr]: true };
+        }
+        if (query[curr].toLowerCase() === "false") {
+          return { ...prev, [curr]: false };
+        }
         return prev;
       }
 

@@ -19,7 +19,7 @@ function handleInput(e: Event) {
 <template>
   <div>
     <label>
-      <div>{{ label }}</div>
+      <span>{{ label }}</span>
       <select
         class="h-9 w-full border-2 bg-white px-2 py-1 outline-offset-2 outline-yellow/50"
         :value="modelValue"

@@ -28,8 +28,8 @@ const verifyToken = async (req, res, next) => {
   // Check if token is provided
   if (!token)
     return next({
-      status: HTTP_STATUS.BAD_REQUEST,
-      error: { message: "Invalid token" },
+      status: HTTP_STATUS.UNAUTHORIZED,
+      error: { message: "Invalid token." },
     });
 
   try {
@@ -37,16 +37,16 @@ const verifyToken = async (req, res, next) => {
     const record = await tokenService.getByToken(token);
     if (!record)
       return next({
-        status: HTTP_STATUS.BAD_REQUEST,
-        message: "Invalid token",
+        status: HTTP_STATUS.UNAUTHORIZED,
+        message: "Invalid token.",
       });
 
     // Check if token is expired
     if (record.expiresAt.getTime() <= new Date().getTime()) {
       return next({
-        status: HTTP_STATUS.UNAUTHORIZED,
+        status: HTTP_STATUS.FORBIDDEN,
         message: "Token expired.",
-        error: { message: "Token expired" },
+        error: { message: "Token expired." },
       });
     }
 
@@ -65,7 +65,7 @@ const regenerateToken = async (req, res, next) => {
   if (!token)
     return next({
       status: HTTP_STATUS.BAD_REQUEST,
-      error: { message: "Invalid token" },
+      error: { message: "Invalid token." },
     });
 
   try {
@@ -74,7 +74,7 @@ const regenerateToken = async (req, res, next) => {
     if (!record) {
       return next({
         status: HTTP_STATUS.UNAUTHORIZED,
-        error: { message: "Invalid token" },
+        error: { message: "Invalid token." },
       });
     }
 

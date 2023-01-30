@@ -9,25 +9,33 @@ import SelectInstitutes from "../SelectInstitutes.vue";
 import FilterRoles from "./FilterRoles.vue";
 import SearchFilter from "./SearchFilter.vue";
 import { useUserStore } from "@/stores/useUserStore";
+import { useRouter } from "vue-router";
+import { computed } from "vue";
+import type { Resource } from "@/types/Resource";
 
 const { state: auth } = useUserStore();
 const { resetQuery, setQuery, query, fetch } = useQueryStore();
+
+const router = useRouter();
+const resource = computed<Resource>(
+  () => router.currentRoute.value.params?.resource as Resource
+);
 
 const form = ref<{
   institute: Institute[];
   search: string;
   role: Role[];
 }>({
-  institute: query.value["users"].query.institute || [],
-  role: query.value["users"].query.role || [],
-  search: query.value["users"].query.search || "",
+  institute: query.value[resource.value].query.institute || [],
+  role: query.value[resource.value].query.role || [],
+  search: query.value[resource.value].query.search || "",
 });
 
 const handleSubmit = () => {
   setQuery({
-    ...query.value["users"],
+    ...query.value[resource.value],
     query: {
-      ...query.value["users"].query,
+      ...query.value[resource.value].query,
       institute: form.value.institute,
       search: form.value.search,
       role: form.value.role,

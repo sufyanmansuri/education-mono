@@ -20,7 +20,7 @@ const { query } = route;
 
 const alertConfig = ref<AlertConfig>({
   type: "info",
-  message: "Verifying token...",
+  message: "Verifying link...",
 });
 const state = ref<Status>("fetching");
 
@@ -31,8 +31,8 @@ onMounted(async () => {
   if (error) {
     if (isAxiosError(error)) {
       const status = error.response?.status;
-      if (status === 400) state.value = "invalid";
-      if (status === 401) state.value = "expired";
+      if (status === 401) state.value = "invalid";
+      if (status === 403) state.value = "expired";
     }
   } else {
     state.value = "valid";
@@ -90,7 +90,7 @@ watch(state, () => {
     case "invalid":
       alertConfig.value = {
         type: "error",
-        message: "Invalid token provided",
+        message: "Invalid link provided.",
       };
       break;
 
@@ -98,18 +98,18 @@ watch(state, () => {
       alertConfig.value = {
         type: "error",
         message:
-          "Token expired. Click on the button to regenerate verification token.",
+          "Link expired. Click on the button to resend verification link.",
       };
       break;
 
     case "regenerating":
-      alertConfig.value = { type: "info", message: "Regenerating token..." };
+      alertConfig.value = { type: "info", message: "Sending email..." };
       break;
 
     case "regenerated":
       alertConfig.value = {
         type: "info",
-        message: "Token regenerated. Check your inbox for verification.",
+        message: "Email sent. Check your inbox for verification.",
       };
       break;
 
@@ -167,7 +167,7 @@ watch(state, () => {
     <div v-else-if="state === 'expired'" class="flex justify-center">
       <div class="flex">
         <BaseButton type="button" color="blue" @click.prevent="regenerate">
-          <span class="px-8">Regenerate Token</span>
+          <span class="px-8">Resend link</span>
         </BaseButton>
       </div>
     </div>

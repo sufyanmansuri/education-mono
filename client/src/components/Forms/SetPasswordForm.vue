@@ -7,7 +7,7 @@ import { minLength, required, helpers } from "@vuelidate/validators";
 
 import BaseButton from "../base/BaseButton.vue";
 import FormFieldWithoutError from "../base/FormFieldWithoutError.vue";
-import ValidationBox from "./ValidationBox.vue";
+import ValidationBox from "../ValidationBox.vue";
 
 const emit = defineEmits<{
   (e: "submit", password: string): void;

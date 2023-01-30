@@ -14,7 +14,7 @@ const { PORT, MONGO_URI } = process.env;
 app.disable("x-powered-by");
 
 // Simulate slow connection
-const WAIT_TIME = 1000;
+const WAIT_TIME = 500;
 app.use((req, res, next) => {
   new Promise((resolve) => {
     setTimeout(() => {
@@ -33,7 +33,7 @@ app.use("/", router);
 
 // 404 handler
 app.use((req, res, _next) => {
-  res.status(HTTP_STATUS.NOT_FOUND).send({ message: "Route not found" });
+  res.status(HTTP_STATUS.NOT_FOUND).send({ message: "Route not found." });
 });
 
 // Error handler

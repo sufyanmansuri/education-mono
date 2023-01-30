@@ -24,7 +24,7 @@ const handleInput = (e: Event) => {
 <template>
   <div>
     <label>
-      <div>{{ label }}</div>
+      <span>{{ label }}</span>
       <input
         :type="type"
         :placeholder="placeholder"

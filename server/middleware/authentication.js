@@ -11,7 +11,7 @@ const authentication = async (req, res, next) => {
   if (!token) {
     return next({
       status: HTTP_STATUS.UNAUTHORIZED,
-      error: { message: "Unauthenticated user access." },
+      message: "Unauthenticated user access.",
     });
   }
   token = token.replace("Bearer ", "");
@@ -22,7 +22,7 @@ const authentication = async (req, res, next) => {
     if (!payload) {
       return next({
         status: HTTP_STATUS.UNAUTHORIZED,
-        error: { message: "Invalid token" },
+        message: "Invalid token.",
       });
     }
     const jti = await jtiService.get({ token: payload.jti, user: payload.sub }); // verify jti
@@ -30,7 +30,7 @@ const authentication = async (req, res, next) => {
       res.clearCookie("token");
       return next({
         status: HTTP_STATUS.FORBIDDEN,
-        error: { message: "Token expired" },
+        message: "Token expired.",
       });
     }
 
@@ -40,13 +40,13 @@ const authentication = async (req, res, next) => {
     if (error.name === "JsonWebTokenError") {
       return next({
         status: HTTP_STATUS.UNAUTHORIZED,
-        error: { message: "Invalid token" },
+        message: "Invalid token.",
       });
     }
     if (error.name === "TokenExpiredError") {
       return next({
         status: HTTP_STATUS.FORBIDDEN,
-        error: { message: "Token expired. Login again." },
+        message: "Token expired. Login again.",
       });
     }
     return next({ error });

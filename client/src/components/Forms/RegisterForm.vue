@@ -12,7 +12,7 @@ import FormField from "../base/FormField.vue";
 import FormSelect from "../base/FormSelect.vue";
 import AlertBox from "../base/AlertBox.vue";
 import SpinnerIcon from "../icons/SpinnerIcon.vue";
-import SelectInstitute from "./SelectInstitute.vue";
+import SelectInstitute from "../SelectInstitute.vue";
 
 const registerForm = ref({
   firstName: "",

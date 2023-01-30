@@ -27,6 +27,19 @@ const initialValue = (): {
     institutes: { ...initial, fetch: true },
     users: { ...initial, fetch: true },
     classes: { ...initial, fetch: true },
+    "pending-approvals": {
+      ...initial,
+      query: { approved: false, verified: true },
+      fields: [
+        "firstName",
+        "lastName",
+        "email",
+        "role",
+        "verified",
+        "approved",
+      ],
+      fetch: true,
+    },
   };
 };
 
@@ -73,7 +86,22 @@ export const useQueryStore = () => {
   }
 
   function resetQuery() {
-    query.value[resource.value] = { ...initial };
+    if (resource.value === "pending-approvals") {
+      query.value[resource.value] = {
+        ...initial,
+        query: { approved: false },
+        sortBy: "verified",
+        fields: [
+          "firstName",
+          "lastName",
+          "email",
+          "role",
+          "verified",
+          "approved",
+        ],
+        fetch: true,
+      };
+    } else query.value[resource.value] = { ...initial };
     fetch();
   }
 

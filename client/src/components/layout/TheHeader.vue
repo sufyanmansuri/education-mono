@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/useUserStore";
-import { navLinkItems } from "@/utils/data";
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { logoutUser } from "@/services/UserService";
@@ -19,22 +18,21 @@ const { global } = useGlobalStore();
 const router = useRouter();
 
 // Handle logout
-async function handleLogout() {
+function handleLogout() {
   global.value.loading = true;
 
-  router.push("/");
-  const { error } = await logoutUser();
-
-  if (error) {
-    alert("An error occurred.");
-    console.log(error);
-  } else {
-    logout();
-    hardResetQuery();
-    router.push({ name: "login" });
-  }
-
-  global.value.loading = false;
+  logoutUser()
+    .then(() => {
+      logout();
+      hardResetQuery();
+      router.push({ name: "login" });
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+    .finally(() => {
+      global.value.loading = false;
+    });
 }
 
 // Hide nav on route change
@@ -71,7 +69,7 @@ watch(router.currentRoute, () => {
       </div>
       <Transition>
         <div
-          class="mt-5 mb-2 h-96 w-full bg-white opacity-100 lg:my-0 lg:hidden lg:w-auto"
+          class="mt-5 mb-2 h-24 w-full bg-white opacity-100 lg:my-0 lg:hidden lg:w-auto"
           v-if="showNav">
           <ul class="space-y-3 text-lg">
             <li class="mb-3">
@@ -84,17 +82,13 @@ watch(router.currentRoute, () => {
                   placeholder="Search books" />
               </div>
             </li>
-            <li
-              class="border-b lg:hidden"
-              v-for="item of navLinkItems"
-              :key="item.text">
-              <a href="#" class="">{{ item.text }}</a>
-            </li>
             <li class="pt-5 lg:hidden">
               <div
                 v-if="state.isLoggedIn"
                 class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2">
+                <RouterLink
+                  :to="{ name: 'profile' }"
+                  class="flex items-center gap-2">
                   <img
                     :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${state.user?.email}`"
                     alt="avatar"
@@ -102,7 +96,7 @@ watch(router.currentRoute, () => {
                   <p class="text-xl font-black">
                     {{ state.user?.firstName }}
                   </p>
-                </div>
+                </RouterLink>
                 <button @click="handleLogout" class="border-2 px-2">
                   Logout
                   <span class="fa-solid fa-right-from-bracket"></span>

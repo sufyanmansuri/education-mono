@@ -35,7 +35,7 @@ const updateClass = async (req, res, next) => {
     if (!doc)
       return next({
         status: HTTPS_STATUS.BAD_REQUEST,
-        error: { message: "Invalid class id" },
+        error: { message: "Invalid class id." },
       });
     return res.send(doc);
   } catch (error) {
@@ -57,7 +57,7 @@ const deleteClassById = async (req, res, next) => {
     if (!doc)
       return next({
         status: HTTPS_STATUS.BAD_REQUEST,
-        error: { message: "Invalid class id" },
+        error: { message: "Invalid class id." },
       });
 
     return res.send(doc);

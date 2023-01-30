@@ -13,6 +13,8 @@ export type Query = {
     level?: string[];
     role?: Role[];
     examBoard?: string[];
+    approved?: boolean;
+    verified?: boolean;
     keyStage?: string[];
   };
   totalPages: number;

@@ -5,19 +5,19 @@ import userService from "@/services/UserService";
 import useVuelidate from "@vuelidate/core";
 import { email, helpers, required } from "@vuelidate/validators";
 import { isAxiosError } from "axios";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { pick } from "@/utils/pick";
+import { useQueryStore } from "@/stores/useQueryStore";
+import { computed } from "vue";
+import { omit } from "@/utils/omit";
+import { useUserStore } from "@/stores/useUserStore";
 
 import AlertBox from "../base/AlertBox.vue";
 import BaseTitle from "../base/BaseTitle.vue";
 import FormField from "../base/FormField.vue";
 import FormSelect from "../base/FormSelect.vue";
 import SpinnerIcon from "../icons/SpinnerIcon.vue";
-import SelectInstitute from "./SelectInstitute.vue";
-import { useQueryStore } from "@/stores/useQueryStore";
-import { computed } from "vue";
-import { omit } from "@/utils/omit";
-import { useUserStore } from "@/stores/useUserStore";
+import SelectInstitute from "../SelectInstitute.vue";
 
 const props = defineProps<{
   id: string;
@@ -38,6 +38,7 @@ const initialForm = {
 };
 
 const form = ref({ ...initialForm });
+const isDisabled = ref(true);
 const original = ref();
 const titles = ref<string[]>();
 const state = ref<"fetching" | "idle" | "error" | "success">("fetching");
@@ -95,7 +96,10 @@ const v = useVuelidate(
 
 const onSubmit = async () => {
   const dirtyFields = Object.keys(v.value).filter((key) => {
-    if (Object.keys(initialForm).includes(key)) {
+    if (
+      Object.keys(initialForm).includes(key) &&
+      (form.value as any)[key] !== original.value[key]
+    ) {
       return v.value[key].$dirty;
     }
   });
@@ -202,6 +206,18 @@ const handleResetPassword = async () => {
   }
   state.value = "idle";
 };
+
+watch(
+  form,
+  () => {
+    let isEqual = true;
+    Object.keys(form.value).forEach((key) => {
+      if ((form.value as any)[key] !== original.value[key]) isEqual = false;
+    });
+    isDisabled.value = isEqual;
+  },
+  { deep: true }
+);
 </script>
 
 <template>
@@ -260,6 +276,7 @@ const handleResetPassword = async () => {
             <SelectInstitute
               v-if="form?.role !== 'super-admin'"
               v-model="v.institute.$model"
+              :disabled="auth.user?.role !== 'super-admin'"
               :field="v.institute" />
           </div>
           <div class="flex items-center justify-between">
@@ -278,10 +295,9 @@ const handleResetPassword = async () => {
               </button>
             </div>
             <button
-              class="border-2 bg-green/50 px-4 py-2 transition hover:bg-green/60 disabled:opacity-50"
+              class="border-2 bg-green/50 px-4 py-2 transition enabled:hover:bg-green/60 disabled:opacity-50"
               type="submit"
-              :disabled="state === 'fetching'">
-              <span class="fa-solid fa-check"></span>
+              :disabled="isDisabled || state === 'fetching'">
               Submit
             </button>
           </div>

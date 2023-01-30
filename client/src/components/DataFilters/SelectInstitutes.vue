@@ -74,22 +74,27 @@ watch(selected, () => {
             v-model="search"
             class="w-full px-2 py-1 outline-none" />
         </div>
-        <ul class="">
+        <ul class="relative">
           <div
-            class="absolute inset-0 z-50 flex items-center justify-center bg-opaque p-3 text-3xl"
+            class="absolute inset-0 z-50 flex items-center justify-center bg-opaque p-3 py-2 text-3xl"
             v-if="loading">
             <SpinnerIcon />
           </div>
 
-          <li v-for="institute of institutes" :key="institute._id">
-            <label class="flex gap-2">
-              <input
-                type="checkbox"
-                name="institute"
-                :value="institute"
-                v-model="selected" />
-              {{ institute.name }}
-            </label>
+          <template v-if="institutes && institutes.length > 0">
+            <li v-for="institute of institutes" :key="institute._id">
+              <label class="flex gap-2">
+                <input
+                  type="checkbox"
+                  name="institute"
+                  :value="institute"
+                  v-model="selected" />
+                {{ institute.name }}
+              </label>
+            </li>
+          </template>
+          <li v-else class="whitespace-nowrap p-2 px-4 transition">
+            No results found
           </li>
         </ul>
       </div>

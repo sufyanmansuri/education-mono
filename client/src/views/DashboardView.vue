@@ -10,31 +10,36 @@ const isOpen = ref(false);
 <template>
   <div class="lg:flex">
     <div
-      class="group flex flex-col py-3 px-2 transition-all duration-200 lg:w-20 lg:border-r-2 lg:aria-expanded:w-1/6"
+      class="group peer flex flex-col py-3 px-2 transition-all duration-300 lg:w-20 lg:border-r-2 lg:aria-expanded:w-1/6"
       :aria-expanded="isOpen">
       <div
         class="flex flex-1 gap-2 overflow-x-auto lg:block lg:space-y-2 lg:overflow-x-hidden">
         <DashboardLink
           to="/dashboard/users"
+          icon="fa-solid fa-users"
           v-if="
             ['super-admin', 'institute-admin'].includes(auth.user?.role || '')
           ">
-          <span
-            class="fa-solid fa-users my-1 ml-1 transition-all lg:mr-3 lg:group-aria-expanded:mr-0"></span>
-          <span class="">Users</span>
+          Users
+        </DashboardLink>
+        <DashboardLink
+          to="/dashboard/pending-approvals"
+          icon="fa-solid fa-user-lock"
+          v-if="
+            ['super-admin', 'institute-admin'].includes(auth.user?.role || '')
+          ">
+          Pending Approvals
         </DashboardLink>
         <DashboardLink
           to="/dashboard/institutes"
-          v-if="auth.user?.role === 'super-admin'">
-          <span
-            class="fa-solid fa-school my-1 ml-1 transition-all lg:mr-3 lg:group-aria-expanded:mr-0"></span>
-
-          <span class="">Institutes</span>
+          v-if="auth.user?.role === 'super-admin'"
+          icon="fa-solid fa-school">
+          Institutes
         </DashboardLink>
-        <DashboardLink to="/dashboard/classes">
-          <span
-            class="fa-solid fa-graduation-cap my-1 ml-1 transition-all lg:mr-3 lg:group-aria-expanded:mr-0"></span>
-          <span class="">Classes</span>
+        <DashboardLink
+          to="/dashboard/classes"
+          icon="fa-solid fa-graduation-cap">
+          Classes
         </DashboardLink>
       </div>
       <div class="mt-auto hidden text-left lg:block">
@@ -46,8 +51,14 @@ const isOpen = ref(false);
         </button>
       </div>
     </div>
-    <div class="relative flex flex-col p-5 lg:flex-1">
+    <div
+      class="relative flex flex-col p-5 transition-all lg:w-full lg:peer-aria-expanded:w-11/12">
       <RouterView />
     </div>
   </div>
 </template>
+<style>
+::-webkit-scrollbar {
+  @apply hidden lg:block;
+}
+</style>

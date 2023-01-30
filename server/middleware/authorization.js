@@ -20,7 +20,7 @@ const authorization =
 
     return next({
       status: HTTP_STATUS.FORBIDDEN,
-      error: { message: "Unauthorized" },
+      message: "Unauthorized.",
     });
   };
 
@@ -36,7 +36,7 @@ const authInstitute = (req, res, next) => {
 
   return next({
     status: HTTP_STATUS.FORBIDDEN,
-    error: { message: "Unauthorized" },
+    message: "Unauthorized.",
   });
 };
 
@@ -55,14 +55,14 @@ const authClass = async (req, res, next) => {
     if (!classDoc)
       return next({
         status: HTTP_STATUS.NOT_FOUND,
-        error: { message: "Class does not exist." },
+        message: "Class does not exist.",
       });
 
     if (classDoc.institute.toString() === user.institute) return next();
 
     return next({
       status: HTTP_STATUS.FORBIDDEN,
-      error: { message: "Unauthorized" },
+      message: "Unauthorized.",
     });
   } catch (error) {
     return next({ error });
@@ -83,14 +83,14 @@ const authUsers = async (req, res, next) => {
     if (!requestedUser)
       return next({
         status: HTTP_STATUS.NOT_FOUND,
-        error: { message: "User does not exist." },
+        message: "User does not exist.",
       });
 
     if (requestedUser.institute.toString() === user.institute) return next();
 
     return next({
       status: HTTP_STATUS.FORBIDDEN,
-      error: { message: "Unauthorized" },
+      message: "Unauthorized.",
     });
   } catch (error) {
     return next({ error });

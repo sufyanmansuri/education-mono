@@ -1,1 +1,1 @@
-export type Resource = "users" | "institutes" | "classes";
+export type Resource = "users" | "institutes" | "classes" | "pending-approvals";

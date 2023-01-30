@@ -5,13 +5,13 @@ import { onMounted, ref, watch } from "vue";
 import { debounce } from "@/utils/debounce";
 import instituteService from "@/services/InstituteService";
 
-import SpinnerIcon from "../icons/SpinnerIcon.vue";
+import SpinnerIcon from "./icons/SpinnerIcon.vue";
 
 const props = withDefaults(
   defineProps<{
     modelValue?: string;
     field: any;
-    disabled: boolean;
+    disabled?: boolean;
   }>(),
   {
     disabled: false,
@@ -88,7 +88,7 @@ onMounted(async () => {
 <template>
   <div>
     <label class="relative" ref="label" :class="{ 'opacity-60': disabled }">
-      <div>Institute</div>
+      <span>Institute</span>
       <input type="checkbox" class="absolute appearance-none" v-model="show" />
       <div
         class="flex w-full items-center justify-between overflow-hidden text-ellipsis whitespace-nowrap border-2 border-black py-1 px-2 text-center"
@@ -96,7 +96,12 @@ onMounted(async () => {
           'border-red': field.$dirty && field.$invalid,
           'border-green': field.$dirty && !field.$invalid,
         }">
-        {{ value?.title || "Select institute" }}
+        <span v-if="modelValue && !value?.title" class="m-auto">
+          <SpinnerIcon />
+        </span>
+        <span v-else>
+          {{ value?.title || "Select institute" }}
+        </span>
         <span class="fa-solid fa-angle-down"></span>
       </div>
       <Transition>

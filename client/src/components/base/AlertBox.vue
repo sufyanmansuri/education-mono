@@ -1,15 +1,28 @@
 <script setup lang="ts">
 import type { AlertConfig } from "@/types/AlertConfig";
+import { ref, watch } from "vue";
 
-defineProps<{
-  message?: AlertConfig;
-}>();
+const props = withDefaults(
+  defineProps<{
+    message?: AlertConfig;
+    showCloseButton?: boolean;
+  }>(),
+  { showCloseButton: false }
+);
+const show = ref(true);
+
+watch(
+  () => props.message,
+  () => {
+    show.value = true;
+  }
+);
 </script>
 
 <template>
   <div
     class="mb-3 mt-5 border-2 p-2"
-    v-if="message && message.type"
+    v-if="show && message && message.type"
     :class="{
       'bg-green/50': message.type === 'success',
       'bg-red': message.type === 'error',
@@ -26,6 +39,12 @@ defineProps<{
             message.type === 'info' || message.type === 'warning',
         }"></span
       >{{ message.message }}
+      <button
+        @click="show = false"
+        class="ml-auto opacity-80 transition-all hover:opacity-100"
+        v-if="showCloseButton">
+        <span class="fa-solid fa-circle-xmark"></span>
+      </button>
     </p>
   </div>
 </template>

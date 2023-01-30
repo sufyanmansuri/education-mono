@@ -8,7 +8,7 @@ import { useQueryStore } from "@/stores/useQueryStore";
 
 import TableHeaders from "./TableHeaders.vue";
 import TableBody from "./TableBody.vue";
-import ConfirmDelete from "@/components/ConfirmDelete.vue";
+import ConfirmAction from "@/components/ConfirmAction.vue";
 
 defineProps<{
   items: any[];
@@ -17,6 +17,7 @@ defineProps<{
 const emit = defineEmits<{
   (e: "delete", id: string): void;
   (e: "edit", id: string): void;
+  (e: "approve", id: string): void;
 }>();
 
 const router = useRouter();
@@ -26,22 +27,36 @@ const resource = computed<Resource>(
 
 const table = ref<HTMLTableElement | null>(null);
 const isOverflowing = ref(false);
-const showAlert = ref(false);
 const markedForRemoval = ref();
+const markedForApproval = ref();
+
+const tableHeight = computed(() => {
+  if (table.value !== null) return table.value.clientHeight;
+  return undefined;
+});
 
 const { query, setSort } = useQueryStore();
 
 const markForRemoval = (item: any) => {
-  showAlert.value = true;
   markedForRemoval.value = item;
 };
-const handleCancelDelete = () => {
-  showAlert.value = false;
-  markedForRemoval.value = undefined;
+const markForApproval = (item: any) => {
+  markedForApproval.value = item;
 };
-const handleConfirmDelete = async () => {
-  showAlert.value = false;
-  emit("delete", markedForRemoval.value._id);
+type Action = "approve" | "delete";
+const handleCancel = (action: Action) => {
+  if (action === "approve") markedForApproval.value = undefined;
+  if (action === "delete") markedForRemoval.value = undefined;
+};
+const handleConfirm = (action: Action) => {
+  if (action === "approve") {
+    emit("approve", markedForApproval.value._id);
+    markedForApproval.value = undefined;
+  }
+  if (action === "delete") {
+    emit("delete", markedForRemoval.value._id);
+    markedForRemoval.value = undefined;
+  }
 };
 
 const handleEdit = (id: string) => {
@@ -65,12 +80,12 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="my-3 mb-5 overflow-x-auto overflow-y-visible p-3 lg:my-5"
+    class="my-3 mb-5 overflow-x-auto overflow-y-hidden p-3 drop-shadow-lg lg:my-5"
     ref="table">
     <table
       class="theme theme-yellow w-full border-collapse overflow-y-visible border-b-0">
       <TableHeaders
-        :table-height="table?.offsetHeight"
+        :table-height="tableHeight"
         :fields="query[resource].fields"
         :sort="{ field: query[resource].sortBy, order: query[resource].order }"
         :isOverflowing="isOverflowing"
@@ -81,13 +96,22 @@ onUnmounted(() => {
         :fields="query[resource].fields"
         :isOverflowing="isOverflowing"
         @remove="markForRemoval"
+        @approve="markForApproval"
         @edit="handleEdit" />
       <TransitionGroup>
-        <ConfirmDelete
-          v-if="showAlert"
+        <!-- Confirm Delete -->
+        <ConfirmAction
+          message="Do you really want to delete this record?"
+          v-if="markedForRemoval"
           :item="markedForRemoval"
-          @confirm="handleConfirmDelete"
-          @cancel="handleCancelDelete" />
+          @confirm="handleConfirm('delete')"
+          @cancel="handleCancel('delete')" />
+        <ConfirmAction
+          message="Do you really want to approve this account?"
+          v-if="markedForApproval"
+          :item="markedForApproval"
+          @confirm="handleConfirm('approve')"
+          @cancel="handleCancel('approve')" />
       </TransitionGroup>
     </table>
   </div>

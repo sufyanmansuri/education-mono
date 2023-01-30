@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{
   item: any;
+  message: string;
 }>();
 defineEmits<{
   (e: "confirm"): void;
@@ -16,7 +17,7 @@ defineEmits<{
       </div>
       <div class="p-2">
         <div class="grid gap-y-2">
-          <p>Do you really want to delete this record?</p>
+          <p>{{ message }}</p>
           <code class="bg-black/25 p-2">
             <template v-for="key in Object.keys(item)" :key="key">
               <p

@@ -91,11 +91,13 @@ async function submit(e: Event) {
           placeholder="!@#$%^&*"
           type="password" />
         <div class="grid gap-1">
-          <RouterLink
-            :to="{ name: 'forgot-password' }"
-            class="text-right decoration-yellow transition hover:underline hover:decoration-2"
-            >Forgot password?</RouterLink
-          >
+          <div>
+            <RouterLink
+              :to="{ name: 'forgot-password' }"
+              class="text-right decoration-yellow transition hover:underline hover:decoration-2"
+              >Forgot password?</RouterLink
+            >
+          </div>
           <BaseButton
             type="submit"
             class="z-20"

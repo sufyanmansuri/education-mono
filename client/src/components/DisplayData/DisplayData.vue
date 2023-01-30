@@ -34,6 +34,7 @@ import UserEditForm from "@/components/Forms/UserEditForm.vue";
 import InstituteEditForm from "@/components/Forms/InstituteEditForm.vue";
 import ClassEditForm from "@/components/Forms/ClassEditForm.vue";
 import { isAxiosError } from "axios";
+import { humanize } from "@/utils/humanize";
 
 const { query, setQuery } = useQueryStore();
 const { state: auth } = useUserStore();
@@ -47,12 +48,14 @@ const props = defineProps<{
   service?: {
     get: ServiceFunction;
     remove: ServiceFunction;
+    approve?: ServiceFunction;
   };
 }>();
 
 const alertConfig = ref<AlertConfig>();
 const state = ref<"loading" | "initial" | "error" | "success">("initial");
 const res = ref();
+const showFilters = ref(false);
 const showCreateForm = ref(false);
 const showEditForm = ref<{
   show: boolean;
@@ -83,7 +86,21 @@ const fetchData = async () => {
       state.value = "error";
       if (isAxiosError(error)) {
         if (error.response?.status === 401) {
-          alert("Session has expired. Login again.");
+          alertConfig.value = {
+            type: "error",
+            message: "Session has expired. Re-login to access the services.",
+          };
+        } else if (error.response?.status === 403) {
+          alertConfig.value = {
+            type: "error",
+            message: "You do not have permission to access this resource.",
+          };
+        } else {
+          alertConfig.value = {
+            type: "error",
+            message:
+              error.response?.data.message || "An unexpected error occurred.",
+          };
         }
       }
     } else {
@@ -107,6 +124,30 @@ const removeRecord = async (id: string) => {
       }
     } else {
       query.value[resource.value].fetch = true;
+      alertConfig.value = {
+        type: "success",
+        message: "User removed successfully.",
+      };
+    }
+  }
+};
+const approveUser = async (id: string) => {
+  if (props.service && props.service.approve) {
+    const { error } = await props.service.approve(id);
+    if (error) {
+      if (isAxiosError(error)) {
+        alertConfig.value = {
+          type: "error",
+          message:
+            error.response?.data.message || "An unexpected error occurred.",
+        };
+      }
+    } else {
+      query.value[resource.value].fetch = true;
+      alertConfig.value = {
+        type: "success",
+        message: "User approved successfully.",
+      };
     }
   }
 };
@@ -119,12 +160,13 @@ const handleEdit = (id: string) => {
 };
 
 type ComponentList = {
-  [f in Resource]: Component;
+  [f in Resource]?: Component;
 };
 const Filters: ComponentList = {
   users: UserFilters,
   institutes: InstituteFilters,
   classes: ClassFilters,
+  "pending-approvals": UserFilters,
 };
 const CreateForms: ComponentList = {
   users: UserCreateForm,
@@ -146,40 +188,28 @@ watch(
 );
 // Fetch data on mount and on filter change
 onMounted(fetchData);
-watch(() => query.value[resource.value]?.fetch, fetchData);
+watch(
+  () => query.value[resource.value]?.fetch,
+  () => {
+    fetchData();
+    // Hide filters on fetch
+    showFilters.value = false;
+  }
+);
 </script>
 
 <template>
   <div class="flex flex-1 flex-col">
-    <Transition name="create">
-      <component
-        v-if="showCreateForm"
-        :is="CreateForms[resource]"
-        @close="(state: 'success' | undefined)=>{
-          showCreateForm = false;
-          if(state=== 'success'){
-            query[resource].fetch = true
-          }
-        }" />
-    </Transition>
-    <Transition>
-      <div
-        class="absolute left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-white text-5xl"
-        v-if="state === 'loading' || state === 'initial'">
-        <SpinnerIconVue class="" />
-      </div>
-    </Transition>
-    <div v-if="state === 'error'">
-      <AlertBox :message="alertConfig" />
-    </div>
+    <AlertBox
+      :message="alertConfig"
+      :show-close-button="true"
+      style="margin-top: 0px" />
     <div
       v-if="res && query[resource].fields.length"
       class="flex flex-1 flex-col">
       <div class="mb-3 flex justify-between">
-        <BaseTitle
-          :text1="resource[0].toUpperCase() + resource.slice(1)"
-          underlineColor="none" />
-        <div class="my-2 text-right">
+        <BaseTitle :text1="humanize(resource, true)" underlineColor="none" />
+        <div class="my-2 text-right" v-if="CreateForms[resource]">
           <BaseButton @click="showCreateForm = !showCreateForm">
             <span class="px-5 py-2">
               Create
@@ -189,7 +219,19 @@ watch(() => query.value[resource.value]?.fetch, fetchData);
         </div>
       </div>
       <!-- Filters -->
-      <component :is="Filters[resource]" />
+      <div :aria-expanded="showFilters" class="group">
+        <button
+          class="border-2 border-black px-4 py-1 transition-all md:hidden"
+          @click="showFilters = !showFilters">
+          Filters
+          <span
+            class="fa-solid fa-angle-down transition-all group-aria-expanded:-rotate-180"></span>
+        </button>
+        <component
+          :is="Filters[resource]"
+          class="mt-2 h-0 opacity-0 group-aria-expanded:h-min group-aria-expanded:opacity-100 md:mt-0 md:h-auto md:opacity-100" />
+      </div>
+
       <div v-if="res?.data?.length">
         <div class="flex items-end justify-between">
           <!-- Count of results (Showing 1-5 of 20) -->
@@ -201,6 +243,7 @@ watch(() => query.value[resource.value]?.fetch, fetchData);
           :items="res.data"
           :field-modifiers="res.fieldModifiers"
           @delete="removeRecord"
+          @approve="approveUser"
           @edit="handleEdit" />
         <div class="flex justify-between">
           <!-- Page numbers -->
@@ -218,22 +261,38 @@ watch(() => query.value[resource.value]?.fetch, fetchData);
       </div>
     </div>
     <!-- Modals -->
-    <Transition name="edit">
+    <Transition name="form">
       <component
         v-if="showEditForm.show"
         :is="EditForms[resource]"
         @close="showEditForm = { show: false, id: undefined }"
         :id="showEditForm.id" />
     </Transition>
+    <Transition name="form">
+      <component
+        v-if="showCreateForm && CreateForms[resource]"
+        :is="CreateForms[resource]"
+        @close="(state: 'success' | undefined)=>{
+          showCreateForm = false;
+          if(state=== 'success'){
+            query[resource].fetch = true
+          }
+        }" />
+    </Transition>
+    <Transition>
+      <div
+        class="absolute left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-white text-5xl"
+        v-if="state === 'loading' || state === 'initial'">
+        <SpinnerIconVue class="" />
+      </div>
+    </Transition>
   </div>
 </template>
 <style scoped>
 .v-enter-active,
 .v-leave-active,
-.edit-enter-active,
-.edit-leave-active,
-.create-enter-active,
-.create-leave-active {
+.form-enter-active,
+.form-leave-active {
   transition: all 0.1s ease;
 }
 
@@ -241,10 +300,9 @@ watch(() => query.value[resource.value]?.fetch, fetchData);
 .v-leave-to {
   opacity: 0;
 }
-.create-enter-from,
-.create-leave-to,
-.edit-enter-from,
-.edit-leave-to {
+
+.form-enter-from,
+.form-leave-to {
   scale: 1.1;
   opacity: 0;
 }

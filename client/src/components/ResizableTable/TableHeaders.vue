@@ -62,7 +62,7 @@ function handleSort(field: string) {
   <thead>
     <tr class="bg-black/90 text-white">
       <th
-        class="relative overflow-hidden text-ellipsis whitespace-nowrap border-2 border-x-white border-y-black px-4 py-2 first-of-type:border-l-black"
+        class="relative border-2 border-x-white border-y-black px-4 py-2 first-of-type:border-l-black"
         ref="columns"
         v-for="(field, i) in fields"
         :key="field">
@@ -78,10 +78,10 @@ function handleSort(field: string) {
             class="fa-solid fa-caret-up"></span>
         </div>
         <div
-          class="absolute top-0 right-0 w-1 select-none"
+          class="absolute top-0 right-0 z-20 w-1 select-none"
           :class="{ 'cursor-col-resize': !isOverflowing }"
           v-if="tableHeight"
-          :style="{ height: tableHeight - 2 + 'px' }"
+          :style="{ height: tableHeight + 'px' }"
           @mousedown="onMouseDown($event, i)"></div>
       </th>
       <th

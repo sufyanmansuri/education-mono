@@ -31,6 +31,10 @@ watchEffect(() => {
     case "classes":
       service.value = ClassService;
       break;
+
+    case "pending-approvals":
+      service.value = UserService;
+      break;
   }
 });
 
