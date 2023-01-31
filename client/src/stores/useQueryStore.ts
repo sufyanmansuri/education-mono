@@ -86,11 +86,11 @@ export const useQueryStore = () => {
   }
 
   function resetQuery() {
+    console.log(resource.value);
     if (resource.value === "pending-approvals") {
       query.value[resource.value] = {
         ...initial,
-        query: { approved: false },
-        sortBy: "verified",
+        query: { approved: false, verified: true },
         fields: [
           "firstName",
           "lastName",

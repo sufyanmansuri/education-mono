@@ -62,7 +62,7 @@ function handleSort(field: string) {
   <thead>
     <tr class="bg-black/90 text-white">
       <th
-        class="relative border-2 border-x-white border-y-black px-4 py-2 first-of-type:border-l-black"
+        class="relative whitespace-nowrap border-2 border-x-white border-y-black px-4 py-2 first-of-type:border-l-black"
         ref="columns"
         v-for="(field, i) in fields"
         :key="field">

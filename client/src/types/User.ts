@@ -2,7 +2,7 @@ export type User = {
   email: string;
   firstName: string;
   lastName: string;
-  role: string;
+  role: Role;
   title: string;
   institute?: string;
 };

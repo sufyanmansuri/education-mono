@@ -98,21 +98,23 @@ onUnmounted(() => {
         @remove="markForRemoval"
         @approve="markForApproval"
         @edit="handleEdit" />
-      <TransitionGroup>
-        <!-- Confirm Delete -->
-        <ConfirmAction
-          message="Do you really want to delete this record?"
-          v-if="markedForRemoval"
-          :item="markedForRemoval"
-          @confirm="handleConfirm('delete')"
-          @cancel="handleCancel('delete')" />
-        <ConfirmAction
-          message="Do you really want to approve this account?"
-          v-if="markedForApproval"
-          :item="markedForApproval"
-          @confirm="handleConfirm('approve')"
-          @cancel="handleCancel('approve')" />
-      </TransitionGroup>
+      <Teleport to="body">
+        <TransitionGroup>
+          <!-- Confirm Delete -->
+          <ConfirmAction
+            message="Do you really want to delete this record?"
+            v-if="markedForRemoval"
+            :item="markedForRemoval"
+            @confirm="handleConfirm('delete')"
+            @cancel="handleCancel('delete')" />
+          <ConfirmAction
+            message="Do you really want to approve this account?"
+            v-if="markedForApproval"
+            :item="markedForApproval"
+            @confirm="handleConfirm('approve')"
+            @cancel="handleCancel('approve')" />
+        </TransitionGroup>
+      </Teleport>
     </table>
   </div>
 </template>

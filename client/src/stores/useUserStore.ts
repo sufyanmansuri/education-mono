@@ -2,7 +2,7 @@ import type { User } from "@/types/User";
 
 import { ref, watch } from "vue";
 
-type userStore = {
+type UserStore = {
   user?: User;
   isLoggedIn: boolean;
 };
@@ -22,7 +22,7 @@ const getInitialValue = () => {
 };
 
 // Global state
-const state = ref<userStore>(getInitialValue());
+const state = ref<UserStore>(getInitialValue());
 
 export const useUserStore = () => {
   function login(user: User) {
