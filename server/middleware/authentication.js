@@ -29,7 +29,7 @@ const authentication = async (req, res, next) => {
     if (!jti) {
       res.clearCookie("token");
       return next({
-        status: HTTP_STATUS.FORBIDDEN,
+        status: HTTP_STATUS.UNAUTHORIZED,
         message: "Token expired.",
       });
     }
@@ -45,7 +45,7 @@ const authentication = async (req, res, next) => {
     }
     if (error.name === "TokenExpiredError") {
       return next({
-        status: HTTP_STATUS.FORBIDDEN,
+        status: HTTP_STATUS.UNAUTHORIZED,
         message: "Token expired. Login again.",
       });
     }

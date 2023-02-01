@@ -8,12 +8,12 @@ import { ref } from "vue";
 import SelectInstitutes from "../SelectInstitutes.vue";
 import FilterRoles from "./FilterRoles.vue";
 import SearchFilter from "./SearchFilter.vue";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useRouter } from "vue-router";
 import { computed } from "vue";
 import type { Resource } from "@/types/Resource";
 
-const { state: auth } = useUserStore();
+const { auth } = useAuthStore();
 const { resetQuery, setQuery, query, fetch } = useQueryStore();
 
 const router = useRouter();

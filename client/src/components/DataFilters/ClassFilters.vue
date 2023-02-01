@@ -8,9 +8,9 @@ import SearchFilter from "./UserFilter/SearchFilter.vue";
 import GenericFilter from "./GenericFilter.vue";
 import SelectInstitutes from "./SelectInstitutes.vue";
 import ClassService from "@/services/ClassService";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
-const { state: auth } = useUserStore();
+const { auth } = useAuthStore();
 const { resetQuery, setQuery, fetch, query } = useQueryStore();
 
 const form = ref<{

@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
 defineEmits(["logout"]);
-const { state } = useUserStore();
+const { auth } = useAuthStore();
 const showDropDown = ref(false);
 const dropDownToggler = ref<HTMLElement | null>(null);
+
+const route = useRoute();
 
 // Hide dropdown if clicked outside
 const onClick = (e: MouseEvent) => {
@@ -30,20 +33,40 @@ watch(showDropDown, () => {
     class="hidden h-10 border-b-2 border-yellow bg-black text-white lg:block">
     <div class="container flex h-full items-stretch justify-end">
       <ul class="flex gap-1">
+        <li class="flex items-stretch" v-if="auth.isLoggedIn">
+          <RouterLink
+            class="flex items-center px-4 hover:underline hover:decoration-yellow hover:decoration-2"
+            exact-active-class="decoration-yellow underline decoration-2"
+            :to="{ name: 'dashboard' }"
+            >Home</RouterLink
+          >
+        </li>
+        <li class="flex items-stretch" v-else>
+          <RouterLink
+            class="flex items-center px-4 hover:underline hover:decoration-yellow hover:decoration-2"
+            exact-active-class="decoration-yellow underline decoration-2"
+            :to="{ name: 'home' }"
+            >Home</RouterLink
+          >
+        </li>
+
         <li
-          v-if="state.isLoggedIn"
+          v-if="auth.isLoggedIn"
           class="group relative flex cursor-pointer items-stretch gap-2 bg-white px-8 text-black"
           @click="showDropDown = !showDropDown"
           ref="dropDownToggler">
           <div
             class="mr-1 flex w-full items-center gap-1 group-hover:underline group-hover:decoration-blue group-hover:decoration-2"
-            :class="{ 'underline decoration-blue decoration-2': showDropDown }">
+            :class="{
+              'underline decoration-blue decoration-2':
+                showDropDown || route.name === 'profile',
+            }">
             <img
-              :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${state.user?.email}`"
+              :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${auth.user?.email}`"
               alt="avatar"
               class="box-border h-8 object-cover" />
             <p class="font-extrabold">
-              {{ state.user?.firstName }}
+              {{ auth.user?.firstName }}
               <span class="fa-solid fa-caret-down ml-1"></span>
             </p>
           </div>
@@ -70,6 +93,7 @@ watch(showDropDown, () => {
           <RouterLink
             :to="{ name: 'login' }"
             class="flex items-center px-8 hover:underline hover:decoration-blue hover:decoration-2"
+            active-class="decoration-blue underline decoration-2"
             >Sign In</RouterLink
           >
         </li>

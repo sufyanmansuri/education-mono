@@ -13,13 +13,13 @@ import FormSelect from "../base/FormSelect.vue";
 import SpinnerIcon from "../icons/SpinnerIcon.vue";
 import SelectInstitute from "../SelectInstitute.vue";
 import { computed } from "vue";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 defineEmits<{
   (e: "close", state: "success" | undefined): void;
 }>();
 
-const { state: auth } = useUserStore();
+const { auth } = useAuthStore();
 
 const state = ref<"idle" | "success" | "error" | "loading">("idle");
 const alertConfig = ref<AlertConfig>();

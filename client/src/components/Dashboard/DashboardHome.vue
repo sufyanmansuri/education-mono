@@ -4,11 +4,7 @@ import BaseTitle from "../base/BaseTitle.vue";
 
 <template>
   <div class="relative flex-1">
-    <BaseTitle
-      class="text-start"
-      text1="Dash"
-      text2="board"
-      underline-color="yellow" />
+    <BaseTitle class="text-start" text1="Dashboard" underline-color="none" />
     <img
       src="/dashboard.svg"
       alt="Welcome"

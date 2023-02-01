@@ -1,18 +1,18 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { nextTick } from "vue";
 
-const { state } = useUserStore();
+const { auth } = useAuthStore();
 
 function shouldBeAuthenticated(pathName: string = "login") {
   return () => {
-    if (!state.value.isLoggedIn) return { name: pathName };
+    if (!auth.value.isLoggedIn) return { name: pathName };
   };
 }
 
 function shouldNotBeAuthenticated(pathName: string = "dashboard") {
   return () => {
-    if (state.value.isLoggedIn) return { name: pathName };
+    if (auth.value.isLoggedIn) return { name: pathName };
   };
 }
 

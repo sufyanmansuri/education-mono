@@ -249,7 +249,14 @@ const updateUserById = async (req, res, next) => {
       });
     }
 
-    return res.send();
+    return res.send({
+      title: user.title,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      institute: user.institute,
+    });
   } catch (error) {
     return next({ error });
   }
@@ -437,7 +444,11 @@ const getUserById = async (req, res, next) => {
     const user = await userService.getById(userId);
     if (!user) return next({ error: { message: "User does not exist." } });
 
-    return res.send(user);
+    return res.send(
+      Object.fromEntries(
+        Object.entries(user).filter((e) => e[0] !== "password")
+      )
+    );
   } catch (error) {
     return next({ error });
   }

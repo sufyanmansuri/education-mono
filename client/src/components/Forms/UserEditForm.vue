@@ -10,7 +10,7 @@ import { pick } from "@/utils/pick";
 import { useQueryStore } from "@/stores/useQueryStore";
 import { computed } from "vue";
 import { omit } from "@/utils/omit";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 import AlertBox from "../base/AlertBox.vue";
 import BaseTitle from "../base/BaseTitle.vue";
@@ -26,7 +26,7 @@ const emit = defineEmits<{
   (e: "close"): void;
 }>();
 
-const { state: auth } = useUserStore();
+const { auth } = useAuthStore();
 
 const initialForm = {
   title: "",

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import DashboardLink from "@/components/Dashboard/DashboardLink.vue";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { ref } from "vue";
 
-const { state: auth } = useUserStore();
+const { auth } = useAuthStore();
 const isOpen = ref(false);
 </script>
 
 <template>
   <div class="lg:flex">
     <div
-      class="group peer flex flex-col py-3 px-2 transition-all duration-300 lg:w-20 lg:border-r-2 lg:aria-expanded:w-1/6"
+      class="group peer flex flex-col py-3 px-2 transition-all lg:w-20 lg:border-r-2 lg:aria-expanded:w-1/6"
       :aria-expanded="isOpen">
       <div
         class="flex flex-1 gap-2 overflow-x-auto lg:block lg:space-y-2 lg:overflow-x-hidden">
@@ -45,9 +45,9 @@ const isOpen = ref(false);
       <div class="mt-auto hidden text-left lg:block">
         <button
           @click="isOpen = !isOpen"
-          class="w-16 border-2 p-2 px-4 outline-offset-2 outline-yellow transition-all hover:bg-yellow group-aria-expanded:bg-yellow">
+          class="ml-2 h-12 w-12 rounded-full border-2 p-1 outline-offset-2 outline-yellow transition-all hover:bg-black hover:text-white group-aria-expanded:bg-black group-aria-expanded:text-white">
           <span
-            class="fa-solid fa-arrow-right text-lg transition-all group-aria-expanded:-rotate-180"></span>
+            class="fa-solid fa-arrow-right text-lg transition-all group-aria-expanded:-scale-x-100"></span>
         </button>
       </div>
     </div>

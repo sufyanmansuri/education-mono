@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { logoutUser } from "@/services/UserService";
@@ -12,7 +12,7 @@ import { useGlobalStore } from "@/stores/useGlobalStore";
 import { useQueryStore } from "@/stores/useQueryStore";
 
 const showNav = ref(false);
-const { state, logout } = useUserStore();
+const { auth, logout } = useAuthStore();
 const { hardResetQuery } = useQueryStore();
 const { global } = useGlobalStore();
 const router = useRouter();
@@ -84,17 +84,17 @@ watch(router.currentRoute, () => {
             </li>
             <li class="pt-5 lg:hidden">
               <div
-                v-if="state.isLoggedIn"
+                v-if="auth.isLoggedIn"
                 class="flex items-center justify-between gap-2">
                 <RouterLink
                   :to="{ name: 'profile' }"
                   class="flex items-center gap-2">
                   <img
-                    :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${state.user?.email}`"
+                    :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${auth.user?.email}`"
                     alt="avatar"
                     class="h-8 object-contain" />
                   <p class="text-xl font-black">
-                    {{ state.user?.firstName }}
+                    {{ auth.user?.firstName }}
                   </p>
                 </RouterLink>
                 <button @click="handleLogout" class="border-2 px-2">

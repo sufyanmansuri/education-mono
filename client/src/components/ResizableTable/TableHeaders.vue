@@ -22,9 +22,9 @@ function onMouseDown(e: MouseEvent, index: number) {
   pageX = e.pageX;
   activeColumn = index;
   if (columns.value !== null) {
-    activeColWidth = columns.value[activeColumn].offsetWidth;
+    activeColWidth = columns.value[activeColumn].clientWidth;
     if (columns.value[activeColumn + 1]) {
-      nextColumnWidth = columns.value[activeColumn + 1].offsetWidth;
+      nextColumnWidth = columns.value[activeColumn + 1].clientWidth;
     }
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("mousemove", onMouseMove);

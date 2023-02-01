@@ -3,6 +3,33 @@ import type { FieldModifiers } from "@/types/FieldModifiers";
 import axios from "axios";
 import { timestamps } from "../utils/timestampModifiers";
 
+type Institute = {
+  name: string;
+  level: string;
+  type?: string;
+  homePage?: string;
+  noOfStudents?: number | string;
+  address: {
+    line1: string;
+    line2?: string;
+    town: string;
+    postCode: string;
+    county?: string;
+    territory: string;
+    localAuthority: string;
+  };
+};
+export async function create(institute: Institute) {
+  let data, error;
+  try {
+    const res = await axios.post("/api/admin/institutes", institute);
+    data = res.data;
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+}
+
 export async function get(query: any) {
   let data, error;
   try {
@@ -79,4 +106,24 @@ export async function getById(instituteId: string) {
   return { data, error };
 }
 
-export default { get, getById, remove, getInstituteList, types, levels };
+export async function territories() {
+  let data, error;
+  try {
+    const res = await axios.get(`/api/territories`);
+    if (res.status === 200) data = res.data;
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+}
+
+export default {
+  create,
+  get,
+  getById,
+  remove,
+  getInstituteList,
+  types,
+  levels,
+  territories,
+};

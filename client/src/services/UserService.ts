@@ -194,6 +194,24 @@ export async function approve(id: string) {
   return { data, error };
 }
 
+type UpdateProfile = {
+  title: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+};
+export async function updateProfile(form: UpdateProfile) {
+  let data, error;
+  try {
+    const res = await axios.put("/api/auth/profile", form);
+    data = res.data;
+  } catch (e) {
+    error = e;
+  }
+
+  return { data, error };
+}
+
 export default {
   approve,
   get,
@@ -205,6 +223,7 @@ export default {
   register,
   verifyToken,
   update,
+  updateProfile,
   setPassword,
   remove,
   resetPassword,

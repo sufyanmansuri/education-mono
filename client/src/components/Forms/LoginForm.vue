@@ -3,7 +3,7 @@ import type { AlertConfig } from "@/types/AlertConfig";
 
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useVuelidate } from "@vuelidate/core";
 import { required, email, helpers } from "@vuelidate/validators";
 import { loginUser } from "@/services/UserService";
@@ -21,7 +21,7 @@ const loginForm = ref({
 const alertConfig = ref<AlertConfig>();
 const isSubmitting = ref(false);
 
-const { login } = useUserStore();
+const { login } = useAuthStore();
 const router = useRouter();
 const v = useVuelidate(
   {

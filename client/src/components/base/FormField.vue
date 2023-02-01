@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    modelValue: string;
+    modelValue: string | number;
     field: any;
     type?: string;
     label: string;
@@ -24,7 +24,9 @@ const handleInput = (e: Event) => {
 <template>
   <div>
     <label>
-      <span>{{ label }}</span>
+      <span>
+        {{ label }}
+      </span>
       <input
         :type="type"
         :placeholder="placeholder"
@@ -34,7 +36,6 @@ const handleInput = (e: Event) => {
         @input="handleInput"
         @blur="field.$touch"
         :autofocus="autofocus"
-        autocomplete="off"
         :class="{
           'border-red': field.$dirty && field.$invalid,
           'border-green': field.$dirty && !field.$invalid,

@@ -6,7 +6,7 @@ defineProps<{
 <template>
   <RouterLink
     to="/dashboard/institutes"
-    class="flex items-center gap-2 border-2 bg-white p-2 px-4 outline-offset-2 outline-yellow transition-all hover:bg-yellow/90 lg:group-aria-expanded:justify-start"
+    class="flex items-center gap-2 border-2 bg-white p-2 px-4 outline-offset-2 outline-yellow transition-all hover:bg-yellow hover:text-black lg:group-aria-expanded:justify-start"
     active-class="bg-yellow font-bold">
     <span
       :class="icon"

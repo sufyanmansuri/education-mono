@@ -2,7 +2,7 @@ import type { User } from "@/types/User";
 
 import { ref, watch } from "vue";
 
-type UserStore = {
+type AuthStore = {
   user?: User;
   isLoggedIn: boolean;
 };
@@ -22,24 +22,24 @@ const getInitialValue = () => {
 };
 
 // Global state
-const state = ref<UserStore>(getInitialValue());
+const auth = ref<AuthStore>(getInitialValue());
 
-export const useUserStore = () => {
+export const useAuthStore = () => {
   function login(user: User) {
-    state.value = { user: user, isLoggedIn: true };
+    auth.value = { user: user, isLoggedIn: true };
   }
 
   function logout() {
-    state.value = { isLoggedIn: false };
+    auth.value = { isLoggedIn: false };
     document.cookie =
       "token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
   }
 
-  watch(state, () => {
-    if (state.value.user)
-      localStorage.setItem("user", JSON.stringify(state.value.user));
+  watch(auth, () => {
+    if (auth.value.user)
+      localStorage.setItem("user", JSON.stringify(auth.value.user));
     else localStorage.removeItem("user");
   });
 
-  return { state, login, logout };
+  return { auth, login, logout };
 };

@@ -6,7 +6,7 @@ import type { AlertConfig } from "@/types/AlertConfig";
 import type { Query } from "@/types/Query";
 
 import { useQueryStore } from "@/stores/useQueryStore";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { onMounted, ref, watch, computed } from "vue";
 import { useRouter } from "vue-router";
 import { omit } from "@/utils/omit";
@@ -37,7 +37,7 @@ import { isAxiosError } from "axios";
 import { humanize } from "@/utils/humanize";
 
 const { query, setQuery } = useQueryStore();
-const { state: auth } = useUserStore();
+const { auth } = useAuthStore();
 
 const router = useRouter();
 const resource = computed<Resource>(
