@@ -6,16 +6,28 @@ const HTTP_STATUS = require("../utils/statusCodes");
  * Creates a new institute
  */
 const createInstitute = async (req, res, next) => {
+  const { body } = req;
+
   try {
-    const exists = await instituteService.exists(req.body);
+    const query = Object.keys(body).reduce((prev, curr) => {
+      if (typeof body[curr] === "object") {
+        const temp = {};
+        Object.keys(body[curr]).forEach((key) => {
+          temp[`${curr}.${key}`] = body[curr][key];
+        });
+        return { ...prev, ...temp };
+      }
+      return { ...prev, [curr]: body[curr] };
+    }, {});
+    const exists = await instituteService.exists(query);
     if (exists) {
       return next({
         status: HTTP_STATUS.BAD_REQUEST,
-        error: { message: "An institute with these details already exists." },
+        message: "An institute with these details already exists.",
       });
     }
 
-    const institute = await instituteService.create(req.body);
+    const institute = await instituteService.create(body);
 
     return res.send(institute);
   } catch (error) {
@@ -76,10 +88,10 @@ const getInstitutes = async (req, res, next) => {
     const totalCount = await instituteService.getCount(dbQuery);
     const institutes = await Institute.aggregate()
       .match(dbQuery)
-      .skip(perPage * (page - 1))
-      .limit(perPage)
+      .sort({ [sortBy]: order })
       .project(fields)
-      .sort({ [sortBy]: order });
+      .skip(perPage * (page - 1))
+      .limit(perPage);
 
     return res.send({
       totalPages: Math.ceil(totalCount / perPage),

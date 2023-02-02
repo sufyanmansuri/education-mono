@@ -126,7 +126,7 @@ const removeRecord = async (id: string) => {
       query.value[resource.value].fetch = true;
       alertConfig.value = {
         type: "success",
-        message: "User removed successfully.",
+        message: "Record removed successfully.",
       };
     }
   }
@@ -208,7 +208,14 @@ watch(
       v-if="res && query[resource].fields.length"
       class="flex flex-1 flex-col">
       <div class="mb-3 flex justify-between">
-        <BaseTitle :text1="humanize(resource, true)" underlineColor="none" />
+        <button
+          @click="query[resource].fetch = true"
+          class="flex items-center gap-2"
+          title="Refresh">
+          <BaseTitle :text1="humanize(resource, true)" underlineColor="none" />
+          <span class="fa-solid fa-rotate"></span>
+        </button>
+
         <div class="my-2 text-right" v-if="CreateForms[resource]">
           <BaseButton @click="showCreateForm = !showCreateForm">
             <span class="px-5 py-2">

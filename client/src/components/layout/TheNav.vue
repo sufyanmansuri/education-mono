@@ -62,7 +62,7 @@ watch(showDropDown, () => {
                 showDropDown || route.name === 'profile',
             }">
             <img
-              :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${auth.user?.email}`"
+              :src="`https://api.dicebear.com/5.x/thumbs/svg?seed=${auth.user?.email}`"
               alt="avatar"
               class="box-border h-8 object-cover" />
             <p class="font-extrabold">

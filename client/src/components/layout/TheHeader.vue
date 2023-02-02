@@ -90,7 +90,7 @@ watch(router.currentRoute, () => {
                   :to="{ name: 'profile' }"
                   class="flex items-center gap-2">
                   <img
-                    :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${auth.user?.email}`"
+                    :src="`https://api.dicebear.com/5.x/thumbs/svg?seed=${auth.user?.email}`"
                     alt="avatar"
                     class="h-8 object-contain" />
                   <p class="text-xl font-black">

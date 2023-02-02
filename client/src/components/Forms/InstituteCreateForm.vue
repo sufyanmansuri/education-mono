@@ -12,8 +12,7 @@ import FormSelect from "../base/FormSelect.vue";
 defineEmits<{
   (e: "close"): void;
 }>();
-
-const form = ref({
+const initialValue = {
   name: "",
   address: {
     line1: "",
@@ -28,7 +27,9 @@ const form = ref({
   type: "",
   homePage: "",
   noOfStudents: "",
-});
+};
+
+const form = ref({ ...initialValue });
 const alertConfig = ref<AlertConfig>();
 const levels = ref();
 const types = ref();
@@ -70,13 +71,14 @@ const handleSubmit = async () => {
   const isValid = await v.value.$validate();
   if (!isValid) return;
 
-  const { data, error } = await InstituteService.create(form.value);
+  const { error } = await InstituteService.create(form.value);
   if (!error) {
     alertConfig.value = {
       type: "success",
       message: "Institute created successfully.",
     };
-    console.log(data);
+    form.value = { ...initialValue };
+    v.value.$reset();
   } else {
     if (isAxiosError(error)) {
       alertConfig.value = {
@@ -182,7 +184,7 @@ onMounted(() => {
                 <div class="space-y-2">
                   <FormField
                     :field="v.name"
-                    v-model="v.name.$model"
+                    v-model.trim="v.name.$model"
                     label="Name"
                     placeholder="St. Joseph's Primary School" />
                   <FormSelect
@@ -205,7 +207,7 @@ onMounted(() => {
                   </FormSelect>
                   <FormField
                     :field="v.homePage"
-                    v-model="v.homePage.$model"
+                    v-model.trim="v.homePage.$model"
                     label="Homepage"
                     placeholder="https://stjosephs.com" />
                   <FormField
@@ -220,28 +222,28 @@ onMounted(() => {
                 <div class="space-y-2">
                   <FormField
                     :field="v.address.line1"
-                    v-model="v.address.line1.$model"
+                    v-model.trim="v.address.line1.$model"
                     placeholder="Old Castle"
                     label="Line 1" />
                   <FormField
                     :field="v.address.line2"
-                    v-model="v.address.line2.$model"
+                    v-model.trim="v.address.line2.$model"
                     placeholder="Trent Square"
                     label="Line 2" />
                   <div class="grid grid-cols-2 gap-4">
                     <FormField
                       :field="v.address.town"
-                      v-model="v.address.town.$model"
+                      v-model.trim="v.address.town.$model"
                       placeholder="London"
                       label="Town/City" />
                     <FormField
                       :field="v.address.postCode"
-                      v-model="v.address.postCode.$model"
+                      v-model.trim="v.address.postCode.$model"
                       placeholder="P01 3AX"
                       label="Post code" />
                     <FormField
                       :field="v.address.county"
-                      v-model="v.address.county.$model"
+                      v-model.trim="v.address.county.$model"
                       placeholder="Essex"
                       label="County" />
                     <FormSelect
@@ -259,14 +261,16 @@ onMounted(() => {
                   </div>
                   <FormField
                     :field="v.address.localAuthority"
-                    v-model="v.address.localAuthority.$model"
+                    v-model.trim="v.address.localAuthority.$model"
                     placeholder="Royal Borough of London"
                     label="Local authority" />
                 </div>
               </fieldset>
             </div>
             <div class="mt-auto flex justify-between md:mt-5">
-              <button @click="patchValue">Work in progress</button>
+              <button @click="patchValue" type="button">
+                Work in progress
+              </button>
               <button
                 type="submit"
                 class="border-2 bg-green/50 px-4 py-1 hover:bg-green/60">

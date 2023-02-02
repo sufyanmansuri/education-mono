@@ -136,7 +136,7 @@ onMounted(fetchTitles);
     <div
       class="relative h-20 border-b-2 bg-transparent md:h-full md:border-b-0 md:border-r-2">
       <img
-        :src="`https://api.dicebear.com/5.x/avataaars-neutral/svg?backgroundColor=edb98a&backgroundType=gradientLinear&seed=${auth.user?.email}`"
+        :src="`https://api.dicebear.com/5.x/thumbs/svg?seed=${auth.user?.email}`"
         alt="avatar"
         class="absolute top-full left-1/2 h-16 -translate-y-1/2 -translate-x-1/2 border-2 drop-shadow-xl md:top-1/2 md:left-full md:h-20" />
     </div>
@@ -222,3 +222,20 @@ onMounted(fetchTitles);
     </form>
   </div>
 </template>
+<style scoped>
+.v-enter-active,
+.v-move,
+.v-leave-active {
+  transition: all 0.2s ease;
+}
+
+.v-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+</style>
