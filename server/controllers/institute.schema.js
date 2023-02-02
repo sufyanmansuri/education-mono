@@ -82,7 +82,8 @@ const updateInstitute = (req, res, next) => {
   if (error) {
     return next({
       status: HTTP_STATUS.BAD_REQUEST,
-      error: { message: error.message, ...error.details },
+      message: error.message,
+      ...error.details,
     });
   }
 

@@ -5,7 +5,7 @@ import userService from "@/services/UserService";
 import useVuelidate from "@vuelidate/core";
 import { email, helpers, required } from "@vuelidate/validators";
 import { isAxiosError } from "axios";
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import { pick } from "@/utils/pick";
 import { useQueryStore } from "@/stores/useQueryStore";
 import { computed } from "vue";
@@ -38,12 +38,14 @@ const initialForm = {
 };
 
 const form = ref({ ...initialForm });
-const isDisabled = ref(true);
 const original = ref();
 const titles = ref<string[]>();
 const state = ref<"fetching" | "idle" | "error" | "success">("fetching");
 const alertConfig = ref<AlertConfig>();
 
+const isDisabled = computed(
+  () => JSON.stringify(form.value) === JSON.stringify(original.value)
+);
 const showForm = computed(
   () => state.value !== "success" && state.value !== "fetching"
 );
@@ -146,11 +148,11 @@ const fetchUserData = async () => {
   if (error) {
     console.log(error);
   } else {
-    original.value = { ...data };
-    form.value = omit(
+    original.value = omit(
       ["createdAt", "updatedAt", "approved", "verified", "__v", "_id"],
       data
     ) as typeof form.value;
+    form.value = { ...original.value };
     state.value = "idle";
   }
 };
@@ -206,18 +208,6 @@ const handleResetPassword = async () => {
   }
   state.value = "idle";
 };
-
-watch(
-  form,
-  () => {
-    let isEqual = true;
-    Object.keys(form.value).forEach((key) => {
-      if ((form.value as any)[key] !== original.value[key]) isEqual = false;
-    });
-    isDisabled.value = isEqual;
-  },
-  { deep: true }
-);
 </script>
 
 <template>

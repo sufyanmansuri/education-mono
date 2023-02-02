@@ -54,4 +54,53 @@ export const getExamBoards = async () => {
   return { data, error };
 };
 
-export default { get, remove, getKeyStages, getExamBoards };
+type ClassForm = {
+  name: string;
+  institute: string;
+  keyStage?: string;
+  noOfStudents?: number;
+  yearGroup: string;
+  examBoard: string;
+};
+export const create = async (form: ClassForm) => {
+  let data, error;
+  try {
+    const res = await axios.post("/api/admin/classes", form);
+    data = res.data;
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+};
+
+export const update = async (id: string, form: Partial<ClassForm>) => {
+  let data, error;
+  try {
+    const res = await axios.put(`/api/admin/classes/${id}`, form);
+    data = res.data;
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+};
+
+export const getById = async (id: string) => {
+  let data, error;
+  try {
+    const res = await axios.get(`/api/admin/classes/${id}`);
+    data = res.data;
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+};
+
+export default {
+  create,
+  get,
+  remove,
+  getKeyStages,
+  getExamBoards,
+  update,
+  getById,
+};

@@ -106,6 +106,20 @@ export async function getById(instituteId: string) {
   return { data, error };
 }
 
+export async function updateById(instituteId: string, institute: Institute) {
+  let data, error;
+  try {
+    const res = await axios.put(
+      `/api/admin/institutes/${instituteId}`,
+      institute
+    );
+    if (res.status === 200) data = res.data;
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+}
+
 export async function territories() {
   let data, error;
   try {
@@ -121,6 +135,7 @@ export default {
   create,
   get,
   getById,
+  updateById,
   remove,
   getInstituteList,
   types,

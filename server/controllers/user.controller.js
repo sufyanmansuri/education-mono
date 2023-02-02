@@ -441,14 +441,13 @@ const getUserById = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
-    const user = await userService.getById(userId);
+    const user = await userService.getById(
+      userId,
+      "-_id -__v -createdAt -updatedAt -password"
+    );
     if (!user) return next({ error: { message: "User does not exist." } });
 
-    return res.send(
-      Object.fromEntries(
-        Object.entries(user).filter((e) => e[0] !== "password")
-      )
-    );
+    return res.send(user);
   } catch (error) {
     return next({ error });
   }

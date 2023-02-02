@@ -1,7 +1,8 @@
 const { User } = require("../models/user.model");
 
 const get = async (query) => User.findOne(query);
-const getById = async (id) => User.findById(id);
+const getById = async (id, projection = "") =>
+  User.findById(id).select(projection);
 const exists = async (query) => User.exists(query);
 const create = async (data) => {
   const user = new User(data);

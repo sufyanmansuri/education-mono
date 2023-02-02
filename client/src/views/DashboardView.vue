@@ -57,8 +57,3 @@ const isOpen = ref(false);
     </div>
   </div>
 </template>
-<style>
-::-webkit-scrollbar {
-  @apply hidden lg:block;
-}
-</style>
