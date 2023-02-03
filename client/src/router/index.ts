@@ -76,7 +76,14 @@ const router = createRouter({
                 import("@/components/Dashboard/DashboardHome.vue"),
             },
             {
+              path: "employees",
+              name: "employees",
+              component: () => import("@/views/EmpView.vue"),
+              props: true,
+            },
+            {
               path: ":resource",
+              name: "resource",
               component: () => import("@/views/DataView.vue"),
               props: true,
             },

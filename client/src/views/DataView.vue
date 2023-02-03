@@ -54,6 +54,15 @@ onUnmounted(() => {
 
 <template>
   <div class="flex flex-1 flex-col">
+    <div class="">
+      <button
+        class="group relative pl-5 hover:font-semibold"
+        @click="router.back()">
+        <span
+          class="fa-solid fa-arrow-left absolute -left-0 top-1/2 -translate-y-1/2 transition-all group-hover:-left-1"></span
+        >Go back
+      </button>
+    </div>
     <Transition>
       <AlertBox
         class="fixed top-0 right-1/2 z-50 mx-auto w-[90vw] translate-x-1/2 shadow-xl md:w-[50vw] lg:top-10 lg:w-auto"

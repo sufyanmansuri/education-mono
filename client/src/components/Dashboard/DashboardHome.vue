@@ -3,6 +3,10 @@ import { onMounted, ref } from "vue";
 import BaseTitle from "../base/BaseTitle.vue";
 import { get } from "@/services/DashboardService";
 import { computed } from "vue";
+import UsersWidget from "./UsersWidget.vue";
+import RolesWidget from "./RolesWidget.vue";
+import InstitutesWidget from "./InstitutesWidget.vue";
+import ClassesWidget from "./ClassesWidget.vue";
 
 type DashboardData = {
   users: [
@@ -10,6 +14,9 @@ type DashboardData = {
       total: [{ count: number }];
       approved: [{ count: number }];
       verified: [{ count: number }];
+      teacher: [{ count: number }];
+      "super-admin": [{ count: number }];
+      "institute-admin": [{ count: number }];
     }
   ];
   institutes: [{ total: [{ count: number }] }];
@@ -18,20 +25,27 @@ type DashboardData = {
 const res = ref<DashboardData>();
 const users = computed(() => {
   if (!res.value) return undefined;
-  const total = res.value.users[0].total[0].count;
-  const approved = res.value.users[0].approved[0].count;
-  const verified = res.value.users[0].verified[0].count;
+  const user = {
+    total: res.value.users[0].total[0].count,
+    approved: res.value.users[0].approved[0].count,
+    verified: res.value.users[0].verified[0].count,
+    unVerified:
+      res.value.users[0].total[0].count - res.value.users[0].verified[0].count,
+    unApproved:
+      res.value.users[0].verified[0].count -
+      res.value.users[0].approved[0].count,
+  };
 
-  const unVerified = total - verified;
-  const unApproved = verified - approved;
-
-  return { total, approved, verified, unVerified, unApproved };
+  return user;
 });
-
-const getWidth = (count: number | undefined, max: number | undefined) => {
-  if (count === undefined || max === undefined) return `width: 0px`;
-  return `width: max(${(count * 100) / max - 5}%, 2%);`;
-};
+const roles = computed(() => {
+  if (!res.value) return undefined;
+  return {
+    superAdmin: res.value.users[0]["super-admin"][0].count,
+    instituteAdmin: res.value.users[0]["institute-admin"][0].count,
+    teacher: res.value.users[0]["teacher"][0].count,
+  };
+});
 
 onMounted(async () => {
   const { data, error } = await get();
@@ -46,60 +60,36 @@ onMounted(async () => {
 <template>
   <div class="relative flex-1">
     <BaseTitle class="text-start" text1="Dashboard" underline-color="none" />
-    <div class="grid grid-cols-2 gap-4 py-10 text-lg">
-      <div class="border-2 p-8">
-        <div class="flex">
-          <div class="flex flex-col items-center justify-center gap-2">
-            <div class="text-6xl">
-              <span class="fa-solid fa-users"></span>
-            </div>
-            <p>Users</p>
-          </div>
-          <div class="flex-1 pl-5">
-            <div class="grid grid-cols-12 gap-3">
-              <span class="col-span-2">Total: </span>
-              <div class="col-span-10 flex items-center gap-2">
-                <span
-                  class="inline-block h-3 rounded-full bg-black transition-all duration-700 ease-out"
-                  :style="getWidth(users?.total, users?.total)"></span>
-                {{ users?.total || 0 }}
-              </div>
-            </div>
-
-            <div class="grid grid-cols-12 gap-3">
-              <span class="col-span-2">Verified:</span>
-              <div class="col-span-10 flex items-center gap-2">
-                <span
-                  class="inline-block h-3 rounded-full bg-black transition-all duration-700 ease-out"
-                  :style="getWidth(users?.verified, users?.total)"></span>
-                {{ users?.verified || 0 }}
-              </div>
-            </div>
-            <div class="grid grid-cols-12 gap-3">
-              <span class="col-span-2">Unapproved:</span>
-              <div class="col-span-10 flex items-center gap-2">
-                <span
-                  class="inline-block h-3 rounded-full bg-black transition-all duration-700 ease-out"
-                  :style="getWidth(users?.unApproved, users?.total)"></span>
-                {{ users?.unApproved || 0 }}
-              </div>
-            </div>
-          </div>
+    <Transition>
+      <div class="grid gap-4 py-5 text-lg xl:grid-cols-3">
+        <UsersWidget :data="users" />
+        <RolesWidget :data="roles" />
+        <div class="flex flex-col gap-2">
+          <Transition>
+            <InstitutesWidget
+              v-if="res?.institutes[0].total[0].count"
+              :data="{ total: res.institutes[0].total[0].count }" />
+          </Transition>
+          <Transition>
+            <ClassesWidget
+              v-if="res?.classes[0].total[0].count"
+              :data="{ total: res.classes[0].total[0].count }" />
+          </Transition>
         </div>
       </div>
-      <div class="border-2 p-5">
-        <h1>Institutes</h1>
-        <p>Total: {{ res?.institutes[0].total[0].count }}</p>
-      </div>
-      <div class="border-2 p-5">
-        <h1>Classes</h1>
-        <p>Total: {{ res?.classes[0].total[0].count }}</p>
-      </div>
-    </div>
+    </Transition>
   </div>
 </template>
+
 <style scoped>
-span {
-  transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+.v-enter-active,
+.v-leave-active {
+  transition: all 0.7s cubic-bezier(0.4, 0.2, 0.1, 1);
+}
+
+.v-enter-from,
+.v-leave-to {
+  transform: translateX(-100px);
+  opacity: 0;
 }
 </style>

@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { ref } from "vue";
 
 const { auth } = useAuthStore();
-const isOpen = ref(false);
+const isOpen = ref(true);
 </script>
 
 <template>
@@ -40,6 +40,9 @@ const isOpen = ref(false);
           to="/dashboard/classes"
           icon="fa-solid fa-graduation-cap">
           Classes
+        </DashboardLink>
+        <DashboardLink to="/dashboard/employees" icon="fa-solid fa-briefcase">
+          Employees
         </DashboardLink>
       </div>
       <div class="mt-auto hidden text-left lg:block">

@@ -14,6 +14,12 @@ dashboardRouter.get("/", async (req, res, next) => {
       total: [{ $count: "count" }],
       approved: [{ $match: { approved: true } }, { $count: "count" }],
       verified: [{ $match: { approved: true } }, { $count: "count" }],
+      "super-admin": [{ $match: { role: "super-admin" } }, { $count: "count" }],
+      "institute-admin": [
+        { $match: { role: "institute-admin" } },
+        { $count: "count" },
+      ],
+      teacher: [{ $match: { role: "teacher" } }, { $count: "count" }],
     });
 
     const institutes = await Institute.aggregate().facet({
