@@ -137,7 +137,6 @@ const getClasses = async (req, res, next) => {
       return { ...prev, [curr]: query[curr] };
     }, {});
 
-    console.log(query);
     const classes = await Class.aggregate()
       .match(dbQuery)
       .lookup({

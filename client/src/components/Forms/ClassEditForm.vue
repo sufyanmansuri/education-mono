@@ -11,14 +11,15 @@ import ClassService from "@/services/ClassService";
 const props = defineProps<{
   id: string;
 }>();
-defineEmits<{
-  (e: "close"): void;
+const emit = defineEmits<{
+  (e: "close", state: "success" | undefined): void;
 }>();
 
 const { query } = useQueryStore();
 
 const classData = ref();
 const alertConfig = ref<AlertConfig>();
+const mutated = ref(false);
 
 const handleFormSubmit = async (
   data: any,
@@ -30,6 +31,7 @@ const handleFormSubmit = async (
       type: "success",
       message: "Class updated successfully.",
     };
+    mutated.value = true;
     classData.value = undefined;
   } else {
     if (isAxiosError(error)) {
@@ -52,10 +54,18 @@ onMounted(async () => {
   } else {
     alertConfig.value = {
       type: "error",
-      message: "An error occurred while fetching institute details.",
+      message: "An error occurred while fetching class details.",
     };
   }
 });
+
+const handleClose = () => {
+  if (mutated.value) {
+    emit("close", "success");
+  } else {
+    emit("close", undefined);
+  }
+};
 </script>
 <template>
   <div
@@ -66,7 +76,7 @@ onMounted(async () => {
         <h1 class="text-3xl font-black">Update Class</h1>
         <button
           class="text-2xl opacity-80 hover:opacity-100"
-          @click="$emit('close')">
+          @click="handleClose">
           <span class="fa-solid fa-xmark"></span>
         </button>
       </div>

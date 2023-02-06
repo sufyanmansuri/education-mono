@@ -2,10 +2,9 @@
 defineProps<{
   data?: {
     total: number;
-    approved: number;
-    verified: number;
-    unVerified: number;
-    unApproved: number;
+    active: number;
+    "pending-verification": number;
+    "pending-approval": number;
   };
 }>();
 
@@ -15,14 +14,16 @@ const getWidth = (count: number = 0, max: number = 100) => {
 </script>
 
 <template>
-  <RouterLink :to="{ name: 'resource', params: { resource: 'users' } }">
-    <div class="border-2 p-8">
+  <RouterLink
+    :to="{ name: 'resource', params: { resource: 'users' } }"
+    class="group transition-all hover:shadow-xl">
+    <div class="h-full flex-1 border-2 p-5">
       <div class="space-y-6">
         <div>
           <div class="mb-2 flex items-center gap-2 text-xl">
             <span class="fa-solid fa-users text-3xl"></span>
             <div class="flex flex-1 justify-between font-extrabold">
-              <span>Users</span>
+              Users
               <span
                 ><span class="font-medium">Total: </span>{{ data?.total }}</span
               >
@@ -32,39 +33,36 @@ const getWidth = (count: number = 0, max: number = 100) => {
         </div>
         <div class="flex-1 space-y-3">
           <div class="flex flex-col">
-            <span class="text-base leading-none">Verified</span>
+            <span class="text-base leading-none">Active</span>
             <div class="flex items-center gap-2">
               <span
-                class="inline-block h-3 w-0 rounded-full bg-black transition-all duration-700 ease-out"
-                :style="getWidth(data?.verified, data?.total)"></span>
-              {{ data?.verified || 0 }}
+                class="inline-block h-3 w-0 bg-black transition-all duration-700 ease-out"
+                :style="getWidth(data?.active, data?.total)"></span>
+              {{ data?.active || 0 }}
             </div>
           </div>
           <div class="flex flex-col">
-            <span class="text-base leading-none">Approved</span>
+            <span class="text-base leading-none">Unverified</span>
             <div class="flex items-center gap-2">
               <span
-                class="inline-block h-3 w-0 rounded-full bg-black transition-all duration-700 ease-out"
-                :style="getWidth(data?.approved, data?.total)"></span>
-              {{ data?.approved || 0 }}
+                class="inline-block h-3 w-0 bg-black transition-all duration-700 ease-out"
+                :style="
+                  getWidth(data?.['pending-verification'], data?.total)
+                "></span>
+              {{ data?.["pending-verification"] || 0 }}
             </div>
           </div>
           <div class="flex flex-col">
-            <span class="text-base leading-none">Pending approvals</span>
+            <span class="text-left text-base leading-none"
+              >Pending approvals</span
+            >
             <div class="flex items-center gap-2">
               <span
-                class="inline-block h-3 w-0 rounded-full bg-black transition-all duration-700 ease-out"
-                :style="getWidth(data?.unApproved, data?.total)"></span>
-              {{ data?.unApproved || 0 }}
-            </div>
-          </div>
-          <div class="flex flex-col">
-            <span class="text-base leading-none">Pending verifications</span>
-            <div class="flex items-center gap-2">
-              <span
-                class="inline-block h-3 w-0 rounded-full bg-black transition-all duration-700 ease-out"
-                :style="getWidth(data?.unVerified, data?.total)"></span>
-              {{ data?.unVerified || 0 }}
+                class="inline-block h-3 w-0 bg-black transition-all duration-700 ease-out"
+                :style="
+                  getWidth(data?.['pending-approval'], data?.total)
+                "></span>
+              {{ data?.["pending-approval"] || 0 }}
             </div>
           </div>
         </div>

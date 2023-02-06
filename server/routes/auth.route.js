@@ -52,6 +52,9 @@ authRouter.post(
 // Protected routes
 authRouter.use(authentication);
 
+// Login activity
+authRouter.get("/login-activity", userController.getLoginActivity);
+
 // Logout (delete jti)
 authRouter.delete("/logout", userController.logout);
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseTitle from "@/components/base/BaseTitle.vue";
 import InstituteCard from "@/components/InstituteCard.vue";
+import LoginActivity from "@/components/LoginActivity.vue";
 import ProfileCard from "@/components/ProfileCard.vue";
 </script>
 
@@ -11,5 +12,6 @@ import ProfileCard from "@/components/ProfileCard.vue";
       <ProfileCard />
       <InstituteCard />
     </div>
+    <LoginActivity />
   </div>
 </template>

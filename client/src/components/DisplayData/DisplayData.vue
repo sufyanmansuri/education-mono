@@ -36,7 +36,7 @@ import ClassEditForm from "@/components/Forms/ClassEditForm.vue";
 import { isAxiosError } from "axios";
 import { humanize } from "@/utils/humanize";
 
-const { query, setQuery } = useQueryStore();
+const { query, setQuery, setPage } = useQueryStore();
 const { auth } = useAuthStore();
 
 const router = useRouter();
@@ -123,7 +123,9 @@ const removeRecord = async (id: string) => {
         };
       }
     } else {
-      query.value[resource.value].fetch = true;
+      if (query.value[resource.value].page > 1 && res.value.data.length === 1) {
+        setPage(query.value[resource.value].page - 1);
+      } else query.value[resource.value].fetch = true;
       alertConfig.value = {
         type: "success",
         message: "Record removed successfully.",

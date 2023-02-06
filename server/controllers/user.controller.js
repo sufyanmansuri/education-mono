@@ -472,6 +472,18 @@ const deleteUserById = async (req, res, next) => {
   }
 };
 
+const getLoginActivity = async (req, res, next) => {
+  const { user } = res.locals;
+
+  try {
+    const JTI = await jtiService.getByUser(user.sub);
+
+    return res.send(JTI);
+  } catch (error) {
+    return next({ error });
+  }
+};
+
 /**
  * Clear jti claims by user id
  */
@@ -486,6 +498,17 @@ const logout = async (req, res, next) => {
     return next({ error });
   }
 };
+const logoutAll = async (req, res, next) => {
+  const { user } = res.locals;
+
+  try {
+    await jtiService.deleteManyByUserId(user.sub);
+
+    return res.send();
+  } catch (error) {
+    return next({ error });
+  }
+};
 
 module.exports = {
   createUser,
@@ -494,8 +517,10 @@ module.exports = {
   generatePasswordResetToken,
   getAccessToken,
   approveUser,
+  getLoginActivity,
   login,
   logout,
+  logoutAll,
   getUsers,
   updateUserById,
   getUserById,

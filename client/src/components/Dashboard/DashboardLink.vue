@@ -10,10 +10,10 @@ defineProps<{
     active-class="bg-yellow font-bold">
     <span
       :class="icon"
-      class="my-1 ml-1 transition-all lg:mr-5 lg:group-aria-expanded:mr-0">
+      class="my-1 transition-all lg:mr-5 lg:group-aria-expanded:mr-0">
     </span>
     <span
-      class="whitespace-nowrap transition-all lg:opacity-0 lg:group-aria-expanded:opacity-100">
+      class="overflow-hidden text-ellipsis whitespace-nowrap transition-all lg:opacity-0 lg:group-aria-expanded:opacity-100">
       <slot></slot>
     </span>
   </RouterLink>

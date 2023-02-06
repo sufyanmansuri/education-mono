@@ -12,8 +12,9 @@ type DashboardData = {
   users: [
     {
       total: [{ count: number }];
-      approved: [{ count: number }];
-      verified: [{ count: number }];
+      "pending-approval": [{ count: number }];
+      active: [{ count: number }];
+      "pending-verification": [{ count: number }];
       teacher: [{ count: number }];
       "super-admin": [{ count: number }];
       "institute-admin": [{ count: number }];
@@ -26,14 +27,11 @@ const res = ref<DashboardData>();
 const users = computed(() => {
   if (!res.value) return undefined;
   const user = {
-    total: res.value.users[0].total[0].count,
-    approved: res.value.users[0].approved[0].count,
-    verified: res.value.users[0].verified[0].count,
-    unVerified:
-      res.value.users[0].total[0].count - res.value.users[0].verified[0].count,
-    unApproved:
-      res.value.users[0].verified[0].count -
-      res.value.users[0].approved[0].count,
+    total: res.value.users[0].total[0]?.count,
+    active: res.value.users[0].active[0]?.count,
+    "pending-verification":
+      res.value.users[0]["pending-verification"][0]?.count,
+    "pending-approval": res.value.users[0]["pending-approval"][0]?.count,
   };
 
   return user;
@@ -41,9 +39,9 @@ const users = computed(() => {
 const roles = computed(() => {
   if (!res.value) return undefined;
   return {
-    superAdmin: res.value.users[0]["super-admin"][0].count,
-    instituteAdmin: res.value.users[0]["institute-admin"][0].count,
-    teacher: res.value.users[0]["teacher"][0].count,
+    superAdmin: res.value.users[0]["super-admin"][0]?.count,
+    instituteAdmin: res.value.users[0]["institute-admin"][0]?.count,
+    teacher: res.value.users[0]["teacher"][0]?.count,
   };
 });
 
@@ -61,21 +59,21 @@ onMounted(async () => {
   <div class="relative flex-1">
     <BaseTitle class="text-start" text1="Dashboard" underline-color="none" />
     <Transition>
-      <div class="grid gap-4 py-5 text-lg xl:grid-cols-3">
-        <UsersWidget :data="users" />
-        <RolesWidget :data="roles" />
-        <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-4 py-5 text-lg xl:flex-row">
+        <div class="order-1 flex flex-1 gap-4 xl:order-3 xl:flex-col">
           <Transition>
             <InstitutesWidget
-              v-if="res?.institutes[0].total[0].count"
-              :data="{ total: res.institutes[0].total[0].count }" />
+              v-if="res?.institutes"
+              :data="{ total: res.institutes[0]?.total[0].count }" />
           </Transition>
           <Transition>
             <ClassesWidget
-              v-if="res?.classes[0].total[0].count"
+              v-if="res?.classes"
               :data="{ total: res.classes[0].total[0].count }" />
           </Transition>
         </div>
+        <UsersWidget :data="users" class="order-2 flex-1 xl:order-1" />
+        <RolesWidget :data="roles" class="order-3 flex-1 xl:order-2" />
       </div>
     </Transition>
   </div>

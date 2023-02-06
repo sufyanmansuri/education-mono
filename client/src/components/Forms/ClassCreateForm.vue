@@ -2,11 +2,14 @@
 import ClassService from "@/services/ClassService";
 import type { AlertConfig } from "@/types/AlertConfig";
 import { isAxiosError } from "axios";
+import { ref } from "vue";
 import ClassForm from "./ClassForm.vue";
 
-defineEmits<{
-  (e: "close"): void;
+const emit = defineEmits<{
+  (e: "close", state: "success" | undefined): void;
 }>();
+
+const mutated = ref(false);
 
 const handleFormSubmit = async (
   data: any,
@@ -14,6 +17,7 @@ const handleFormSubmit = async (
 ) => {
   const { error } = await ClassService.create(data);
   if (!error) {
+    mutated.value = true;
     callback({
       type: "success",
       message: "Class created successfully.",
@@ -28,6 +32,14 @@ const handleFormSubmit = async (
     }
   }
 };
+
+const handleClose = () => {
+  if (mutated.value) {
+    emit("close", "success");
+  } else {
+    emit("close", undefined);
+  }
+};
 </script>
 <template>
   <div
@@ -38,7 +50,7 @@ const handleFormSubmit = async (
         <h1 class="text-3xl font-black">Create Class</h1>
         <button
           class="text-2xl opacity-80 hover:opacity-100"
-          @click="$emit('close')">
+          @click="handleClose">
           <span class="fa-solid fa-xmark"></span>
         </button>
       </div>

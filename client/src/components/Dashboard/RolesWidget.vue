@@ -13,7 +13,9 @@ const getWidth = (count: number = 0, max: number = 100) => {
 };
 </script>
 <template>
-  <RouterLink :to="{ name: 'resource', params: { resource: 'users' } }">
+  <RouterLink
+    :to="{ name: 'resource', params: { resource: 'users' } }"
+    class="group transition-all hover:shadow-xl">
     <div class="h-full flex-1 border-2 p-5">
       <div class="space-y-6">
         <div>
@@ -30,7 +32,7 @@ const getWidth = (count: number = 0, max: number = 100) => {
             <span class="text-base leading-none">Teacher</span>
             <div class="flex items-center gap-2">
               <span
-                class="inline-block h-3 w-0 rounded-full bg-black transition-all duration-700 ease-out"
+                class="inline-block h-3 w-0 bg-black transition-all duration-700 ease-out"
                 :style="getWidth(data?.teacher, max)"></span>
               {{ data?.teacher || 0 }}
             </div>
@@ -39,7 +41,7 @@ const getWidth = (count: number = 0, max: number = 100) => {
             <span class="text-base leading-none">Institute admin</span>
             <div class="flex items-center gap-2">
               <span
-                class="inline-block h-3 w-0 rounded-full bg-black transition-all duration-700 ease-out"
+                class="inline-block h-3 w-0 bg-black transition-all duration-700 ease-out"
                 :style="getWidth(data?.instituteAdmin, max)"></span>
               {{ data?.instituteAdmin || 0 }}
             </div>
@@ -48,7 +50,7 @@ const getWidth = (count: number = 0, max: number = 100) => {
             <span class="text-base leading-none">Super admin</span>
             <div class="flex items-center gap-2">
               <span
-                class="inline-block h-3 w-0 rounded-full bg-black transition-all duration-700 ease-out"
+                class="inline-block h-3 w-0 bg-black transition-all duration-700 ease-out"
                 :style="getWidth(data?.superAdmin, max)"></span>
               {{ data?.superAdmin || 0 }}
             </div>

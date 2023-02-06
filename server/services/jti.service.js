@@ -7,7 +7,8 @@ const create = async (userId) => {
   return jti;
 };
 const get = async (query) => JTI.findOne(query);
+const getByUser = async (user) => JTI.find({ user }, "_id createdAt");
 const deleteManyByUserId = async (userId) => JTI.deleteMany({ user: userId });
 const deleteByToken = async (token) => JTI.findOneAndDelete({ token });
 
-module.exports = { create, get, deleteManyByUserId, deleteByToken };
+module.exports = { create, get, deleteManyByUserId, getByUser, deleteByToken };

@@ -78,7 +78,7 @@ export const useQueryStore = () => {
     fetch();
   }
 
-  function setQuery(value: Query) {
+  function setQuery(value: Partial<Query>) {
     query.value[resource.value] = {
       ...query.value[resource.value],
       ...value,

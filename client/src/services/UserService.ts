@@ -212,11 +212,24 @@ export async function updateProfile(form: UpdateProfile) {
   return { data, error };
 }
 
+export async function getLoginActivity() {
+  let data, error;
+  try {
+    const res = await axios.get("/api/auth/login-activity");
+    data = res.data;
+  } catch (e) {
+    error = e;
+  }
+
+  return { data, error };
+}
+
 export default {
   approve,
   get,
   getById,
   getTitles,
+  getLoginActivity,
   create,
   loginUser,
   logoutUser,
