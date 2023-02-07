@@ -12,14 +12,20 @@ const register = (req, res, next) => {
     title: Joi.string()
       .valid(...titles)
       .required(),
-    email: Joi.string().email().required(),
+    email: Joi.string().email().required().messages({
+      "string.email": "Email is invalid.",
+    }),
     institute: Joi.string().hex().length(24).required(),
   });
 
   const { error } = registerSchema.validate(req.body);
 
   if (error)
-    return next({ status: HTTP_STATUS.BAD_REQUEST, error: error.details });
+    return next({
+      status: HTTP_STATUS.BAD_REQUEST,
+      error: error.details,
+      message: error.message,
+    });
 
   return next();
 };
@@ -41,7 +47,9 @@ const createUser = (req, res, next) => {
     title: Joi.string()
       .valid(...titles)
       .required(),
-    email: Joi.string().email().required(),
+    email: Joi.string().email().required().messages({
+      "string.email": "Email is invalid.",
+    }),
     role: Joi.string()
       .valid(...getValidRoles())
       .required(),
@@ -71,7 +79,9 @@ const createUser = (req, res, next) => {
  */
 const login = (req, res, next) => {
   const loginSchema = Joi.object({
-    email: Joi.string().email().required(),
+    email: Joi.string().email().required().messages({
+      "string.email": "Email is invalid.",
+    }),
     password: Joi.string().required(),
   });
 
@@ -94,7 +104,9 @@ const login = (req, res, next) => {
  */
 const email = async (req, res, next) => {
   const emailSchema = Joi.object({
-    email: Joi.string().email().required(),
+    email: Joi.string().email().required().messages({
+      "string.email": "Email is invalid.",
+    }),
   });
 
   const { error } = emailSchema.validate(req.body);
@@ -169,7 +181,9 @@ const updateUser = (req, res, next) => {
     firstName: Joi.string().min(2).max(20),
     lastName: Joi.string().min(2).max(20),
     title: Joi.string().valid(...titles),
-    email: Joi.string().email(),
+    email: Joi.string().email().messages({
+      "string.email": "Email is invalid.",
+    }),
     role: Joi.string().valid(...getValidRoles()),
     institute: Joi.string().hex().length(24).allow(""),
   })
@@ -199,7 +213,9 @@ const updateProfile = (req, res, next) => {
     firstName: Joi.string().min(2).max(20),
     lastName: Joi.string().min(2).max(20),
     title: Joi.string().valid(...titles),
-    email: Joi.string().email(),
+    email: Joi.string().email().messages({
+      "string.email": "Email is invalid.",
+    }),
   })
     .min(1)
     .messages({
@@ -229,7 +245,9 @@ const createInstituteUser = (req, res, next) => {
     title: Joi.string()
       .valid(...titles)
       .required(),
-    email: Joi.string().email().required(),
+    email: Joi.string().email().required().messages({
+      "string.email": "Email is invalid.",
+    }),
     role: Joi.string().valid("institute-admin", "teacher").required(),
   });
 

@@ -9,8 +9,10 @@ import GenericFilter from "./GenericFilter.vue";
 import SelectInstitutes from "./SelectInstitutes.vue";
 import ClassService from "@/services/ClassService";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useRouter } from "vue-router";
 
 const { auth } = useAuthStore();
+const router = useRouter();
 const { resetQuery, setQuery, fetch, query } = useQueryStore();
 
 const form = ref<{
@@ -19,7 +21,10 @@ const form = ref<{
   examBoard: string[];
   keyStage: string[];
 }>({
-  search: query.value.classes.query.search || "",
+  search:
+    (router.currentRoute.value.query.search as string) ||
+    query.value.classes.query.search ||
+    "",
   institute: query.value.classes.query.institute || [],
   examBoard: query.value.classes.query.examBoard || [],
   keyStage: query.value.classes.query.keyStage || [],
@@ -28,6 +33,7 @@ const keyStages = ref<string[]>([]);
 const examBoards = ref<string[]>([]);
 
 const handleSubmit = () => {
+  router.push({ path: "classes", query: { search: form.value.search } });
   setQuery({
     ...query.value.classes,
     query: {
@@ -40,6 +46,7 @@ const handleSubmit = () => {
 
 const handleReset = () => {
   form.value = { search: "", institute: [], examBoard: [], keyStage: [] };
+  router.push({ path: "classes" });
   resetQuery();
 };
 

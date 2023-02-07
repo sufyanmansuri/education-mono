@@ -55,6 +55,9 @@ authRouter.use(authentication);
 // Login activity
 authRouter.get("/login-activity", userController.getLoginActivity);
 
+// Logout all
+authRouter.delete("/logout", userController.logout);
+
 // Logout (delete jti)
 authRouter.delete("/logout", userController.logout);
 

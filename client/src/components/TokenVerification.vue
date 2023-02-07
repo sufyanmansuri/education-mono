@@ -90,7 +90,7 @@ watch(state, () => {
     case "invalid":
       alertConfig.value = {
         type: "error",
-        message: "Invalid link provided.",
+        message: "This link is not valid.",
       };
       break;
 
@@ -98,7 +98,7 @@ watch(state, () => {
       alertConfig.value = {
         type: "error",
         message:
-          "Link expired. Click on the button to resend verification link.",
+          "This link is expired. Please click on the button below to generate new link.",
       };
       break;
 

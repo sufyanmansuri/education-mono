@@ -25,8 +25,8 @@ type DashboardData = {
 };
 const res = ref<DashboardData>();
 const users = computed(() => {
-  if (!res.value) return undefined;
-  const user = {
+  if (!res.value || !res.value.users) return undefined;
+  const data = {
     total: res.value.users[0].total[0]?.count,
     active: res.value.users[0].active[0]?.count,
     "pending-verification":
@@ -34,10 +34,10 @@ const users = computed(() => {
     "pending-approval": res.value.users[0]["pending-approval"][0]?.count,
   };
 
-  return user;
+  return data;
 });
 const roles = computed(() => {
-  if (!res.value) return undefined;
+  if (!res.value?.users) return undefined;
   return {
     superAdmin: res.value.users[0]["super-admin"][0]?.count,
     instituteAdmin: res.value.users[0]["institute-admin"][0]?.count,
@@ -72,8 +72,14 @@ onMounted(async () => {
               :data="{ total: res.classes[0].total[0].count }" />
           </Transition>
         </div>
-        <UsersWidget :data="users" class="order-2 flex-1 xl:order-1" />
-        <RolesWidget :data="roles" class="order-3 flex-1 xl:order-2" />
+        <UsersWidget
+          v-if="users"
+          :data="users"
+          class="order-2 flex-1 xl:order-1" />
+        <RolesWidget
+          v-if="roles"
+          :data="roles"
+          class="order-3 flex-1 xl:order-2" />
       </div>
     </Transition>
   </div>

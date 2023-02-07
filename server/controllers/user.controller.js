@@ -502,7 +502,7 @@ const logoutAll = async (req, res, next) => {
   const { user } = res.locals;
 
   try {
-    await jtiService.deleteManyByUserId(user.sub);
+    await jtiService.deleteAll(user.sub, user.jti);
 
     return res.send();
   } catch (error) {

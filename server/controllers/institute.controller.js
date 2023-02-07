@@ -1,5 +1,6 @@
 const { Institute } = require("../models/institute.model");
 const instituteService = require("../services/institute.service");
+const userService = require("../services/user.service");
 const HTTP_STATUS = require("../utils/statusCodes");
 
 /**
@@ -41,7 +42,7 @@ const createInstitute = async (req, res, next) => {
 const getInstitutes = async (req, res, next) => {
   const { sortBy = "updatedAt", query = {} } = req.query;
   let {
-    fields = ["name", "createdAt", "updatedAt", "address"],
+    fields = ["name", "address", "createdAt", "updatedAt"],
     page = 1,
     perPage = 5,
     order = -1,
@@ -175,6 +176,13 @@ const deleteInstituteById = async (req, res, next) => {
   const { instituteId } = req.params;
 
   try {
+    const existsInUser = await userService.exists({ institute: instituteId });
+    if (existsInUser)
+      return next({
+        message:
+          "Institute cannot be deleted because there are accounts associated with it.",
+      });
+
     const institute = await instituteService.deleteById(instituteId);
 
     if (!institute)

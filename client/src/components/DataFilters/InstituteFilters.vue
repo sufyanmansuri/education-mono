@@ -5,8 +5,10 @@ import { onMounted, ref } from "vue";
 import SearchFilter from "./UserFilter/SearchFilter.vue";
 import GenericFilter from "./GenericFilter.vue";
 import InstituteService from "@/services/InstituteService";
+import { useRouter } from "vue-router";
 
 const { resetQuery, fetch, setQuery, query } = useQueryStore();
+const router = useRouter();
 
 const form = ref<{
   type: string[];
@@ -15,12 +17,16 @@ const form = ref<{
 }>({
   type: query.value["institutes"].query.type || [],
   level: query.value["institutes"].query.level || [],
-  search: query.value["institutes"].query.search || "",
+  search:
+    (router.currentRoute.value.query.search as string) ||
+    query.value["institutes"].query.search ||
+    "",
 });
 const instituteTypes = ref<string[]>([]);
 const instituteLevels = ref<string[]>([]);
 
 const handleSubmit = () => {
+  router.push({ path: "institutes", query: { search: form.value.search } });
   setQuery({
     ...query.value["institutes"],
     query: {
@@ -35,6 +41,7 @@ const handleSubmit = () => {
 
 const handleReset = () => {
   form.value = { type: [], search: "", level: [] };
+  router.push({ path: "institutes" });
   resetQuery();
 };
 onMounted(async () => {

@@ -28,10 +28,14 @@ const form = ref<{
 }>({
   institute: query.value[resource.value].query.institute || [],
   role: query.value[resource.value].query.role || [],
-  search: query.value[resource.value].query.search || "",
+  search:
+    (router.currentRoute.value.query.search as string) ||
+    query.value[resource.value].query.search ||
+    "",
 });
 
 const handleSubmit = () => {
+  router.push({ path: "users", query: { search: form.value.search } });
   setQuery({
     ...query.value[resource.value],
     query: {
@@ -46,6 +50,7 @@ const handleSubmit = () => {
 
 const handleReset = () => {
   form.value = { institute: [], search: "", role: [] };
+  router.push({ path: "users" });
   resetQuery();
 };
 </script>

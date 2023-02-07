@@ -67,7 +67,7 @@ const handleApprove = (item: any) => {
         </div>
       </td>
       <td
-        class="whitespace-nowrap border-2 py-1 text-center"
+        class="overflow-x-auto whitespace-nowrap border-2 py-1 text-center"
         :class="{ 'lg:max-w-0': !isOverflowing }">
         <div v-if="resource !== 'pending-approvals'">
           <button

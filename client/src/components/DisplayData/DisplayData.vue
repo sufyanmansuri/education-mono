@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ServiceFunction } from "@/types/ServiceFunction";
 import type { Resource } from "@/types/Resource";
-import type { Component } from "vue";
+import { onBeforeMount, type Component } from "vue";
 import type { AlertConfig } from "@/types/AlertConfig";
 import type { Query } from "@/types/Query";
 
@@ -81,7 +81,9 @@ const fetchData = async () => {
       query.value[resource.value]
     );
 
-    const { data, error } = await props.service.get(temp);
+    const { data, error } = await props.service.get({
+      ...temp,
+    });
     if (error) {
       state.value = "error";
       if (isAxiosError(error)) {
@@ -198,6 +200,16 @@ watch(
     showFilters.value = false;
   }
 );
+
+onBeforeMount(() => {
+  setQuery({
+    ...query.value[resource.value],
+    query: {
+      ...query.value[resource.value].query,
+      search: router.currentRoute.value.query.search as string,
+    },
+  });
+});
 </script>
 
 <template>
