@@ -9,11 +9,9 @@ import ToggleIcon from "../icons/ToggleIcon.vue";
 import TheNav from "./TheNav.vue";
 import BrandLogo from "@/assets/logo.svg";
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { useQueryStore } from "@/stores/useQueryStore";
 
 const showNav = ref(false);
 const { auth, logout } = useAuthStore();
-const { hardResetQuery } = useQueryStore();
 const { global } = useGlobalStore();
 const router = useRouter();
 
@@ -24,7 +22,6 @@ function handleLogout() {
   logoutUser()
     .then(() => {
       logout();
-      hardResetQuery();
       router.push({ name: "login" });
     })
     .catch((error) => {

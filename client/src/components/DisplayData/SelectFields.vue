@@ -1,26 +1,23 @@
 <script setup lang="ts">
-import type { Resource } from "@/types/Resource";
-
-import { useQueryStore } from "@/stores/useQueryStore";
 import { humanize } from "@/utils/humanize";
-import { computed } from "vue";
+import { onMounted, watch } from "vue";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
-const router = useRouter();
-const resource = computed<Resource>(
-  () => router.currentRoute.value.params?.resource as Resource
-);
+const props = defineProps<{
+  fields: string[];
+  selected: string[];
+}>();
 
-const { query, setFields } = useQueryStore();
-const selected = query.value[resource.value].fields;
-const fields = query.value[resource.value].allFields;
+const router = useRouter();
 
 const showColumnMenu = ref(false);
-const columns = ref(selected);
+const columns = ref<string[]>(props.selected);
 
 const handleChange = () => {
-  setFields(columns.value);
+  router.push({
+    query: { ...router.currentRoute.value.query, fields: columns.value },
+  });
   showColumnMenu.value = false;
 };
 </script>
@@ -71,7 +68,7 @@ const handleChange = () => {
                 class="p-2 px-4"
                 @click="
                   () => {
-                    columns = selected;
+                    columns = router.currentRoute.value.query.fields as string[];
                     showColumnMenu = false;
                   }
                 ">

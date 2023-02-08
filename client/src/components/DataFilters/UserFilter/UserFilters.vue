@@ -2,56 +2,45 @@
 import type { Institute } from "@/types/Institute";
 import type { Role } from "@/types/User";
 
-import { useQueryStore } from "@/stores/useQueryStore";
-import { ref } from "vue";
+import { onMounted, onUpdated, ref } from "vue";
 
 import SelectInstitutes from "../SelectInstitutes.vue";
 import FilterRoles from "./FilterRoles.vue";
 import SearchFilter from "./SearchFilter.vue";
-import { useAuthStore } from "@/stores/useAuthStore";
 import { useRouter } from "vue-router";
 import { computed } from "vue";
-import type { Resource } from "@/types/Resource";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const { auth } = useAuthStore();
-const { resetQuery, setQuery, query, fetch } = useQueryStore();
-
 const router = useRouter();
-const resource = computed<Resource>(
-  () => router.currentRoute.value.params?.resource as Resource
-);
+const query = computed(() => router.currentRoute.value.query.query as any);
 
 const form = ref<{
   institute: Institute[];
   search: string;
   role: Role[];
 }>({
-  institute: query.value[resource.value].query.institute || [],
-  role: query.value[resource.value].query.role || [],
-  search:
-    (router.currentRoute.value.query.search as string) ||
-    query.value[resource.value].query.search ||
-    "",
+  institute: (query.value?.institute as Institute[]) || [],
+  role: (query.value?.role as Role[]) || [],
+  search: (query.value?.search as string) || "",
 });
 
 const handleSubmit = () => {
-  router.push({ path: "users", query: { search: form.value.search } });
-  setQuery({
-    ...query.value[resource.value],
+  router.push({
     query: {
-      ...query.value[resource.value].query,
-      institute: form.value.institute,
-      search: form.value.search,
-      role: form.value.role,
-    },
+      ...router.currentRoute.value.query,
+      query: {
+        role: { ...form.value.role },
+        institute: { ...form.value.institute },
+        search: form.value.search,
+      },
+    } as any,
   });
-  fetch();
 };
 
 const handleReset = () => {
-  form.value = { institute: [], search: "", role: [] };
-  router.push({ path: "users" });
-  resetQuery();
+  form.value = { search: "", role: [], institute: [] };
+  router.push({ query: {} });
 };
 </script>
 
@@ -63,7 +52,7 @@ const handleReset = () => {
         <SearchFilter v-model="form.search" />
         <SelectInstitutes
           v-model="form.institute"
-          v-if="auth.user?.role === 'super-admin'" />
+          v-show="auth.user?.role === 'super-admin'" />
         <FilterRoles v-model="form.role" />
       </div>
       <div class="mt-2 flex gap-2 self-center">

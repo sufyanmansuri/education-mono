@@ -1,27 +1,17 @@
 <script setup lang="ts">
-import { useQueryStore } from "@/stores/useQueryStore";
-import type { Resource } from "@/types/Resource";
 import { computed } from "vue";
-import { useRouter } from "vue-router";
 
-const router = useRouter();
-const resource = computed<Resource>(
-  () => router.currentRoute.value.params?.resource as Resource
-);
+const props = defineProps<{
+  totalCount: number;
+  page: number;
+  perPage: number;
+}>();
 
-const { query } = useQueryStore();
-
-const from = computed(
-  () =>
-    query.value[resource.value].perPage *
-      (query.value[resource.value].page - 1) +
-    1
-);
+const from = computed(() => props.perPage * (props.page - 1) + 1);
 const to = computed(() =>
-  query.value[resource.value].perPage * query.value[resource.value].page >
-  query.value[resource.value].totalCount
-    ? query.value[resource.value].totalCount
-    : query.value[resource.value].perPage * query.value[resource.value].page
+  props.perPage * props.page > props.totalCount
+    ? props.totalCount
+    : props.perPage * props.page
 );
 </script>
 
@@ -31,6 +21,6 @@ const to = computed(() =>
     {{ from }} -
     {{ to }}
     of
-    {{ query[resource].totalCount }}
+    {{ totalCount }}
   </p>
 </template>

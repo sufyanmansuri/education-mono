@@ -4,7 +4,6 @@ import type { Resource } from "@/types/Resource";
 
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import { useQueryStore } from "@/stores/useQueryStore";
 
 import TableHeaders from "./TableHeaders.vue";
 import TableBody from "./TableBody.vue";
@@ -21,8 +20,8 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
-const resource = computed<Resource>(
-  () => router.currentRoute.value.params?.resource as Resource
+const fields = computed(
+  () => (router.currentRoute.value.query.fields as string[]) || []
 );
 
 const table = ref<HTMLTableElement | null>(null);
@@ -34,8 +33,6 @@ const tableHeight = computed(() => {
   if (table.value !== null) return table.value.clientHeight;
   return undefined;
 });
-
-const { query, setSort } = useQueryStore();
 
 const markForRemoval = (item: any) => {
   markedForRemoval.value = item;
@@ -86,14 +83,12 @@ onUnmounted(() => {
       class="theme theme-yellow w-full border-collapse overflow-y-visible border-b-0">
       <TableHeaders
         :table-height="tableHeight"
-        :fields="query[resource].fields"
-        :sort="{ field: query[resource].sortBy, order: query[resource].order }"
-        :isOverflowing="isOverflowing"
-        @sort-change="(field: string)=>setSort(field)" />
+        :fields="fields"
+        :isOverflowing="isOverflowing" />
       <TableBody
         :field-modifiers="fieldModifiers"
         :items="items"
-        :fields="query[resource].fields"
+        :fields="fields"
         :isOverflowing="isOverflowing"
         @remove="markForRemoval"
         @approve="markForApproval"

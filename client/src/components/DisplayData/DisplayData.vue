@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import type { ServiceFunction } from "@/types/ServiceFunction";
 import type { Resource } from "@/types/Resource";
-import { onBeforeMount, type Component } from "vue";
+import { watch, type Component } from "vue";
 import type { AlertConfig } from "@/types/AlertConfig";
-import type { Query } from "@/types/Query";
 
-import { useQueryStore } from "@/stores/useQueryStore";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { onMounted, ref, watch, computed } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import { omit } from "@/utils/omit";
 
 import AlertBox from "@/components/base/AlertBox.vue";
 import BaseTitle from "@/components/base/BaseTitle.vue";
@@ -35,14 +31,7 @@ import InstituteEditForm from "@/components/Forms/InstituteEditForm.vue";
 import ClassEditForm from "@/components/Forms/ClassEditForm.vue";
 import { isAxiosError } from "axios";
 import { humanize } from "@/utils/humanize";
-
-const { query, setQuery, setPage } = useQueryStore();
-const { auth } = useAuthStore();
-
-const router = useRouter();
-const resource = computed<Resource>(
-  () => router.currentRoute.value.params?.resource as Resource
-);
+import { omit } from "@/utils/omit";
 
 const props = defineProps<{
   service?: {
@@ -52,8 +41,22 @@ const props = defineProps<{
   };
 }>();
 
+const router = useRouter();
+const resource = computed<Resource>(
+  () => router.currentRoute.value.params?.resource as Resource
+);
+
+const allFields = ref([]);
+// Filters
+const query = computed(() => router.currentRoute.value.query);
+const fields = ref<string[]>([]);
+const totalCount = ref<number>(0);
+const perPage = ref<number>(0);
+const page = ref<number>(0);
+const totalPages = ref<number>(0);
+
 const alertConfig = ref<AlertConfig>();
-const state = ref<"loading" | "initial" | "error" | "success">("initial");
+const state = ref<"loading" | "error" | "success">();
 const res = ref();
 const showFilters = ref(false);
 const showCreateForm = ref(false);
@@ -64,27 +67,77 @@ const showEditForm = ref<{
   show: false,
 });
 
-const fetchData = async () => {
-  // Prevent api call on logout & make sure to fetch data on initial load regardless of fetch state
-  if (
-    state.value !== "initial" &&
-    (!query.value[resource.value]?.fetch || !auth.value.isLoggedIn)
-  ) {
-    return;
-  }
+const removeRecord = async (id: string) => {
+  if (props.service) {
+    const { error } = await props.service.remove(id);
+    if (error) {
+      state.value = "error";
+      if (isAxiosError(error)) {
+        alertConfig.value = {
+          type: "error",
+          message:
+            error.response?.data.message || "An unexpected error occurred.",
+        };
+      }
+    } else {
+      if (page.value > 1 && res.value.data.length === 1) {
+        router.push({ query: { ...query.value, page: page.value - 1 } });
+      } else fetchData();
 
+      alertConfig.value = {
+        type: "success",
+        message: "Record removed successfully.",
+      };
+    }
+  }
+};
+const approveUser = async (id: string) => {
+  if (props.service && props.service.approve) {
+    const { error } = await props.service.approve(id);
+    if (error) {
+      if (isAxiosError(error)) {
+        alertConfig.value = {
+          type: "error",
+          message:
+            error.response?.data.message || "An unexpected error occurred.",
+        };
+      }
+    } else {
+      alertConfig.value = {
+        type: "success",
+        message: "User approved successfully.",
+      };
+    }
+  }
+};
+
+// Show edit form
+const handleEdit = (id: string) => {
+  if (showEditForm.value.show)
+    showEditForm.value = { show: false, id: undefined };
+  else showEditForm.value = { show: true, id };
+};
+
+const fetchData = async () => {
   state.value = "loading";
   if (props.service) {
     // Remove unnecessary fields from query
-    const temp = omit(
-      ["allFields", "fetch", "totalCount", "totalPages"],
-      query.value[resource.value]
-    );
 
-    const { data, error } = await props.service.get({
-      ...temp,
-    });
-    if (error) {
+    const { data, error } = await props.service.get({ ...query.value });
+    if (!error) {
+      res.value = { ...data };
+
+      const config = omit(
+        ["fieldModifiers", "data", "allFields", "totalPages", "totalCount"],
+        {
+          ...data,
+        }
+      );
+
+      router.replace({ name: "resource", query: config });
+
+      state.value = "success";
+    } else {
       state.value = "error";
       if (isAxiosError(error)) {
         if (error.response?.status === 401) {
@@ -105,63 +158,36 @@ const fetchData = async () => {
           };
         }
       }
-    } else {
-      res.value = data;
-      state.value = "success";
-      query.value[resource.value].fetch = false;
     }
-  }
-};
-const removeRecord = async (id: string) => {
-  if (props.service) {
-    const { error } = await props.service.remove(id);
-    if (error) {
-      state.value = "error";
-      if (isAxiosError(error)) {
-        alertConfig.value = {
-          type: "error",
-          message:
-            error.response?.data.message || "An unexpected error occurred.",
-        };
-      }
-    } else {
-      if (query.value[resource.value].page > 1 && res.value.data.length === 1) {
-        setPage(query.value[resource.value].page - 1);
-      } else query.value[resource.value].fetch = true;
-      alertConfig.value = {
-        type: "success",
-        message: "Record removed successfully.",
-      };
-    }
-  }
-};
-const approveUser = async (id: string) => {
-  if (props.service && props.service.approve) {
-    const { error } = await props.service.approve(id);
-    if (error) {
-      if (isAxiosError(error)) {
-        alertConfig.value = {
-          type: "error",
-          message:
-            error.response?.data.message || "An unexpected error occurred.",
-        };
-      }
-    } else {
-      query.value[resource.value].fetch = true;
-      alertConfig.value = {
-        type: "success",
-        message: "User approved successfully.",
-      };
-    }
+    showFilters.value = false;
   }
 };
 
-// Show edit form
-const handleEdit = (id: string) => {
-  if (showEditForm.value.show)
-    showEditForm.value = { show: false, id: undefined };
-  else showEditForm.value = { show: true, id };
-};
+watch(res, () => {
+  totalCount.value = res.value?.totalCount;
+  fields.value = res.value?.fields;
+  allFields.value = res.value?.allFields;
+  page.value = res.value?.page;
+  perPage.value = res.value?.perPage;
+  totalPages.value = res.value?.totalPages;
+});
+
+// Fetch data on mount and on filter change
+onMounted(fetchData);
+watch(
+  router.currentRoute,
+  (updated, old) => {
+    console.log(
+      JSON.stringify(updated.query) === JSON.stringify(old.query),
+      updated.query,
+      old.query
+    );
+    if (updated.path === old.path && Object.keys(old.query).length) {
+      fetchData();
+    }
+  },
+  { deep: true }
+);
 
 type ComponentList = {
   [f in Resource]?: Component;
@@ -182,34 +208,6 @@ const EditForms: ComponentList = {
   institutes: InstituteEditForm,
   classes: ClassEditForm,
 };
-
-// Update query on data load
-watch(
-  () => res.value,
-  () => {
-    setQuery(omit(["fieldModifiers", "data"], res.value) as Query);
-  }
-);
-// Fetch data on mount and on filter change
-onMounted(fetchData);
-watch(
-  () => query.value[resource.value]?.fetch,
-  () => {
-    fetchData();
-    // Hide filters on fetch
-    showFilters.value = false;
-  }
-);
-
-onBeforeMount(() => {
-  setQuery({
-    ...query.value[resource.value],
-    query: {
-      ...query.value[resource.value].query,
-      search: router.currentRoute.value.query.search as string,
-    },
-  });
-});
 </script>
 
 <template>
@@ -218,14 +216,12 @@ onBeforeMount(() => {
       :message="alertConfig"
       :show-close-button="true"
       style="margin-top: 0px" />
-    <div
-      v-if="res && query[resource].fields.length"
-      class="flex flex-1 flex-col">
+    <div v-if="res" class="flex flex-1 flex-col">
       <div class="mb-3 flex justify-between">
         <button
-          @click="query[resource].fetch = true"
           class="flex items-center gap-2"
-          title="Refresh">
+          title="Refresh"
+          @click="fetchData">
           <BaseTitle :text1="humanize(resource, true)" underlineColor="none" />
           <span class="fa-solid fa-rotate"></span>
         </button>
@@ -256,9 +252,12 @@ onBeforeMount(() => {
       <div v-if="res?.data?.length">
         <div class="flex items-end justify-between">
           <!-- Count of results (Showing 1-5 of 20) -->
-          <ResultCount />
+          <ResultCount
+            :total-count="totalCount"
+            :per-page="perPage"
+            :page="page" />
           <!-- Select fields -->
-          <SelectFields />
+          <SelectFields :fields="allFields" :selected="fields" />
         </div>
         <ResizableTable
           :items="res.data"
@@ -268,9 +267,9 @@ onBeforeMount(() => {
           @edit="handleEdit" />
         <div class="flex justify-between">
           <!-- Page numbers -->
-          <SelectPage />
+          <SelectPage :page="page" :total-pages="totalPages" />
           <!-- Rows per page -->
-          <SelectRows />
+          <SelectRows :total-count="totalCount" :per-page="perPage" />
         </div>
       </div>
       <!-- Results not found -->
@@ -286,7 +285,14 @@ onBeforeMount(() => {
       <component
         v-if="showEditForm.show"
         :is="EditForms[resource]"
-        @close="showEditForm = { show: false, id: undefined }"
+        @close="
+          () => {
+            showEditForm = { show: false, id: undefined };
+            if (state === 'success') {
+              fetchData();
+            }
+          }
+        "
         :id="showEditForm.id" />
     </Transition>
     <Transition name="form">
@@ -296,14 +302,14 @@ onBeforeMount(() => {
         @close="(state: 'success' | undefined)=>{
           showCreateForm = false;
           if(state=== 'success'){
-            query[resource].fetch = true
+            fetchData();
           }
         }" />
     </Transition>
     <Transition>
       <div
         class="absolute left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-white text-5xl"
-        v-if="state === 'loading' || state === 'initial'">
+        v-if="state === 'loading'">
         <SpinnerIconVue class="" />
       </div>
     </Transition>

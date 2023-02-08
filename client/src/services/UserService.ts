@@ -5,8 +5,32 @@ import { timestamps } from "../utils/timestampModifiers";
 
 export async function get(query: any) {
   let data, error;
+
   try {
     const res = await axios.get("/api/admin/users", { params: query });
+    if (res.status === 200) {
+      const fieldModifiers: FieldModifiers = {
+        ...timestamps,
+        institute: (institute) => {
+          return institute?.name;
+        },
+      };
+      data = { ...res.data, fieldModifiers };
+    }
+  } catch (e) {
+    error = e;
+  }
+  return { data, error };
+}
+
+export async function getPendingApprovals(query: any) {
+  let data, error;
+
+  try {
+    const res = await axios.get("/api/admin/users", {
+      params: { ...query, unApproved: true },
+    });
+
     if (res.status === 200) {
       const fieldModifiers: FieldModifiers = {
         ...timestamps,
@@ -240,4 +264,5 @@ export default {
   setPassword,
   remove,
   resetPassword,
+  getPendingApprovals,
 };

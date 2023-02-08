@@ -4,7 +4,6 @@ import type { AlertConfig } from "@/types/AlertConfig";
 import userService from "@/services/UserService";
 import { isAxiosError } from "axios";
 import { onMounted, ref } from "vue";
-import { useQueryStore } from "@/stores/useQueryStore";
 import { omit } from "@/utils/omit";
 
 import AlertBox from "../base/AlertBox.vue";
@@ -20,8 +19,6 @@ const emit = defineEmits<{
 const original = ref();
 const mutated = ref(false);
 const alertConfig = ref<AlertConfig>();
-
-const { query } = useQueryStore();
 
 const handleSubmit = async (data: any, callback: (a: AlertConfig) => void) => {
   const { error } = await userService.update(props.id, data);
@@ -112,12 +109,7 @@ const handleClose = () => {
           v-if="original" />
 
         <div class="text-right" v-if="alertConfig?.type === 'success'">
-          <button
-            @click="
-              $emit('close');
-              query.users.fetch = true;
-            "
-            class="border-2 px-4 py-1">
+          <button @click="$emit('close', 'success')" class="border-2 px-4 py-1">
             Close
           </button>
         </div>

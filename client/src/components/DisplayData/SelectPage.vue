@@ -1,27 +1,31 @@
 <script setup lang="ts">
-import { useQueryStore } from "@/stores/useQueryStore";
-import type { Resource } from "@/types/Resource";
-import { computed } from "vue";
+import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 
-const router = useRouter();
-const resource = computed<Resource>(
-  () => router.currentRoute.value.params?.resource as Resource
-);
+const props = defineProps<{
+  totalPages: number;
+  page: number;
+}>();
 
-const { query, setPage } = useQueryStore();
+const router = useRouter();
+function setPage(page: number) {
+  router.push({ query: { ...router.currentRoute.value.query, page } });
+}
+
+onMounted(() => {
+  if (props.page > props.totalPages) {
+    router.push({ query: { ...router.currentRoute.value.query, page: 1 } });
+  }
+});
 </script>
 <template>
   <ul class="flex">
-    <li
-      v-for="n of query[resource].totalPages"
-      :key="n"
-      class="px-1 text-lg text-blue">
+    <li v-for="n of totalPages" :key="n" class="px-1 text-lg text-blue">
       <button
         type="button"
         @click="setPage(n)"
         class="underline-offset-4 hover:underline"
-        :class="{ underline: query[resource].page == n }">
+        :class="{ underline: page == n }">
         {{ n }}
       </button>
     </li>

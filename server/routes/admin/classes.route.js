@@ -4,6 +4,7 @@ const {
 } = require("mongoose");
 const classSchema = require("../../controllers/class.schema");
 const classController = require("../../controllers/class.controller");
+const instituteService = require("../../services/institute.service");
 const { authClass, authorization } = require("../../middleware/authorization");
 
 // Path: /admin/classes/
@@ -14,12 +15,19 @@ classesRouter.use(authorization("institute-admin", "teacher"));
 // Get all classes
 classesRouter.get(
   "/",
-  (req, res, next) => {
+  async (req, res, next) => {
     const { user } = res.locals;
     if (user.role === "super-admin") return next();
+    const institute = await instituteService.getById(user.institute);
+
     req.query = {
       ...req.query,
-      query: { ...req.query.query, institute: new ObjectId(user.institute) },
+      query: {
+        ...req.query.query,
+        institute: [
+          { _id: new ObjectId(user.institute), name: institute.name },
+        ],
+      },
     };
     return next();
   },

@@ -2,7 +2,6 @@
 import type { Institute } from "@/types/Institute";
 
 import { onMounted, ref } from "vue";
-import { useQueryStore } from "@/stores/useQueryStore";
 
 import SearchFilter from "./UserFilter/SearchFilter.vue";
 import GenericFilter from "./GenericFilter.vue";
@@ -10,10 +9,11 @@ import SelectInstitutes from "./SelectInstitutes.vue";
 import ClassService from "@/services/ClassService";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useRouter } from "vue-router";
+import { computed } from "vue";
 
 const { auth } = useAuthStore();
 const router = useRouter();
-const { resetQuery, setQuery, fetch, query } = useQueryStore();
+const query = computed(() => router.currentRoute.value.query.query as any);
 
 const form = ref<{
   search: string;
@@ -21,33 +21,31 @@ const form = ref<{
   examBoard: string[];
   keyStage: string[];
 }>({
-  search:
-    (router.currentRoute.value.query.search as string) ||
-    query.value.classes.query.search ||
-    "",
-  institute: query.value.classes.query.institute || [],
-  examBoard: query.value.classes.query.examBoard || [],
-  keyStage: query.value.classes.query.keyStage || [],
+  search: (query.value?.search as string) || "",
+  institute: query.value?.institute || [],
+  examBoard: query.value?.examBoard || [],
+  keyStage: query.value?.keyStage || [],
 });
 const keyStages = ref<string[]>([]);
 const examBoards = ref<string[]>([]);
 
 const handleSubmit = () => {
-  router.push({ path: "classes", query: { search: form.value.search } });
-  setQuery({
-    ...query.value.classes,
+  router.push({
     query: {
-      ...query.value.classes.query,
-      ...form.value,
-    },
+      ...router.currentRoute.value.query,
+      query: {
+        examBoard: { ...form.value.examBoard },
+        keyStage: { ...form.value.keyStage },
+        search: form.value.search,
+        institute: { ...form.value.institute },
+      },
+    } as any,
   });
-  fetch();
 };
 
 const handleReset = () => {
   form.value = { search: "", institute: [], examBoard: [], keyStage: [] };
-  router.push({ path: "classes" });
-  resetQuery();
+  router.push({ query: {} });
 };
 
 const fetchKeyStages = async () => {

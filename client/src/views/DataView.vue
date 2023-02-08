@@ -10,6 +10,12 @@ import DisplayData from "@/components/DisplayData/DisplayData.vue";
 import { computed } from "vue";
 import ClassService from "@/services/ClassService";
 
+const ApprovalService = {
+  get: UserService.getPendingApprovals,
+  approve: UserService.approve,
+  remove: UserService.remove,
+};
+
 const router = useRouter();
 const resource = computed<Resource>(
   () => router.currentRoute.value.params?.resource as Resource
@@ -33,7 +39,7 @@ watchEffect(() => {
       break;
 
     case "pending-approvals":
-      service.value = UserService;
+      service.value = ApprovalService;
       break;
   }
 });

@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { humanize } from "@/utils/humanize";
+import { computed } from "vue";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps<{
   tableHeight?: number;
   fields: string[];
   isOverflowing: boolean;
-  sort: { field: string; order: number };
 }>();
-const emit = defineEmits(["sort-change"]);
+
+const router = useRouter();
+const sortBy = computed(() => router.currentRoute.value.query.sortBy);
+const order = computed(
+  () => router.currentRoute.value.query.order as number | string
+);
 
 const columns = ref<InstanceType<typeof HTMLTableCellElement>[] | null>(null);
 let pageX: number;
@@ -55,7 +61,18 @@ function onMouseMove(e: MouseEvent) {
 }
 
 function handleSort(field: string) {
-  emit("sort-change", field);
+  if (sortBy.value !== field) {
+    router.push({
+      query: { ...router.currentRoute.value.query, sortBy: field, order: 1 },
+    });
+  } else if (sortBy.value === field) {
+    router.push({
+      query: {
+        ...router.currentRoute.value.query,
+        order: parseInt(router.currentRoute.value.query.order as string) * -1,
+      },
+    });
+  }
 }
 </script>
 <template>
@@ -71,10 +88,10 @@ function handleSort(field: string) {
             {{ humanize(field) }}
           </span>
           <span
-            v-if="sort.field === field && sort.order == -1"
+            v-if="sortBy === field && order == -1"
             class="fa-solid fa-caret-down"></span>
           <span
-            v-if="sort.field === field && sort.order == 1"
+            v-if="sortBy === field && order == 1"
             class="fa-solid fa-caret-up"></span>
         </div>
         <div

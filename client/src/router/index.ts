@@ -1,6 +1,7 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, type LocationQuery } from "vue-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { nextTick } from "vue";
+import qs from "qs";
 
 const { auth } = useAuthStore();
 
@@ -18,6 +19,12 @@ function shouldNotBeAuthenticated(pathName: string = "dashboard") {
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  parseQuery(search) {
+    return qs.parse(search, { strictNullHandling: true }) as LocationQuery;
+  },
+  stringifyQuery(query) {
+    return qs.stringify(query, { skipNulls: true });
+  },
   routes: [
     {
       path: "/",

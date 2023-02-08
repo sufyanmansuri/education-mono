@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { AlertConfig } from "@/types/AlertConfig";
 import InstituteService from "@/services/InstituteService";
-import { useQueryStore } from "@/stores/useQueryStore";
 import { omit } from "@/utils/omit";
 import { isAxiosError } from "axios";
 import { onMounted, ref } from "vue";
@@ -12,10 +11,8 @@ const props = defineProps<{
   id: string;
 }>();
 defineEmits<{
-  (e: "close"): void;
+  (e: "close", state: "success" | undefined): void;
 }>();
-
-const { query } = useQueryStore();
 
 const institute = ref();
 const alertConfig = ref<AlertConfig>();
@@ -78,12 +75,7 @@ onMounted(async () => {
           v-if="institute" />
 
         <div class="text-right" v-if="alertConfig?.type === 'success'">
-          <button
-            @click="
-              $emit('close');
-              query.institutes.fetch = true;
-            "
-            class="border-2 px-4 py-1">
+          <button @click="$emit('close', 'success')" class="border-2 px-4 py-1">
             Close
           </button>
         </div>

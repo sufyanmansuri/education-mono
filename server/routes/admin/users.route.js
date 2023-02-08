@@ -1,11 +1,9 @@
 const { Router } = require("express");
-const {
-  Types: { ObjectId },
-} = require("mongoose");
 const userController = require("../../controllers/user.controller");
 const userSchema = require("../../controllers/user.schema");
 const tokenController = require("../../controllers/token.controller");
 const { authUsers, authorization } = require("../../middleware/authorization");
+const injectInstitute = require("../../middleware/injectInstitute");
 
 // Path: /admin/users
 const usersRouter = Router();
@@ -20,19 +18,7 @@ usersRouter.post(
 );
 
 // Get users
-usersRouter.get(
-  "/",
-  (req, res, next) => {
-    const { user } = res.locals;
-    if (user.role === "super-admin") return next();
-    req.query = {
-      ...req.query,
-      query: { ...req.query.query, institute: new ObjectId(user.institute) },
-    };
-    return next();
-  },
-  userController.getUsers
-);
+usersRouter.get("/", injectInstitute, userController.getUsers);
 
 // Approve account
 usersRouter.put("/approve/:userId", authUsers, userController.approveUser);

@@ -266,7 +266,7 @@ const updateUserById = async (req, res, next) => {
  * Get users filtered by query, selected columns & pagination
  */
 const getUsers = async (req, res, next) => {
-  const { query = {}, sortBy = "updatedAt" } = req.query;
+  const { unApproved = false, query = {}, sortBy = "updatedAt" } = req.query;
   let {
     fields = [
       "_id",
@@ -297,7 +297,7 @@ const getUsers = async (req, res, next) => {
 
     // Create search query
     const searchQuery = () => {
-      if (query?.search) {
+      if (query && query?.search) {
         const regex = { $regex: query.search, $options: "i" };
 
         return {
@@ -349,9 +349,15 @@ const getUsers = async (req, res, next) => {
       return { ...prev, [curr]: query[curr] };
     }, {});
 
+    const shouldBeUnapprovedOrNot = () => {
+      if (unApproved === "true") return { approved: false, verified: true };
+      return {};
+    };
+
     const users = await User.aggregate()
       .match({
         ...dbQuery,
+        ...shouldBeUnapprovedOrNot(),
         _id: { $not: { $eq: new ObjectId(res.locals.user.sub) } }, // Remove requesting user from result
       })
       .lookup({
@@ -384,6 +390,10 @@ const getUsers = async (req, res, next) => {
       });
 
     const totalCount = users[0].count[0]?.total;
+
+    // Remove institute from query if it was injected by middleware
+    if (res.locals.injected) delete query?.institute;
+
     return res.send({
       totalPages: Math.ceil(totalCount / perPage),
       totalCount,
@@ -394,6 +404,7 @@ const getUsers = async (req, res, next) => {
       fields: Object.keys(fields),
       order,
       query,
+      unApproved,
       allFields: [
         "firstName",
         "lastName",
