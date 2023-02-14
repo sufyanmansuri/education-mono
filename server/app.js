@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const HTTP_STATUS = require("./utils/statusCodes");
 const router = require("./routes");
 
@@ -14,7 +15,7 @@ const { PORT, MONGO_URI } = process.env;
 app.disable("x-powered-by");
 
 // Simulate slow connection
-const WAIT_TIME = 500;
+const WAIT_TIME = 0;
 app.use((req, res, next) => {
   new Promise((resolve) => {
     setTimeout(() => {
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
 });
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(morgan("dev"));
